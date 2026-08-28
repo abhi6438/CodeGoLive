@@ -441,7 +441,7 @@ export default function CourseWorkspace() {
   useEffect(() => {
     if (!course) return;
     setLoadingModules(true);
-    api.get("/api/modules").then(async (mods) => {
+    api.get(`/api/modules?course_id=${courseId}`).then(async (mods) => {
       setModules(mods);
       const map = {};
       await Promise.all(
