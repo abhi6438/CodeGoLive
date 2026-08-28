@@ -6,7 +6,7 @@
     },
     "backend": {
       "root": "backend",
-      "framework": ""
+      "framework": "python"
     }
   }
 }
