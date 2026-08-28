@@ -1,0 +1,299 @@
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from ..supabase_client import get_supabase
+from ..auth import get_current_user, CurrentUser, assert_role
+
+router = APIRouter(prefix="/api/admin", tags=["admin"])
+
+
+# ─── Stats ────────────────────────────────────────────────────────────────────
+
+@router.get("/stats")
+async def get_stats(user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+
+    courses = sb.table("courses").select("id, status").execute().data
+    modules = sb.table("modules").select("id").execute().data
+    topics = sb.table("topics").select("id, status").execute().data
+    users = sb.table("profiles").select("id, role").execute().data
+
+    published = sum(1 for t in topics if t.get("status") == "published")
+    draft = sum(1 for t in topics if t.get("status") != "published")
+    active_courses = sum(1 for c in courses if c.get("status") == "available")
+
+    return {
+        "courses": len(courses),
+        "active_courses": active_courses,
+        "modules": len(modules),
+        "topics": len(topics),
+        "published_topics": published,
+        "draft_topics": draft,
+        "users": len(users),
+        "admins": sum(1 for u in users if u.get("role") == "admin"),
+        "moderators": sum(1 for u in users if u.get("role") == "moderator"),
+        "learners": sum(1 for u in users if u.get("role") == "learner"),
+    }
+
+
+# ─── Courses ──────────────────────────────────────────────────────────────────
+
+class CourseCreate(BaseModel):
+    id: str           # slug like "sap-btp"
+    title: str
+    description: str | None = None
+    status: str = "coming_soon"   # available | coming_soon | archived
+    icon: str | None = None
+    color: str | None = None
+    order_index: int = 0
+
+
+class CourseUpdate(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    status: str | None = None
+    icon: str | None = None
+    color: str | None = None
+    order_index: int | None = None
+
+
+@router.get("/courses")
+async def list_courses(user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("courses").select("*, modules(id)").order("order_index").execute()
+    # Enrich with module count
+    enriched = []
+    for c in res.data:
+        mods = c.pop("modules", []) or []
+        enriched.append({**c, "module_count": len(mods)})
+    return enriched
+
+
+@router.post("/courses")
+async def create_course(body: CourseCreate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("courses").insert(body.model_dump()).execute()
+    if not res.data:
+        raise HTTPException(400, "Failed to create course")
+    return res.data[0]
+
+
+@router.patch("/courses/{course_id}")
+async def update_course(course_id: str, body: CourseUpdate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not payload:
+        raise HTTPException(400, "No fields to update")
+    res = sb.table("courses").update(payload).eq("id", course_id).execute()
+    if not res.data:
+        raise HTTPException(404, "Course not found")
+    return res.data[0]
+
+
+@router.delete("/courses/{course_id}")
+async def delete_course(course_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    # Check for modules — block delete if any exist
+    modules = sb.table("modules").select("id").eq("course_id", course_id).execute().data
+    if modules:
+        raise HTTPException(409, f"Cannot delete course with {len(modules)} module(s). Remove modules first.")
+    sb.table("courses").delete().eq("id", course_id).execute()
+    return {"ok": True}
+
+
+# ─── Modules ──────────────────────────────────────────────────────────────────
+
+class ModuleCreate(BaseModel):
+    course_id: str
+    number: str
+    title: str
+    description: str | None = None
+    order_index: int = 0
+
+
+class ModuleUpdate(BaseModel):
+    course_id: str | None = None
+    number: str | None = None
+    title: str | None = None
+    description: str | None = None
+    order_index: int | None = None
+
+
+@router.get("/modules")
+async def list_modules(course_id: str | None = None, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    q = sb.table("modules").select("*, topics(id), courses(title)").order("order_index")
+    if course_id:
+        q = q.eq("course_id", course_id)
+    res = q.execute()
+    enriched = []
+    for m in res.data:
+        topics = m.pop("topics", []) or []
+        course = m.pop("courses", None) or {}
+        enriched.append({**m, "topic_count": len(topics), "course_title": course.get("title", "")})
+    return enriched
+
+
+@router.post("/modules")
+async def create_module(body: ModuleCreate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("modules").insert(body.model_dump()).execute()
+    if not res.data:
+        raise HTTPException(400, "Failed to create module")
+    return res.data[0]
+
+
+@router.patch("/modules/{module_id}")
+async def update_module(module_id: str, body: ModuleUpdate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not payload:
+        raise HTTPException(400, "No fields to update")
+    res = sb.table("modules").update(payload).eq("id", module_id).execute()
+    if not res.data:
+        raise HTTPException(404, "Module not found")
+    return res.data[0]
+
+
+@router.delete("/modules/{module_id}")
+async def delete_module(module_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    topics = sb.table("topics").select("id").eq("module_id", module_id).execute().data
+    if topics:
+        raise HTTPException(409, f"Cannot delete module with {len(topics)} topic(s). Remove topics first.")
+    sb.table("modules").delete().eq("id", module_id).execute()
+    return {"ok": True}
+
+
+# ─── Topics ───────────────────────────────────────────────────────────────────
+
+class TopicUpdate(BaseModel):
+    title: str | None = None
+    focus: str | None = None
+    description: str | None = None
+    video_url: str | None = None
+    github_url: str | None = None
+    deliverable_note: str | None = None
+    content_md: str | None = None
+    order_index: int | None = None
+    status: str | None = None   # published | draft
+
+
+@router.patch("/topics/{topic_id}")
+async def update_topic(topic_id: str, body: TopicUpdate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not payload:
+        raise HTTPException(400, "No fields to update")
+    res = sb.table("topics").update(payload).eq("id", topic_id).execute()
+    if not res.data:
+        raise HTTPException(404, "Topic not found")
+    return res.data[0]
+
+
+class TopicCreate(BaseModel):
+    module_id: str
+    number: str
+    slug: str
+    title: str
+    focus: str | None = None
+    description: str | None = None
+    video_url: str | None = None
+    github_url: str | None = None
+    order_index: int = 0
+    status: str = "draft"
+
+
+@router.post("/topics")
+async def create_topic(body: TopicCreate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("topics").insert(body.model_dump()).execute()
+    if not res.data:
+        raise HTTPException(400, "Failed to create topic")
+    return res.data[0]
+
+
+@router.delete("/topics/{topic_id}")
+async def delete_topic(topic_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    sb.table("topics").delete().eq("id", topic_id).execute()
+    return {"ok": True}
+
+
+@router.get("/topics")
+async def list_topics_admin(module_id: str | None = None, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    q = sb.table("topics").select("*, modules(title, course_id, courses(title))").order("order_index")
+    if module_id:
+        q = q.eq("module_id", module_id)
+    res = q.execute()
+    enriched = []
+    for t in res.data:
+        mod = t.pop("modules", None) or {}
+        course = mod.pop("courses", None) or {}
+        enriched.append({
+            **t,
+            "module_title": mod.get("title", ""),
+            "course_title": course.get("title", ""),
+        })
+    return enriched
+
+
+# ─── Users ────────────────────────────────────────────────────────────────────
+
+@router.get("/users")
+async def list_users(user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("profiles").select("*").order("created_at", desc=True).execute()
+    return res.data
+
+
+class RoleUpdate(BaseModel):
+    role: str  # learner | moderator | admin
+
+
+@router.patch("/users/{user_id}/role")
+async def update_user_role(user_id: str, body: RoleUpdate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    if body.role not in ("learner", "moderator", "admin"):
+        raise HTTPException(400, "Invalid role")
+    sb = get_supabase()
+    sb.table("profiles").update({"role": body.role}).eq("id", user_id).execute()
+    return {"ok": True}
+
+
+# ─── Tags ─────────────────────────────────────────────────────────────────────
+
+@router.post("/tags/merge")
+async def merge_tags(source_tag_id: str, target_tag_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    links = sb.table("question_tags").select("question_id").eq("tag_id", source_tag_id).execute().data
+    for link in links:
+        sb.table("question_tags").upsert(
+            {"question_id": link["question_id"], "tag_id": target_tag_id}
+        ).execute()
+    sb.table("question_tags").delete().eq("tag_id", source_tag_id).execute()
+    sb.table("tags").delete().eq("id", source_tag_id).execute()
+    return {"ok": True}
+
+
+@router.get("/tags")
+async def list_tags(user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("tags").select("*").order("usage_count", desc=True).execute()
+    return res.data
