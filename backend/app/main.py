@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .config import get_settings
-from .routers import modules, topics, questions, answers, replies, moderation, admin, notifications, certificates
+from .routers import modules, topics, questions, answers, replies, moderation, admin, notifications, certificates, courses
 
 settings = get_settings()
 
@@ -32,6 +32,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
+app.include_router(courses.router)
 app.include_router(modules.router)
 app.include_router(topics.router)
 app.include_router(questions.router)

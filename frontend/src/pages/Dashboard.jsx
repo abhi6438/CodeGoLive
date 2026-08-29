@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { COURSES } from "../lib/courses";
+import { api } from "../lib/api";
 
 const COURSE_MODULES = {
   "sap-btp": [
@@ -114,8 +116,33 @@ function SoonCard({ course }) {
 }
 
 export default function Dashboard() {
-  const available = COURSES.filter((c) => c.status === "available");
-  const soon = COURSES.filter((c) => c.status !== "available");
+  const [courses, setCourses] = useState(COURSES); // start with static data
+
+  useEffect(() => {
+    api.get("/api/courses").then((dbCourses) => {
+      // Merge DB data (status, title, subtitle, description, icon, estimated_hours)
+      // with static data (tags, level, accentColor, highlights, etc.)
+      const merged = COURSES.map((staticC) => {
+        const db = dbCourses.find((d) => d.id === staticC.id);
+        if (!db) return staticC;
+        return {
+          ...staticC,
+          title: db.title ?? staticC.title,
+          subtitle: db.subtitle ?? staticC.subtitle,
+          description: db.description ?? staticC.description,
+          status: db.status ?? staticC.status,
+          icon: db.icon ?? staticC.icon,
+          estimatedHours: db.estimated_hours ?? staticC.estimatedHours,
+          modules: db.module_count ?? staticC.modules,
+          topics: db.topic_count ?? staticC.topics,
+        };
+      });
+      setCourses(merged);
+    }).catch(() => {}); // fallback to static on error
+  }, []);
+
+  const available = courses.filter((c) => c.status === "available");
+  const soon = courses.filter((c) => c.status !== "available");
 
   return (
     <div className="dash-page">
