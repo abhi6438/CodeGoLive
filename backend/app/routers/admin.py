@@ -50,6 +50,7 @@ class CourseCreate(BaseModel):
 
 class CourseUpdate(BaseModel):
     title: str | None = None
+    subtitle: str | None = None
     description: str | None = None
     status: str | None = None
     icon: str | None = None
@@ -87,7 +88,7 @@ async def update_course(course_id: str, body: CourseUpdate, user: CurrentUser = 
     payload = {k: v for k, v in body.model_dump().items() if v is not None}
     if not payload:
         raise HTTPException(400, "No fields to update")
-    res = sb.table("courses").update(payload).eq("id", course_id).execute()
+    res = sb.table("courses").update(payload).eq("id", course_id).select().execute()
     if not res.data:
         raise HTTPException(404, "Course not found")
     return res.data[0]
@@ -156,7 +157,7 @@ async def update_module(module_id: str, body: ModuleUpdate, user: CurrentUser = 
     payload = {k: v for k, v in body.model_dump().items() if v is not None}
     if not payload:
         raise HTTPException(400, "No fields to update")
-    res = sb.table("modules").update(payload).eq("id", module_id).execute()
+    res = sb.table("modules").update(payload).eq("id", module_id).select().execute()
     if not res.data:
         raise HTTPException(404, "Module not found")
     return res.data[0]
@@ -194,7 +195,7 @@ async def update_topic(topic_id: str, body: TopicUpdate, user: CurrentUser = Dep
     payload = {k: v for k, v in body.model_dump().items() if v is not None}
     if not payload:
         raise HTTPException(400, "No fields to update")
-    res = sb.table("topics").update(payload).eq("id", topic_id).execute()
+    res = sb.table("topics").update(payload).eq("id", topic_id).select().execute()
     if not res.data:
         raise HTTPException(404, "Topic not found")
     return res.data[0]
