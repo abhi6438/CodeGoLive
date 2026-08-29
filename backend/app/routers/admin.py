@@ -88,10 +88,11 @@ async def update_course(course_id: str, body: CourseUpdate, user: CurrentUser = 
     payload = {k: v for k, v in body.model_dump().items() if v is not None}
     if not payload:
         raise HTTPException(400, "No fields to update")
-    res = sb.table("courses").update(payload).eq("id", course_id).select().execute()
+    sb.table("courses").update(payload).eq("id", course_id).execute()
+    res = sb.table("courses").select("*").eq("id", course_id).maybe_single().execute()
     if not res.data:
         raise HTTPException(404, "Course not found")
-    return res.data[0]
+    return res.data
 
 
 @router.delete("/courses/{course_id}")
@@ -157,10 +158,11 @@ async def update_module(module_id: str, body: ModuleUpdate, user: CurrentUser = 
     payload = {k: v for k, v in body.model_dump().items() if v is not None}
     if not payload:
         raise HTTPException(400, "No fields to update")
-    res = sb.table("modules").update(payload).eq("id", module_id).select().execute()
+    sb.table("modules").update(payload).eq("id", module_id).execute()
+    res = sb.table("modules").select("*").eq("id", module_id).maybe_single().execute()
     if not res.data:
         raise HTTPException(404, "Module not found")
-    return res.data[0]
+    return res.data
 
 
 @router.delete("/modules/{module_id}")
@@ -195,10 +197,11 @@ async def update_topic(topic_id: str, body: TopicUpdate, user: CurrentUser = Dep
     payload = {k: v for k, v in body.model_dump().items() if v is not None}
     if not payload:
         raise HTTPException(400, "No fields to update")
-    res = sb.table("topics").update(payload).eq("id", topic_id).select().execute()
+    sb.table("topics").update(payload).eq("id", topic_id).execute()
+    res = sb.table("topics").select("*").eq("id", topic_id).maybe_single().execute()
     if not res.data:
         raise HTTPException(404, "Topic not found")
-    return res.data[0]
+    return res.data
 
 
 class TopicCreate(BaseModel):
