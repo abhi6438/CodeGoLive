@@ -227,7 +227,7 @@ export default function TopBar({ onMobileMenuToggle }) {
         <button className="topbar-icon-btn" onClick={toggle} title={isDark ? "Light mode" : "Dark mode"} aria-label="Toggle theme">
           {isDark ? sunIcon : moonIcon}
         </button>
-        <Link to="/community" className="btn btn-primary topbar-ask-btn">
+        <Link to="/community?ask=1" className="btn btn-primary topbar-ask-btn">
           Ask a Doubt
         </Link>
       </div>

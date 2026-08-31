@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import QAThread from "../components/QAThread";
@@ -7,6 +7,8 @@ import SEO from "../components/SEO";
 
 export default function Community() {
   const { session } = useAuth();
+  const [searchParams] = useSearchParams();
+  useEffect(() => { if (searchParams.get("ask") === "1") setShowForm(true); }, []);
   const [questions, setQuestions] = useState([]);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -47,7 +49,8 @@ export default function Community() {
         setPostFeedback({ type: "pending", message: "✓ Question sent for review — a moderator will approve it shortly." });
       }
     } catch (err) {
-      const msg = err?.detail || err?.message || "Could not post question.";
+      const raw = err?.detail || err?.message || "";
+      const msg = raw && raw.length < 120 && !raw.startsWith("{") && !raw.startsWith("'") ? raw : "Could not post your question. Please try again.";
       setPostFeedback({ type: "error", message: msg });
     } finally {
       setAsking(false);
