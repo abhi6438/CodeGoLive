@@ -1361,6 +1361,15 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 }
 :root[data-theme="dark"] .ws-topic-done-badge { background: #064e3b; color: #6ee7b7; }
 
+.ws-github-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.75rem;
+  border-radius: 99px; border: 1px solid var(--border);
+  color: var(--text-2); background: transparent;
+  text-decoration: none; transition: background 0.15s, color 0.15s;
+}
+.ws-github-btn:hover { background: var(--surface-2); color: var(--text-1); }
+
 /* video */
 .ws-video-wrap {
   position: relative; width: 100%; aspect-ratio: 16/9;
