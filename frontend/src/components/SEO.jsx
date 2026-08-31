@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 const SITE_NAME = "CodeGoLive";
-const SITE_URL = "https://codegoLive.com"; // TODO: replace with actual domain
+const SITE_URL = "https://codegolive.com";
 const DEFAULT_DESC = "Learn SAP BTP, CAP, SAPUI5, and SAP AI development with hands-on courses on CodeGoLive.";
 
 export default function SEO({

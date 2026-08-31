@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /admin/
 
 # Replace with your actual domain before going live
-Sitemap: https://codegoLive.com/sitemap.xml
+Sitemap: https://codegolive.com/sitemap.xml
