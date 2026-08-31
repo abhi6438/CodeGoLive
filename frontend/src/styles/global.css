@@ -4791,3 +4791,105 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 /* ── Sidebar bottom padding adjustment ── */
 .sidebar-bottom { padding: 0.5rem 0.5rem 0.75rem; }
+
+/* ── RequireRole access pages ── */
+.rr-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 64px);
+  padding: 2rem;
+  background: var(--bg);
+}
+
+.rr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 3rem 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 4px 24px rgba(0,0,0,.06);
+}
+
+.rr-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-xl);
+  background: var(--primary-light);
+  color: var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.rr-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.6rem;
+  line-height: 1.3;
+}
+
+.rr-subtitle {
+  font-size: 0.92rem;
+  color: var(--text-2);
+  margin: 0 0 2rem;
+  line-height: 1.6;
+}
+
+.rr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.75rem;
+  border-radius: var(--r-pill);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  font-family: var(--font-ui);
+}
+.rr-btn:active { transform: scale(.98); }
+
+.rr-btn-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(79,70,229,.25);
+}
+.rr-btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(79,70,229,.35); }
+
+.rr-btn-secondary {
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.rr-btn-secondary:hover { background: var(--surface-3); }
+
+.rr-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rr-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: rr-spin .7s linear infinite;
+}
+@keyframes rr-spin { to { transform: rotate(360deg); } }
+
+.rr-loader-text {
+  font-size: 0.9rem;
+  color: var(--text-3);
+  margin: 0;
+}
