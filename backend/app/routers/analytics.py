@@ -3,7 +3,6 @@ from pydantic import BaseModel
 from typing import Optional
 import httpx
 from ..supabase_client import get_supabase
-from ..auth import get_current_user_optional
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
