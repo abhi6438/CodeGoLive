@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 function ModerationCard({ item, type, onDecide }) {
   const [rejecting, setRejecting] = useState(false);
@@ -8,6 +9,7 @@ function ModerationCard({ item, type, onDecide }) {
 
   return (
     <div className="admin-mod-card">
+      <SEO title="Admin — Moderation" robots="noindex, nofollow" />
       <div className="admin-mod-meta">
         <span className="admin-table-primary">{item.profiles?.display_name || "Unknown"}</span>
         {type === "answers" && item.questions?.title && (

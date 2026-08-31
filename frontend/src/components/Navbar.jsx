@@ -5,7 +5,7 @@ import NotificationBell from "./NotificationBell";
 
 function useTheme() {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("ztd-theme") || "system";
+    return localStorage.getItem("cgl-theme") || "system";
   });
 
   useEffect(() => {
@@ -17,7 +17,7 @@ function useTheme() {
     } else {
       root.removeAttribute("data-theme");
     }
-    localStorage.setItem("ztd-theme", theme);
+    localStorage.setItem("cgl-theme", theme);
   }, [theme]);
 
   const toggle = () =>

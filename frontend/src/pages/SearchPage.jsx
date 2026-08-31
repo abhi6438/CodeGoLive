@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 /* ── badge color cycle (like module colors) ────────────────── */
 const COURSE_LABELS = {
@@ -107,6 +108,7 @@ export default function SearchPage() {
 
   return (
     <div className="srp-shell">
+      <SEO title="Search" description="Search lessons and topics across all CodeGoLive SAP development courses." />
 
       {/* ══ LEFT PANEL ══════════════════════════════════════════ */}
       <div className="srp-left">

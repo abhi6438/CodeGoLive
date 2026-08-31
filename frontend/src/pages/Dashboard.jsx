@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { COURSES } from "../lib/courses";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 const COURSE_MODULES = {
   "sap-btp": [
@@ -32,6 +33,7 @@ function MetaItem({ icon, text }) {
 function CourseStats({ course }) {
   return (
     <div style={{
+      <SEO title="Courses" description="Browse hands-on SAP BTP, SAP AI Core, and SAP Integration Suite courses on CodeGoLive." />
       display: "flex", gap: "2rem", flexWrap: "wrap",
       marginTop: "0.5rem", paddingTop: "0.75rem",
       borderTop: "1px solid var(--border)",

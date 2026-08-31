@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+
+# Replace with your actual domain before going live
+Sitemap: https://codegoLive.com/sitemap.xml

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 const STATUS_LABELS = {
   available: { label: "Available", cls: "badge-green" },
@@ -17,6 +18,7 @@ function StatusBadge({ status }) {
 function ConfirmDialog({ message, onConfirm, onCancel }) {
   return (
     <div className="admin-dialog-overlay">
+      <SEO title="Admin — Courses" robots="noindex, nofollow" />
       <div className="admin-dialog">
         <p className="admin-dialog-msg">{message}</p>
         <div className="admin-dialog-actions">

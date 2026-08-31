@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import SEO from "../components/SEO";
 
 export default function Login() {
   const { signInWithGoogle, signInWithPassword, signUpWithPassword, signInWithEmail } = useAuth();
@@ -79,6 +80,7 @@ export default function Login() {
 
   return (
     <div className="lp-shell">
+      <SEO title="Sign In" robots="noindex, nofollow" />
       {/* ── Left panel ── */}
       <div className="lp-left">
         <div className="lp-left-inner">

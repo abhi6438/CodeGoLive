@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
+import SEO from "../components/SEO";
 
 const ROLE_LABELS = {
   admin: { label: "Admin", cls: "badge-red" },

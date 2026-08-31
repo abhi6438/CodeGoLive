@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
 import { Link } from "react-router-dom";
+import SEO from "../components/SEO";
 
 function StatCard({ label, value, sub, color, to }) {
   const inner = (

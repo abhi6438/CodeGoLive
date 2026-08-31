@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SEO from "../components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
@@ -102,6 +103,7 @@ export function MyCertificatePage() {
       .finally(() => setLoading(false));
   }, [session]);
 
+  <SEO title="My Certificate" robots="noindex, nofollow" />
   if (!session) return (
     <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div className="card" style={{ textAlign: "center", padding: "3rem 2rem", maxWidth: 400 }}>

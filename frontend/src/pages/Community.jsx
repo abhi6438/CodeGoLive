@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import QAThread from "../components/QAThread";
+import SEO from "../components/SEO";
 
 export default function Community() {
   const { session } = useAuth();
@@ -58,6 +59,7 @@ export default function Community() {
 
   return (
     <div className="comm-page">
+      <SEO title="Community" description="Ask questions, share solutions, and learn with the CodeGoLive developer community." />
       {/* ── Hero ───────────────────────────────────────── */}
       <div className="comm-hero">
         <div className="comm-hero-inner container">

@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 const STATUS_LABELS = {
   published: { label: "Published", cls: "badge-green" },
@@ -15,6 +16,7 @@ function StatusBadge({ status }) {
 function ConfirmDialog({ message, onConfirm, onCancel }) {
   return (
     <div className="admin-dialog-overlay">
+      <SEO title="Admin — Topics" robots="noindex, nofollow" />
       <div className="admin-dialog">
         <p className="admin-dialog-msg">{message}</p>
         <div className="admin-dialog-actions">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 export default function AdminTagMerge() {
   const [tags, setTags] = useState(null);

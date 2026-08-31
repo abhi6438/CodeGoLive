@@ -37,14 +37,14 @@ function useDebouncedSearch(query, delay = 300) {
 
 /* ── theme hook ────────────────────────────────────────────────────────── */
 function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem("ztd-theme") || "system");
+  const [theme, setTheme] = useState(() => localStorage.getItem("cgl-theme") || "system");
 
   useEffect(() => {
     const root = document.documentElement;
     if (theme === "dark") root.setAttribute("data-theme", "dark");
     else if (theme === "light") root.setAttribute("data-theme", "light");
     else root.removeAttribute("data-theme");
-    localStorage.setItem("ztd-theme", theme);
+    localStorage.setItem("cgl-theme", theme);
   }, [theme]);
 
   const toggle = () =>

@@ -9,6 +9,7 @@ import { useAuth } from "../lib/AuthContext";
 import { getCourse } from "../lib/courses";
 import QAThread from "../components/QAThread";
 import { useMobileBar } from "../lib/MobileBarContext";
+import SEO from "../components/SEO";
 
 /* ─── helpers ─────────────────────────────────────────────── */
 function youtubeEmbedUrl(url) {
@@ -526,6 +527,11 @@ export default function CourseWorkspace() {
 
   return (
     <div className="workspace">
+      <SEO
+        title={course.title || "Course"}
+        description={course.subtitle || `Learn ${course.title || "SAP development"} with hands-on lessons on CodeGoLive.`}
+        type="course"
+      />
       {/* Mobile header bar */}
       <div className="ws-mobile-bar">
         <button className="ws-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">

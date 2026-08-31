@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
+import Footer from "./components/Footer";
+import CookieBanner from "./components/CookieBanner";
 import { MobileBarProvider } from "./lib/MobileBarContext";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
@@ -20,6 +22,12 @@ import RequireRole from "./components/RequireRole";
 import SearchPage from "./pages/SearchPage";
 import { MyCertificatePage, PublicCertificatePage } from "./pages/CertificatePage";
 import ProgressPage from "./pages/ProgressPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import TermsPage from "./pages/TermsPage";
+import CookiePage from "./pages/CookiePage";
+import DisclaimerPage from "./pages/DisclaimerPage";
 
 function NotFound() {
   return (
@@ -34,12 +42,11 @@ function NotFound() {
   );
 }
 
-export default function App() {
-  const [collapsed, setCollapsed] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
+function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
 
   return (
-    <MobileBarProvider>
     <div className={"app-shell" + (collapsed ? " sidebar-collapsed" : "") + (mobileOpen ? " mobile-sidebar-open" : "")}>
       {mobileOpen && (
         <div className="sidebar-overlay" onClick={() => setMobileOpen(false)} />
@@ -66,8 +73,16 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/certificate" element={<MyCertificatePage />} />
-            <Route path="/progress" element={<ProgressPage />} />
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
+            <Route path="/progress" element={<ProgressPage />} />
+
+            {/* Info / legal routes */}
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/cookies" element={<CookiePage />} />
+            <Route path="/disclaimer" element={<DisclaimerPage />} />
 
             {/* Admin routes */}
             <Route path="/admin" element={<RequireRole roles={["admin"]}><AdminDashboard /></RequireRole>} />
@@ -79,9 +94,30 @@ export default function App() {
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+
+          {/* Footer — hidden on admin pages */}
+          {!isAdmin && <Footer />}
         </div>
       </div>
+
+      {/* Cookie consent banner — hidden on admin pages */}
+      {!isAdmin && <CookieBanner />}
     </div>
+  );
+}
+
+export default function App() {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <MobileBarProvider>
+      <AppInner
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
+        mobileOpen={mobileOpen}
+        setMobileOpen={setMobileOpen}
+      />
     </MobileBarProvider>
   );
 }
