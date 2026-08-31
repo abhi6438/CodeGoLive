@@ -18,7 +18,7 @@ class QuestionCreate(BaseModel):
 async def list_questions(topic_id: str | None = None, general_only: bool = False):
     sb = get_supabase()
     query = sb.table("questions").select(
-        "*, profiles(display_name, avatar_url), question_tags(tags(name))"
+        "*, profiles(display_name, avatar_url), question_tags(tags(name)), answers(id)"
     ).eq("deleted", False)
 
     if general_only:
@@ -41,7 +41,7 @@ async def create_question(body: QuestionCreate, user: CurrentUser = Depends(get_
     status = "approved" if decision == "approve" else "pending"
     auto_flagged = (decision == "review")
 
-    q = (
+    ins = (
         sb.table("questions")
         .insert({
             "title": body.title,
@@ -52,31 +52,51 @@ async def create_question(body: QuestionCreate, user: CurrentUser = Depends(get_
             "auto_flagged": auto_flagged,
         })
         .execute()
-        .data[0]
     )
+    if not ins or not ins.data:
+        raise HTTPException(500, "Question could not be saved. Please try again.")
+    q = ins.data[0]
 
     for tag_name in body.tags:
         tag_name = tag_name.strip().lower().lstrip("#")
         if not tag_name:
             continue
-        existing = sb.table("tags").select("id").eq("name", tag_name).maybe_single().execute()
-        if existing.data:
-            tag_id = existing.data["id"]
-            sb.table("tags").update({"usage_count": existing.data.get("usage_count", 0) + 1}).eq(
-                "id", tag_id
-            ).execute()
-        else:
-            tag_id = sb.table("tags").insert({"name": tag_name, "usage_count": 1}).execute().data[0]["id"]
-        sb.table("question_tags").insert({"question_id": q["id"], "tag_id": tag_id}).execute()
+        try:
+            existing = sb.table("tags").select("id, usage_count").eq("name", tag_name).maybe_single().execute()
+            if existing and existing.data:
+                tag_id = existing.data["id"]
+                current_count = existing.data.get("usage_count") or 0
+                sb.table("tags").update({"usage_count": current_count + 1}).eq("id", tag_id).execute()
+            else:
+                tag_ins = sb.table("tags").insert({"name": tag_name, "usage_count": 1}).execute()
+                if not tag_ins or not tag_ins.data:
+                    continue
+                tag_id = tag_ins.data[0]["id"]
+            sb.table("question_tags").insert({"question_id": q["id"], "tag_id": tag_id}).execute()
+        except Exception:
+            pass  # tag failure is non-fatal; question is already saved
 
     return q
 
+
+@router.get("/community-stats")
+async def community_stats():
+    """Public endpoint — returns aggregate stats for the community page sidebar."""
+    sb = get_supabase()
+    try:
+        q_count = sb.table("questions").select("id", count="exact").eq("deleted", False).execute().count or 0
+        a_count = sb.table("answers").select("id", count="exact").execute().count or 0
+        u_count = sb.table("profiles").select("id", count="exact").execute().count or 0
+        tags = sb.table("tags").select("id, name, usage_count").order("usage_count", desc=True).limit(12).execute().data or []
+        return {"question_count": q_count, "answer_count": a_count, "member_count": u_count, "top_tags": tags}
+    except Exception:
+        return {"question_count": 0, "answer_count": 0, "member_count": 0, "top_tags": []}
 
 @router.get("/{question_id}")
 async def get_question(question_id: str):
     sb = get_supabase()
     q = sb.table("questions").select(
-        "*, profiles(display_name, avatar_url), question_tags(tags(name))"
+        "*, profiles(display_name, avatar_url), question_tags(tags(name)), answers(id)"
     ).eq("id", question_id).single().execute()
     if not q.data:
         raise HTTPException(404, "Question not found")
@@ -108,3 +128,19 @@ async def get_question(question_id: str):
         a["replies"] = replies
 
     return {**q.data, "answers": answers}
+
+@router.delete("/{question_id}")
+async def delete_question(question_id: str, user: CurrentUser = Depends(get_current_user)):
+    sb = get_supabase()
+    # Fetch question to verify ownership
+    res = sb.table("questions").select("id, user_id").eq("id", question_id).single().execute()
+    if not res or not res.data:
+        raise HTTPException(404, "Question not found")
+    q = res.data
+    # Only author or admin may delete
+    profile = sb.table("profiles").select("role").eq("id", user.id).single().execute()
+    role = profile.data.get("role", "learner") if profile and profile.data else "learner"
+    if q["user_id"] != user.id and role != "admin":
+        raise HTTPException(403, "Not allowed")
+    sb.table("questions").update({"deleted": True}).eq("id", question_id).execute()
+    return {"ok": True}
