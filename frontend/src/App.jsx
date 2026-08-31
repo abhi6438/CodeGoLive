@@ -12,6 +12,7 @@ import TopicPage from "./pages/TopicPage";
 import CourseWorkspace from "./pages/CourseWorkspace";
 import Community from "./pages/Community";
 import Login from "./pages/Login";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import PageViewTracker from "./hooks/usePageView";
@@ -74,6 +75,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/topics/:slug" element={<TopicPage />} />
             <Route path="/community" element={<Community />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/certificate" element={<MyCertificatePage />} />
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />

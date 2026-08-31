@@ -1,10 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import SEO from "../components/SEO";
+import Logo from "../components/Logo";
 
 export default function Login() {
-  const { signInWithGoogle, signInWithPassword, signUpWithPassword, signInWithEmail, resendConfirmation } = useAuth();
+  const { session, signInWithGoogle, signInWithPassword, signUpWithPassword, signInWithEmail, resendConfirmation, resetPassword } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (session) navigate("/", { replace: true });
+  }, [session, navigate]);
 
   const [tab, setTab] = useState("signin"); // "signin" | "signup" | "magic"
   const [email, setEmail] = useState("");
@@ -16,8 +23,9 @@ export default function Login() {
   const [magicSent, setMagicSent] = useState(false);
   const [resendSent, setResendSent] = useState(false);
   const [showResend, setShowResend] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
 
-  const switchTab = (t) => { setTab(t); setError(""); setSignedUp(false); setMagicSent(false); setShowResend(false); setResendSent(false); };
+  const switchTab = (t) => { setTab(t); setError(""); setSignedUp(false); setMagicSent(false); setShowResend(false); setResendSent(false); setResetSent(false); };
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
@@ -82,6 +90,26 @@ export default function Login() {
     finally { setLoading(false); }
   };
 
+  const handleReset = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { error: err } = await resetPassword(email.trim());
+      if (err) {
+        if (err.message?.toLowerCase().includes("rate limit") || err.status === 429) {
+          setError("Too many requests — please wait a few minutes and try again.");
+        } else {
+          setError(err.message || "Could not send reset email.");
+        }
+      } else {
+        setResetSent(true);
+      }
+    } catch { setError("Something went wrong. Please try again."); }
+    finally { setLoading(false); }
+  };
+
   const handleResend = async () => {
     if (!email.trim()) return;
     setLoading(true);
@@ -100,8 +128,7 @@ export default function Login() {
       <div className="lp-left">
         <div className="lp-left-inner">
           <Link to="/" className="lp-brand">
-            <span className="lp-brand-dot" />
-            CodeGoLive
+            <Logo size={34} showText textClass="lp-brand-text" />
           </Link>
 
           <div className="lp-left-body">
@@ -113,19 +140,38 @@ export default function Login() {
               Hands-on courses by practitioners — free forever.
             </p>
 
-            <ul className="lp-features">
-              {[
-                "BTP, CAP, SAPUI5 & AI Core covered",
-                "Hands-on projects you can deploy",
-                "6 modules · 20+ topics · 40h content",
-                "Free forever, no credit card needed",
-              ].map((f) => (
-                <li key={f}>
-                  <span className="lp-check">✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
+            <div className="lp-courses">
+              <p className="lp-courses-label">Available courses</p>
+              <div className="lp-course-item">
+                <span className="lp-course-dot" />
+                <div>
+                  <strong>SAP BTP &amp; CAP Development</strong>
+                  <span>SAPUI5 · CAP · BTP deploy · CI/CD</span>
+                </div>
+              </div>
+              <div className="lp-course-item">
+                <span className="lp-course-dot" />
+                <div>
+                  <strong>SAP AI Core &amp; Generative AI</strong>
+                  <span>Prompt engineering · RAG · Gen AI Hub</span>
+                </div>
+              </div>
+              <div className="lp-course-item">
+                <span className="lp-course-dot" />
+                <div>
+                  <strong>SAP Integration Suite</strong>
+                  <span>iFlows · Adapters · Mappings · BTP</span>
+                </div>
+              </div>
+              <div className="lp-course-item lp-course-more">
+                <span className="lp-course-dot lp-course-dot--dim" />
+                <div>
+                  <strong>More courses coming soon</strong>
+                  <span>New topics added regularly</span>
+                </div>
+              </div>
+            </div>
+            <p className="lp-free-badge">✦ Free forever — no credit card needed</p>
           </div>
 
           <p className="lp-left-footer">Trusted by SAP developers worldwide 🌍</p>
@@ -175,6 +221,7 @@ export default function Login() {
               <p className="lp-welcome-sub">
                 {tab === "signin" ? "Sign in to your account to continue."
                   : tab === "signup" ? "Join free — no credit card needed."
+                  : tab === "reset" ? "Enter your email and we'll send a password reset link."
                   : "Get a one-click sign-in link sent to your email."}
               </p>
 
@@ -219,6 +266,33 @@ export default function Login() {
                   </p>
                 </form>
 
+              ) : tab === "reset" ? (
+                resetSent ? (
+                  <div className="lp-sent-box">
+                    <div className="lp-sent-icon">✉️</div>
+                    <p className="lp-sent-title">Check your inbox</p>
+                    <p className="lp-sent-sub">We sent a password reset link to <strong>{email}</strong>. Click the link in the email to set a new password.</p>
+                    <button type="button" className="lp-switch-btn" onClick={() => switchTab("signin")}>Back to sign in</button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleReset} className="lp-form">
+                    <div className="lp-field">
+                      <label className="lp-label" htmlFor="lp-reset-email">EMAIL</label>
+                      <input id="lp-reset-email" type="email" className="lp-input"
+                        placeholder="you@example.com"
+                        value={email} onChange={(e) => setEmail(e.target.value)}
+                        required autoFocus />
+                    </div>
+                    {error && <div className="lp-error">{error}</div>}
+                    <button type="submit" className="lp-submit" disabled={loading || !email}>
+                      {loading ? "Sending…" : "Send reset link →"}
+                    </button>
+                    <p className="lp-magic-note">
+                      You&apos;ll receive an email with a link to set a new password.
+                    </p>
+                  </form>
+                )
+
               ) : (
                 /* Password form */
                 <form onSubmit={handleSubmit} className="lp-form">
@@ -232,7 +306,7 @@ export default function Login() {
                     <div className="lp-label-row">
                       <label className="lp-label" htmlFor="lp-pass">PASSWORD</label>
                       {tab === "signin" && (
-                        <button type="button" className="lp-forgot" onClick={() => switchTab("magic")}>
+                        <button type="button" className="lp-forgot" onClick={() => switchTab("reset")}>
                           Forgot password?
                         </button>
                       )}
@@ -262,6 +336,8 @@ export default function Login() {
                   ? <>Don&apos;t have an account? <button className="lp-switch-btn" onClick={() => switchTab("signup")}>Sign up free</button></>
                   : tab === "signup"
                   ? <>Already have an account? <button className="lp-switch-btn" onClick={() => switchTab("signin")}>Sign in</button></>
+                  : tab === "reset"
+                  ? <>Remember your password? <button className="lp-switch-btn" onClick={() => switchTab("signin")}>Sign in</button></>
                   : <>Prefer a password? <button className="lp-switch-btn" onClick={() => switchTab("signin")}>Sign in with password</button></>}
               </p>
             </>

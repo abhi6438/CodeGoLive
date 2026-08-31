@@ -1335,13 +1335,28 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 :root[data-theme="dark"] .ws-topic-done-badge { background: #064e3b; color: #6ee7b7; }
 
 .ws-github-btn {
-  display: inline-flex; align-items: center; gap: 0.35rem;
-  font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.75rem;
-  border-radius: 99px; border: 1px solid var(--border);
-  color: var(--text-2); background: transparent;
-  text-decoration: none; transition: background 0.15s, color 0.15s;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.75rem 0.45rem 0.65rem;
+  border-radius: var(--r-md); border: 1px solid var(--border);
+  color: var(--text-2); background: var(--surface);
+  text-decoration: none; transition: background 0.15s, color 0.15s, border-color 0.15s;
+  max-width: 220px;
 }
-.ws-github-btn:hover { background: var(--surface-2); color: var(--text-1); }
+.ws-github-btn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--primary);
+}
+.ws-github-label {
+  display: flex; flex-direction: column; gap: 0.05rem; min-width: 0;
+}
+.ws-github-main {
+  font-size: 0.8rem; font-weight: 700; color: var(--text); line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ws-github-sub {
+  font-size: 0.68rem; font-weight: 400; color: var(--text-3); line-height: 1.2;
+}
 
 /* video */
 .ws-video-wrap {
@@ -4892,4 +4907,99 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   font-size: 0.9rem;
   color: var(--text-3);
   margin: 0;
+}
+
+/* ── Login left panel — course list ── */
+.lp-courses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1.75rem;
+}
+
+.lp-courses-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.4);
+  margin: 0 0 0.25rem;
+}
+
+.lp-course-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.lp-course-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-dim, #818cf8);
+  margin-top: 5px;
+}
+
+.lp-course-dot--dim {
+  background: rgba(255,255,255,.2);
+}
+
+.lp-course-item strong {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.92);
+  line-height: 1.3;
+}
+
+.lp-course-item span {
+  font-size: 0.76rem;
+  color: rgba(255,255,255,.45);
+  line-height: 1.4;
+}
+
+.lp-course-more strong,
+.lp-course-more span {
+  color: rgba(255,255,255,.35);
+}
+
+.lp-free-badge {
+  margin-top: 1.5rem;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,.4);
+  letter-spacing: .02em;
+}
+
+/* ── Logo wordmark tweaks ── */
+.lp-brand-text {
+  font-size: 1.05rem;
+  color: #fff;
+  font-family: var(--font-ui);
+}
+
+/* ── TopBar mobile logo ── */
+.topbar-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.topbar-logo-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.topbar-logo-text {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  font-family: var(--font-ui);
+}
+
+@media (min-width: 769px) {
+  .topbar-brand-row .topbar-logo-link { display: none; }
 }

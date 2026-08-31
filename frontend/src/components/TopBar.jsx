@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "../lib/ThemeContext";
+import Logo from "./Logo";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import NotificationBell from "./NotificationBell";
@@ -126,9 +127,14 @@ export default function TopBar({ onMobileMenuToggle }) {
           </button>
         </div>
       ) : (
-        <button className="topbar-hamburger" onClick={onMobileMenuToggle} aria-label="Menu">
-          {menuIcon}
-        </button>
+        <div className="topbar-brand-row">
+          <button className="topbar-hamburger" onClick={onMobileMenuToggle} aria-label="Menu">
+            {menuIcon}
+          </button>
+          <Link to="/" className="topbar-logo-link">
+            <Logo size={26} showText textClass="topbar-logo-text" />
+          </Link>
+        </div>
       )}
 
       {/* ── Center Search ─────────────────────────────── */}

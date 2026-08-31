@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import UserProfileMenu from "./UserProfileMenu";
+import Logo from "./Logo";
 
 export default function Sidebar({ collapsed, onToggle }) {
   const { session, profile } = useAuth();
@@ -34,8 +35,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         ) : (
           <>
             <Link to="/" className="sidebar-brand-link">
-              <span className="sidebar-brand-dot" />
-              <span className="sidebar-brand-name">CodeGoLive</span>
+              <Logo size={28} showText textClass="sidebar-brand-name" />
             </Link>
             <button className="sidebar-collapse-btn" onClick={onToggle} title="Collapse sidebar">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

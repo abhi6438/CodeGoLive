@@ -59,13 +59,21 @@ export function AuthProvider({ children }) {
   const signUpWithPassword = (email, password) =>
     supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
 
+  const resetPassword = (email) =>
+    supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + "/reset-password",
+    });
+
+  const updatePassword = (newPassword) =>
+    supabase.auth.updateUser({ password: newPassword });
+
   const resendConfirmation = (email) =>
     supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin } });
 
   const signOut = () => supabase.auth.signOut();
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, signInWithGoogle, signInWithEmail, signInWithPassword, signUpWithPassword, resendConfirmation, signOut }}>
+    <AuthContext.Provider value={{ session, profile, loading, signInWithGoogle, signInWithEmail, signInWithPassword, signUpWithPassword, resendConfirmation, resetPassword, updatePassword, signOut }}>
       {children}
     </AuthContext.Provider>
   );
