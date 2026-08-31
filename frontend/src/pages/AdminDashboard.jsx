@@ -34,6 +34,7 @@ export default function AdminDashboard() {
 
   return (
     <AdminShell breadcrumbs={[{ label: "Admin" }, { label: "Dashboard" }]}>
+      <SEO title="Admin Dashboard" robots="noindex, nofollow" />
       <div className="admin-page">
         <div className="admin-page-header">
           <h1 className="admin-page-title">Dashboard</h1>

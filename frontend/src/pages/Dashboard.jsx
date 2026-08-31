@@ -33,7 +33,6 @@ function MetaItem({ icon, text }) {
 function CourseStats({ course }) {
   return (
     <div style={{
-      <SEO title="Courses" description="Browse hands-on SAP BTP, SAP AI Core, and SAP Integration Suite courses on CodeGoLive." />
       display: "flex", gap: "2rem", flexWrap: "wrap",
       marginTop: "0.5rem", paddingTop: "0.75rem",
       borderTop: "1px solid var(--border)",
@@ -148,6 +147,7 @@ export default function Dashboard() {
 
   return (
     <div className="dash-page">
+      <SEO title="Courses" description="Browse hands-on SAP BTP, SAP AI Core, and SAP Integration Suite courses on CodeGoLive." />
 
       {/* ── Dark Hero ── */}
       <div className="dash-hero-dark">

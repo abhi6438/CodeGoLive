@@ -50,6 +50,7 @@ export default function AdminUsers() {
 
   return (
     <AdminShell breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Users" }]}>
+      <SEO title="Admin — Users" robots="noindex, nofollow" />
       <div className="admin-page">
         <div className="admin-page-header">
           <div>

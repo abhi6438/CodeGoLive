@@ -35,6 +35,7 @@ export default function AdminTagMerge() {
 
   return (
     <AdminShell breadcrumbs={[{ label: "Admin", to: "/admin" }, { label: "Tags" }]}>
+      <SEO title="Admin — Tags" robots="noindex, nofollow" />
       <div className="admin-page">
         <div className="admin-page-header">
           <div>
