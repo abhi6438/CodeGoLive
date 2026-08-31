@@ -4383,27 +4383,37 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 /* ── Site Footer ─────────────────────────────────────────────── */
 .site-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: var(--bg);
   border-top: 1px solid var(--border);
-  padding: 2rem 1.5rem 1.75rem;
-  margin-top: 3rem;
+  padding: 0.55rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: auto;
 }
 .site-footer-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 1.25rem;
-  margin-bottom: 0.75rem;
+  gap: 0.2rem 0.9rem;
 }
 .site-footer-links a {
-  font-size: 0.8rem;
+  font-size: 0.73rem;
   color: var(--text-3);
   text-decoration: none;
   transition: color 0.15s;
+  white-space: nowrap;
 }
 .site-footer-links a:hover { color: var(--accent); }
 .site-footer-copy {
-  font-size: 0.75rem;
+  font-size: 0.71rem;
   color: var(--text-3);
   margin: 0;
+  white-space: nowrap;
 }
 
 /* ── Cookie Banner ───────────────────────────────────────────── */
