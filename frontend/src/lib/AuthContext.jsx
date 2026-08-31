@@ -59,10 +59,13 @@ export function AuthProvider({ children }) {
   const signUpWithPassword = (email, password) =>
     supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
 
+  const resendConfirmation = (email) =>
+    supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin } });
+
   const signOut = () => supabase.auth.signOut();
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, signInWithGoogle, signInWithEmail, signInWithPassword, signUpWithPassword, signOut }}>
+    <AuthContext.Provider value={{ session, profile, loading, signInWithGoogle, signInWithEmail, signInWithPassword, signUpWithPassword, resendConfirmation, signOut }}>
       {children}
     </AuthContext.Provider>
   );

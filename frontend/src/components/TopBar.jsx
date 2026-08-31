@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTheme } from "../lib/ThemeContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import NotificationBell from "./NotificationBell";
@@ -35,31 +36,7 @@ function useDebouncedSearch(query, delay = 300) {
   return { results, loading };
 }
 
-/* ── theme hook ────────────────────────────────────────────────────────── */
-function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem("cgl-theme") || "system");
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") root.setAttribute("data-theme", "dark");
-    else if (theme === "light") root.setAttribute("data-theme", "light");
-    else root.removeAttribute("data-theme");
-    localStorage.setItem("cgl-theme", theme);
-  }, [theme]);
-
-  const toggle = () =>
-    setTheme((t) => {
-      if (t === "system")
-        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "light" : "dark";
-      return t === "dark" ? "light" : "dark";
-    });
-
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-
-  return { isDark, toggle };
-}
+/* ── theme hook moved to ThemeContext ── */
 
 /* ── component ─────────────────────────────────────────────────────────── */
 export default function TopBar({ onMobileMenuToggle }) {

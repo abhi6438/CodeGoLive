@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
+import UserProfileMenu from "./UserProfileMenu";
 
 export default function Sidebar({ collapsed, onToggle }) {
-  const { session, profile, signOut } = useAuth();
+  const { session, profile } = useAuth();
   const { pathname } = useLocation();
 
   const isAdminRoute = pathname.startsWith("/admin");
@@ -61,19 +62,10 @@ export default function Sidebar({ collapsed, onToggle }) {
         </nav>
       )}
 
-      {/* Bottom */}
+      {/* Bottom — user profile / sign in */}
       <div className="sidebar-bottom">
         {session ? (
-          <button className="sidebar-link sidebar-signout" onClick={signOut}>
-            <span className="sidebar-link-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 17 21 12 16 7"/>
-                <line x1="21" y1="12" x2="9" y2="12"/>
-              </svg>
-            </span>
-            {!collapsed && <span className="sidebar-link-label">Sign out</span>}
-          </button>
+          <UserProfileMenu collapsed={collapsed} />
         ) : (
           <Link to="/login" className="sidebar-link">
             <span className="sidebar-link-icon">

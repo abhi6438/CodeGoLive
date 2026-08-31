@@ -4,7 +4,7 @@ import { useAuth } from "../lib/AuthContext";
 import SEO from "../components/SEO";
 
 export default function Login() {
-  const { signInWithGoogle, signInWithPassword, signUpWithPassword, signInWithEmail } = useAuth();
+  const { signInWithGoogle, signInWithPassword, signUpWithPassword, signInWithEmail, resendConfirmation } = useAuth();
 
   const [tab, setTab] = useState("signin"); // "signin" | "signup" | "magic"
   const [email, setEmail] = useState("");
@@ -14,8 +14,10 @@ export default function Login() {
   const [error, setError] = useState("");
   const [signedUp, setSignedUp] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
+  const [showResend, setShowResend] = useState(false);
 
-  const switchTab = (t) => { setTab(t); setError(""); setSignedUp(false); setMagicSent(false); };
+  const switchTab = (t) => { setTab(t); setError(""); setSignedUp(false); setMagicSent(false); setShowResend(false); setResendSent(false); };
 
   const handleGoogle = async () => {
     setGoogleLoading(true);
@@ -57,8 +59,10 @@ export default function Login() {
         if (err) {
           const msg = err.message || "";
           if (msg.includes("Invalid login") || msg.includes("invalid_credentials")) setError("Wrong email or password.");
-          else if (msg.includes("Email not confirmed") || err.code === "email_not_confirmed")
+          else if (msg.includes("Email not confirmed") || err.code === "email_not_confirmed") {
             setError("Please confirm your email first — check your inbox (and spam folder) for a verification link.");
+            setShowResend(true);
+          }
           else setError(msg || "Something went wrong.");
         }
       } else {
@@ -75,6 +79,17 @@ export default function Login() {
         }
       }
     } catch { setError("Something went wrong. Please try again."); }
+    finally { setLoading(false); }
+  };
+
+  const handleResend = async () => {
+    if (!email.trim()) return;
+    setLoading(true);
+    try {
+      const { error: err } = await resendConfirmation(email.trim());
+      if (err) setError(err.message || "Could not resend. Please try again.");
+      else { setResendSent(true); setShowResend(false); setError(""); }
+    } catch { setError("Something went wrong."); }
     finally { setLoading(false); }
   };
 
@@ -227,6 +242,14 @@ export default function Login() {
                   </div>
 
                   {error && <div className="lp-error">{error}</div>}
+                  {showResend && !resendSent && (
+                    <button type="button" className="lp-resend-btn" onClick={handleResend} disabled={loading}>
+                      Resend confirmation email
+                    </button>
+                  )}
+                  {resendSent && (
+                    <p className="lp-success">Confirmation email resent — check your inbox.</p>
+                  )}
 
                   <button type="submit" className="lp-submit" disabled={loading || !email || !password}>
                     {loading ? "Please wait…" : tab === "signin" ? "Sign in →" : "Create account →"}

@@ -3087,6 +3087,31 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   padding: 0.55rem 0.75rem;
 }
 
+.lp-resend-btn {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+  border-radius: var(--r-md);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+  font-family: var(--font-ui);
+}
+.lp-resend-btn:hover:not(:disabled) { background: var(--primary); color: #fff; }
+.lp-resend-btn:disabled { opacity: .55; cursor: default; }
+
+.lp-success {
+  font-size: 0.83rem;
+  color: #16a34a;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+}
+
 .lp-submit {
   width: 100%;
   padding: 0.75rem;
@@ -4552,3 +4577,217 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 /* skeleton */
 .an-skeleton-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
 .an-skeleton { height: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); animation: pulse 1.4s ease-in-out infinite; }
+
+/* ══════════════════════════════════════════════
+   USER PROFILE MENU (.upm-*)
+   ══════════════════════════════════════════════ */
+.upm-wrap {
+  position: relative;
+  width: 100%;
+}
+.upm-wrap--collapsed {
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Trigger (collapsed profile row) ── */
+.upm-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  transition: background .15s;
+  min-height: 52px;
+}
+.upm-wrap--collapsed .upm-trigger {
+  width: auto;
+  padding: 8px;
+  justify-content: center;
+}
+.upm-trigger:hover { background: var(--surface-2); }
+.upm-trigger--open { background: var(--surface-2); }
+.upm-trigger:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* ── Avatar ── */
+.upm-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── Trigger text ── */
+.upm-trigger-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.upm-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.upm-email {
+  font-size: 11.5px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.upm-chevron {
+  flex-shrink: 0;
+  color: var(--text-3);
+  transition: transform .2s;
+}
+.upm-chevron--up { transform: rotate(180deg); }
+
+/* ── Dropdown menu ── */
+.upm-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.06);
+  z-index: 200;
+  overflow: hidden;
+  min-width: 200px;
+}
+/* Popover variant for collapsed sidebar */
+.upm-menu--popover {
+  left: calc(100% + 8px);
+  bottom: 0;
+  right: auto;
+  width: 220px;
+}
+
+/* ── Menu header (user info row) ── */
+.upm-menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 10px;
+}
+.upm-menu-header-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.upm-menu-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.upm-menu-email {
+  font-size: 11px;
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.upm-role-badge {
+  margin-top: 3px;
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--primary);
+  background: var(--primary-light);
+  border-radius: 4px;
+  padding: 1px 5px;
+  width: fit-content;
+}
+
+/* ── Divider ── */
+.upm-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 3px 0;
+}
+
+/* ── Menu items ── */
+.upm-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 0 14px;
+  height: 38px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  transition: background .12s, color .12s;
+  font-family: inherit;
+}
+.upm-item:hover { background: var(--surface-2); color: var(--text); }
+.upm-item:focus-visible { outline: 2px solid var(--primary); outline-offset: -2px; }
+
+/* Toggle row (dark mode) */
+.upm-item--toggle { justify-content: flex-start; }
+.upm-item-label { flex: 1; }
+
+/* Sign out */
+.upm-item--danger { color: var(--danger, #ef4444); }
+.upm-item--danger svg { color: var(--danger, #ef4444); }
+.upm-item--danger:hover { background: var(--danger-light, rgba(239,68,68,.08)); color: var(--danger, #ef4444); }
+.upm-item--confirm { font-weight: 600; }
+
+/* ── Toggle switch ── */
+.upm-toggle-track {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  width: 32px;
+  height: 18px;
+  background: var(--border);
+  border-radius: 9px;
+  padding: 2px;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.upm-item--toggle[aria-pressed="true"] .upm-toggle-track { background: var(--primary); }
+.upm-toggle-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.upm-toggle-thumb--on { transform: translateX(14px); }
+
+/* ── Sidebar bottom padding adjustment ── */
+.sidebar-bottom { padding: 0.5rem 0.5rem 0.75rem; }

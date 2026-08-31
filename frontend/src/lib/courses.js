@@ -44,7 +44,7 @@ export const COURSES = [
       "Apply production patterns: retry, caching, guardrails, monitoring",
     ],
     apiBase: "/api",
-  },  ,
+  },
   {
     id: "sap-is",
     title: "SAP Integration Suite",

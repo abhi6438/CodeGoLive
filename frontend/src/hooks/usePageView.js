@@ -2,12 +2,32 @@ import { useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { api } from "../lib/api";
 
+const GA_ID = "G-HS2RZYBJ2Y";
+
+/* Inject GA4 script tags once, only in production */
+function loadGA4() {
+  if (!import.meta.env.PROD) return;
+  if (window.__ga4Loaded) return;
+  window.__ga4Loaded = true;
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+  document.head.appendChild(script);
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function gtag() { window.dataLayer.push(arguments); };
+  window.gtag("js", new Date());
+  window.gtag("config", GA_ID, { send_page_view: false });
+}
+
 /**
  * Silently records a page view on every route change.
  * Also records time spent on the previous page when the user navigates away.
  * Renders nothing — mount once inside <App>.
  */
 export function usePageView() {
+  useEffect(() => { loadGA4(); }, []);
   const location = useLocation();
   const entryTimeRef = useRef(Date.now());
   const viewIdRef    = useRef(null);
@@ -29,6 +49,11 @@ export function usePageView() {
     // Reset timer for the new page
     entryTimeRef.current = Date.now();
     viewIdRef.current    = null;
+
+    // Fire GA4 page-view (production only)
+    if (import.meta.env.PROD && typeof window.gtag === "function") {
+      window.gtag("event", "page_view", { page_path: path });
+    }
 
     // Record the new page view (fire-and-forget)
     api.post("/api/analytics", { path, referrer })
