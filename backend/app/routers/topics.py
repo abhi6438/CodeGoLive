@@ -164,11 +164,39 @@ async def get_topic(slug: str, user: CurrentUser | None = Depends(get_optional_u
         except Exception:
             pass
 
+    # fetch github repos
+    try:
+        repos = (
+            sb.table("topic_github_repos")
+            .select("*")
+            .eq("topic_id", topic["id"])
+            .order("order_index")
+            .execute()
+            .data
+        ) or []
+    except Exception:
+        repos = []
+
+    # fetch videos
+    try:
+        videos = (
+            sb.table("topic_videos")
+            .select("*")
+            .eq("topic_id", topic["id"])
+            .order("order_index")
+            .execute()
+            .data
+        ) or []
+    except Exception:
+        videos = []
+
     return {
         **topic,
         "images": images,
         "prerequisites": prereqs,
         "progress_status": progress_status,
+        "github_repos": repos,
+        "videos": videos,
     }
 
 

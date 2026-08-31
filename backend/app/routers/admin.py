@@ -301,3 +301,93 @@ async def list_tags(user: CurrentUser = Depends(get_current_user)):
     sb = get_supabase()
     res = sb.table("tags").select("*").order("usage_count", desc=True).execute()
     return res.data
+
+
+# ── GitHub Repos per topic ──────────────────────────────────────────────────
+
+class RepoCreate(BaseModel):
+    topic_id: str
+    url: str
+    label: str | None = None
+    language: str | None = None
+    order_index: int = 0
+
+class RepoUpdate(BaseModel):
+    url: str | None = None
+    label: str | None = None
+    language: str | None = None
+    order_index: int | None = None
+
+@router.get("/topics/{topic_id}/repos")
+async def list_repos(topic_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    return sb.table("topic_github_repos").select("*").eq("topic_id", topic_id).order("order_index").execute().data
+
+@router.post("/topics/{topic_id}/repos")
+async def create_repo(topic_id: str, body: RepoCreate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {**body.model_dump(), "topic_id": topic_id}
+    res = sb.table("topic_github_repos").insert(payload).execute()
+    return res.data[0]
+
+@router.patch("/repos/{repo_id}")
+async def update_repo(repo_id: str, body: RepoUpdate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    sb.table("topic_github_repos").update(payload).eq("id", repo_id).execute()
+    return sb.table("topic_github_repos").select("*").eq("id", repo_id).maybe_single().execute().data
+
+@router.delete("/repos/{repo_id}")
+async def delete_repo(repo_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    sb.table("topic_github_repos").delete().eq("id", repo_id).execute()
+    return {"ok": True}
+
+
+# ── Videos per topic ────────────────────────────────────────────────────────
+
+class VideoCreate(BaseModel):
+    topic_id: str
+    url: str
+    title: str | None = None
+    duration_minutes: int | None = None
+    order_index: int = 0
+
+class VideoUpdate(BaseModel):
+    url: str | None = None
+    title: str | None = None
+    duration_minutes: int | None = None
+    order_index: int | None = None
+
+@router.get("/topics/{topic_id}/videos")
+async def list_videos(topic_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    return sb.table("topic_videos").select("*").eq("topic_id", topic_id).order("order_index").execute().data
+
+@router.post("/topics/{topic_id}/videos")
+async def create_video(topic_id: str, body: VideoCreate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {**body.model_dump(), "topic_id": topic_id}
+    res = sb.table("topic_videos").insert(payload).execute()
+    return res.data[0]
+
+@router.patch("/videos/{video_id}")
+async def update_video(video_id: str, body: VideoUpdate, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    payload = {k: v for k, v in body.model_dump().items() if v is not None}
+    sb.table("topic_videos").update(payload).eq("id", video_id).execute()
+    return sb.table("topic_videos").select("*").eq("id", video_id).maybe_single().execute().data
+
+@router.delete("/videos/{video_id}")
+async def delete_video(video_id: str, user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    sb.table("topic_videos").delete().eq("id", video_id).execute()
+    return {"ok": True}

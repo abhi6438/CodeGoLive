@@ -106,6 +106,121 @@ function TopicForm({ modules, initial, onSave, onCancel, saving, error }) {
   );
 }
 
+
+const LANG_OPTIONS = ["python", "javascript", "typescript", "abap", "java", "other"];
+
+function TopicLinksPanel({ topicId, onClose }) {
+  const [repos, setRepos] = useState(null);
+  const [videos, setVideos] = useState(null);
+  const [repoForm, setRepoForm] = useState({ url: "", label: "", language: "python" });
+  const [videoForm, setVideoForm] = useState({ url: "", title: "", duration_minutes: "" });
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState(null);
+
+  const load = () => {
+    Promise.all([
+      api.get(`/api/admin/topics/${topicId}/repos`),
+      api.get(`/api/admin/topics/${topicId}/videos`),
+    ]).then(([r, v]) => { setRepos(r); setVideos(v); }).catch((e) => setErr(e.message));
+  };
+  useEffect(load, [topicId]);
+
+  const addRepo = async () => {
+    if (!repoForm.url) return setErr("URL required");
+    setSaving(true); setErr(null);
+    try {
+      await api.post(`/api/admin/topics/${topicId}/repos`, { ...repoForm, topic_id: topicId, order_index: repos?.length || 0 });
+      setRepoForm({ url: "", label: "", language: "python" });
+      load();
+    } catch(e) { setErr(e.message); }
+    finally { setSaving(false); }
+  };
+
+  const delRepo = async (id) => {
+    try { await api.del(`/api/admin/repos/${id}`); load(); } catch(e) { setErr(e.message); }
+  };
+
+  const addVideo = async () => {
+    if (!videoForm.url) return setErr("URL required");
+    setSaving(true); setErr(null);
+    try {
+      await api.post(`/api/admin/topics/${topicId}/videos`, {
+        ...videoForm,
+        topic_id: topicId,
+        duration_minutes: videoForm.duration_minutes ? +videoForm.duration_minutes : null,
+        order_index: videos?.length || 0
+      });
+      setVideoForm({ url: "", title: "", duration_minutes: "" });
+      load();
+    } catch(e) { setErr(e.message); }
+    finally { setSaving(false); }
+  };
+
+  const delVideo = async (id) => {
+    try { await api.del(`/api/admin/videos/${id}`); load(); } catch(e) { setErr(e.message); }
+  };
+
+  return (
+    <tr>
+      <td colSpan={5} style={{ padding: 0 }}>
+        <div className="admin-links-panel">
+          <div className="admin-links-panel-header">
+            <span className="admin-links-panel-title">GitHub Repos &amp; Videos</span>
+            <button className="admin-btn-icon" onClick={onClose}>✕</button>
+          </div>
+          {err && <div className="admin-alert admin-alert--error" style={{ margin: "0 0 0.75rem" }}>{err}</div>}
+
+          <div className="admin-links-cols">
+            {/* Repos column */}
+            <div className="admin-links-col">
+              <div className="admin-links-col-title">GitHub Repos</div>
+              {repos === null && <div className="admin-links-loading">Loading…</div>}
+              {repos?.map((r) => (
+                <div key={r.id} className="admin-links-item">
+                  <div className="admin-links-item-info">
+                    <a href={r.url} target="_blank" rel="noreferrer" className="admin-links-url">{r.label || r.url}</a>
+                    <span className="admin-links-meta">{r.language}</span>
+                  </div>
+                  <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => delRepo(r.id)}>✕</button>
+                </div>
+              ))}
+              <div className="admin-links-add-row">
+                <input className="admin-input admin-input--sm" placeholder="https://github.com/..." value={repoForm.url} onChange={(e) => setRepoForm(f => ({...f, url: e.target.value}))} />
+                <input className="admin-input admin-input--sm" placeholder='Label (e.g. "Full Solution")' value={repoForm.label} onChange={(e) => setRepoForm(f => ({...f, label: e.target.value}))} />
+                <select className="admin-select admin-select--sm" value={repoForm.language} onChange={(e) => setRepoForm(f => ({...f, language: e.target.value}))}>
+                  {LANG_OPTIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                </select>
+                <button className="admin-btn admin-btn--primary admin-btn--sm" disabled={saving} onClick={addRepo}>Add</button>
+              </div>
+            </div>
+
+            {/* Videos column */}
+            <div className="admin-links-col">
+              <div className="admin-links-col-title">Videos</div>
+              {videos === null && <div className="admin-links-loading">Loading…</div>}
+              {videos?.map((v) => (
+                <div key={v.id} className="admin-links-item">
+                  <div className="admin-links-item-info">
+                    <a href={v.url} target="_blank" rel="noreferrer" className="admin-links-url">{v.title || v.url}</a>
+                    <span className="admin-links-meta">{v.duration_minutes ? v.duration_minutes + " min" : ""}</span>
+                  </div>
+                  <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => delVideo(v.id)}>✕</button>
+                </div>
+              ))}
+              <div className="admin-links-add-row">
+                <input className="admin-input admin-input--sm" placeholder="https://youtube.com/..." value={videoForm.url} onChange={(e) => setVideoForm(f => ({...f, url: e.target.value}))} />
+                <input className="admin-input admin-input--sm" placeholder="Title (e.g. Part 1)" value={videoForm.title} onChange={(e) => setVideoForm(f => ({...f, title: e.target.value}))} />
+                <input className="admin-input admin-input--sm" placeholder="Duration (min)" type="number" value={videoForm.duration_minutes} onChange={(e) => setVideoForm(f => ({...f, duration_minutes: e.target.value}))} style={{ width: "90px" }} />
+                <button className="admin-btn admin-btn--primary admin-btn--sm" disabled={saving} onClick={addVideo}>Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 export default function AdminTopics() {
   const [topics, setTopics] = useState(null);
   const [modules, setModules] = useState([]);
@@ -118,6 +233,7 @@ export default function AdminTopics() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [linksPanel, setLinksPanel] = useState(null); // topic id
 
   const load = useCallback(() => {
     setError(null);
@@ -282,11 +398,15 @@ export default function AdminTopics() {
                     </td>
                     <td>
                       <div className="admin-row-actions">
+                        <button className="admin-btn-icon" onClick={() => setLinksPanel(linksPanel === t.id ? null : t.id)} title="Repos &amp; Videos">🔗</button>
                         <button className="admin-btn-icon" onClick={() => { setEditing(t); setShowForm(false); setSaveError(null); }} title="Edit">✏️</button>
                         <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => setConfirmDelete(t)} title="Delete">🗑</button>
                       </div>
                     </td>
                   </tr>
+                  {linksPanel === t.id && (
+                    <TopicLinksPanel topicId={t.id} onClose={() => setLinksPanel(null)} />
+                  )}
                 ))}
               </tbody>
             </table>
