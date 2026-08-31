@@ -1,0 +1,4 @@
+{
+  "name": "43_js_genai_hub",
+  "dependencies": {"dotenv": "^16.0.0"}
+}

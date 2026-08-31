@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
@@ -378,7 +378,8 @@ export default function AdminTopics() {
               </thead>
               <tbody>
                 {filtered.map((t) => (
-                  <tr key={t.id}>
+                  <React.Fragment key={t.id}>
+                  <tr>
                     <td className="admin-table-num">{t.number || "—"}</td>
                     <td>
                       <div className="admin-table-primary">{t.title}</div>
@@ -407,6 +408,7 @@ export default function AdminTopics() {
                   {linksPanel === t.id && (
                     <TopicLinksPanel topicId={t.id} onClose={() => setLinksPanel(null)} />
                   )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
