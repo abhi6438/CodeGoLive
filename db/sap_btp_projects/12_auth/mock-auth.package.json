@@ -1,0 +1,14 @@
+{
+  "cds": {
+    "requires": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "alice": { "roles": ["admin", "viewer"] },
+          "bob":   { "roles": ["viewer"] },
+          "guest": { "roles": [] }
+        }
+      }
+    }
+  }
+}

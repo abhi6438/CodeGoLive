@@ -19,7 +19,7 @@ async def search_topics(q: str):
     # ── 1. Full-text search on search_vector (best quality matches) ────────────
     try:
         fts = sb.table("topics").select(
-            "slug, title, description, focus, content_md"
+            "slug, title, description, focus, content_md, modules(id, title, course_id)"
         ).text_search("search_vector", q).execute()
         for row in (fts.data or []):
             if row["slug"] not in seen_slugs:
@@ -32,7 +32,7 @@ async def search_topics(q: str):
     try:
         like_q = f"%{q}%"
         ilike = sb.table("topics").select(
-            "slug, title, description, focus, content_md"
+            "slug, title, description, focus, content_md, modules(id, title, course_id)"
         ).ilike("title", like_q).execute()
         for row in (ilike.data or []):
             if row["slug"] not in seen_slugs:
@@ -44,7 +44,7 @@ async def search_topics(q: str):
     try:
         like_q = f"%{q}%"
         ilike2 = sb.table("topics").select(
-            "slug, title, description, focus, content_md"
+            "slug, title, description, focus, content_md, modules(id, title, course_id)"
         ).ilike("description", like_q).execute()
         for row in (ilike2.data or []):
             if row["slug"] not in seen_slugs:
@@ -57,7 +57,7 @@ async def search_topics(q: str):
     try:
         like_q = f"%{q}%"
         content_res = sb.table("topics").select(
-            "slug, title, description, focus, content_md"
+            "slug, title, description, focus, content_md, modules(id, title, course_id)"
         ).ilike("content_md", like_q).execute()
         for row in (content_res.data or []):
             if row["slug"] not in seen_slugs:
@@ -94,6 +94,17 @@ def _enrich(row: dict, q: str) -> dict:
         snippet = row["description"]
 
     row["snippet"] = snippet
+    # Flatten module info for frontend
+    mod = row.pop("modules", None)
+    if isinstance(mod, dict):
+        row["course_id"] = mod.get("course_id")
+        row["module_title"] = mod.get("title")
+    elif isinstance(mod, list) and mod:
+        row["course_id"] = mod[0].get("course_id")
+        row["module_title"] = mod[0].get("title")
+    else:
+        row.setdefault("course_id", None)
+        row.setdefault("module_title", None)
     return row
 
 @router.get("/{slug}")
@@ -185,3 +196,56 @@ async def update_progress(
     sb.table("user_progress").upsert(payload, on_conflict="user_id,topic_id").execute()
     return {"ok": True}
 
+
+@router.post("/{slug}/complete")
+async def complete_topic(slug: str, user: CurrentUser = Depends(get_current_user)):
+    """Mark a topic complete, then check if the whole course is done → auto-issue certificate."""
+    sb = get_supabase()
+
+    topic_res = sb.table("topics").select("id, module_id").eq("slug", slug).maybe_single().execute()
+    if not topic_res.data:
+        raise HTTPException(404, "Topic not found")
+    topic = topic_res.data
+
+    # Upsert progress as completed
+    sb.table("user_progress").upsert(
+        {"user_id": user.id, "topic_id": topic["id"], "status": "completed", "completed_at": "now()"},
+        on_conflict="user_id,topic_id",
+    ).execute()
+
+    # Look up which course this topic belongs to
+    mod_res = sb.table("modules").select("course_id").eq("id", topic["module_id"]).maybe_single().execute()
+    if not mod_res.data:
+        return {"ok": True, "course_completed": False}
+    course_id = mod_res.data["course_id"]
+
+    # All published topic IDs in this course
+    mod_ids_res = sb.table("modules").select("id").eq("course_id", course_id).execute()
+    mod_ids = [m["id"] for m in (mod_ids_res.data or [])]
+    if not mod_ids:
+        return {"ok": True, "course_completed": False}
+
+    pub_res = sb.table("topics").select("id").in_("module_id", mod_ids).eq("status", "published").execute()
+    pub_ids = [t["id"] for t in (pub_res.data or [])]
+    if not pub_ids:
+        return {"ok": True, "course_completed": False}
+
+    # How many has the user completed?
+    comp_res = sb.table("user_progress").select("topic_id")         .eq("user_id", user.id).eq("status", "completed")         .in_("topic_id", pub_ids).execute()
+    completed_count = len(comp_res.data or [])
+    course_completed = completed_count >= len(pub_ids)
+
+    if course_completed:
+        # Try per-course cert first, fall back to legacy single-cert schema
+        try:
+            sb.table("certificates").upsert(
+                {"user_id": user.id, "course_id": course_id, "issued_at": "now()"},
+                on_conflict="user_id,course_id",
+            ).execute()
+        except Exception:
+            sb.table("certificates").upsert(
+                {"user_id": user.id, "issued_at": "now()"},
+                on_conflict="user_id",
+            ).execute()
+
+    return {"ok": True, "course_completed": course_completed, "course_id": course_id}

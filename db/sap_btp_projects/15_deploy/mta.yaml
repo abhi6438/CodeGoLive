@@ -1,0 +1,40 @@
+_schema-version: '3.1'
+ID: bookshop
+version: 1.0.0
+description: Bookshop CAP + UI5
+
+modules:
+  - name: bookshop-srv
+    type: nodejs
+    path: bookshop
+    requires:
+      - name: bookshop-db
+      - name: bookshop-uaa
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+
+  - name: bookshop-approuter
+    type: approuter.nodejs
+    path: approuter
+    requires:
+      - name: bookshop-uaa
+      - name: srv-api
+    parameters:
+      disk-quota: 256M
+      memory: 256M
+
+resources:
+  - name: bookshop-db
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hanatrial
+      service-plan: hdi-shared
+
+  - name: bookshop-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./bookshop/xs-security.json

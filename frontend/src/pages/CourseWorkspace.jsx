@@ -208,8 +208,8 @@ function TopicContent({ topic, onComplete, onPrev, onNext, prevTopic, nextTopic,
   const handleComplete = async () => {
     setCompleting(true);
     try {
-      await api.post(`/api/topics/${topic.slug}/complete`, {});
-      onComplete && onComplete(topic.id);
+      const result = await api.post(`/api/topics/${topic.slug}/complete`, {});
+      onComplete && onComplete(topic.id, result?.course_completed, result?.course_id);
     } catch (e) {
       console.error(e);
     } finally {
@@ -424,6 +424,7 @@ export default function CourseWorkspace() {
   const [modules, setModules] = useState([]);
   const [topicsMap, setTopicsMap] = useState({}); // moduleId → topics[]
   const [progress, setProgress] = useState({});   // topicId → status
+  const [completedCourse, setCompletedCourse] = useState(null); // {courseId} when course just finished
   const [topic, setTopic] = useState(null);
   const [loadingModules, setLoadingModules] = useState(true);
   const [loadingTopic, setLoadingTopic] = useState(false);
@@ -506,9 +507,10 @@ export default function CourseWorkspace() {
     navigate(`/course/${courseId}/${slug}`);
   };
 
-  const handleComplete = (topicId) => {
+  const handleComplete = (topicId, courseCompleted, courseId) => {
     setProgress((prev) => ({ ...prev, [topicId]: "completed" }));
     setTopic((prev) => prev ? { ...prev, progress_status: "completed" } : prev);
+    if (courseCompleted && courseId) setCompletedCourse(courseId);
   };
 
   if (!course) {
@@ -537,6 +539,38 @@ export default function CourseWorkspace() {
       {/* Overlay for mobile drawer */}
       {sidebarOpen && (
         <div className="ws-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
+
+      {/* Course completion banner */}
+      {completedCourse && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "1rem",
+        }} onClick={() => setCompletedCourse(null)}>
+          <div style={{
+            background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18,
+            padding: "2.5rem 2rem", maxWidth: 420, width: "100%", textAlign: "center",
+            boxShadow: "0 24px 80px rgba(0,0,0,0.3)",
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: "3.5rem", marginBottom: "0.75rem" }}>🎓</div>
+            <h2 style={{ margin: "0 0 0.5rem", fontSize: "1.4rem", fontWeight: 800, color: "var(--text)" }}>
+              Course Complete!
+            </h2>
+            <p style={{ color: "var(--text-2)", marginBottom: "1.5rem", fontSize: "0.9rem" }}>
+              You've completed all topics in this course. Your certificate has been issued!
+            </p>
+            <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <Link to="/certificate" className="btn btn-primary" onClick={() => setCompletedCourse(null)}>
+                View Certificate →
+              </Link>
+              <button className="btn btn-outline" onClick={() => setCompletedCourse(null)}>
+                Keep Learning
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="workspace-inner">

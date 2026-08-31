@@ -114,6 +114,14 @@ export default function Navbar() {
           </Link>
 
           {session && (
+            <Link to="/progress" className="nav-icon-btn" title="My Progress" aria-label="My Progress">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 20V10M12 20V4M6 20v-6"/>
+              </svg>
+            </Link>
+          )}
+
+          {session && (
             <Link to="/certificate" className="nav-icon-btn" title="My Certificate" aria-label="My Certificate">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="8" r="5"/>
@@ -162,6 +170,7 @@ export default function Navbar() {
           {navLink("/", "Course", true)}
           {navLink("/community", "Community")}
           {navLink("/search", "Search")}
+          {session && navLink("/progress", "My Progress")}
           {session && navLink("/certificate", "My Certificate")}
           {profile?.role === "admin" && navLink("/admin", "Admin")}
           {profile?.role === "moderator" && (

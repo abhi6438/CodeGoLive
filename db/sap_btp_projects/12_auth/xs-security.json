@@ -1,0 +1,16 @@
+{
+  "xsappname": "bookshop",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    { "name": "$XSAPPNAME.admin",  "description": "Admin scope" },
+    { "name": "$XSAPPNAME.viewer", "description": "Viewer scope" }
+  ],
+  "role-templates": [
+    { "name": "admin",  "scope-references": ["$XSAPPNAME.admin"]  },
+    { "name": "viewer", "scope-references": ["$XSAPPNAME.viewer"] }
+  ],
+  "role-collections": [
+    { "name": "Bookshop Admin", "role-template-references": ["$XSAPPNAME.admin"]  },
+    { "name": "Bookshop User",  "role-template-references": ["$XSAPPNAME.viewer"] }
+  ]
+}

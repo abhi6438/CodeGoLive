@@ -4227,6 +4227,9 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   color: var(--text-muted);
   transition: border-color 0.12s, color 0.12s;
 }
+.srp-chip--active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.srp-item-breadcrumb { font-size: 0.68rem; color: var(--text-3); display:flex; align-items:center; gap:0.25rem; margin-bottom:0.15rem; }
+
 .srp-chip:hover { border-color: var(--accent); color: var(--accent); }
 
 /* results list */

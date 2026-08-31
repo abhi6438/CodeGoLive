@@ -1,0 +1,19 @@
+{
+  "routing": {
+    "config": {
+      "routerClass": "sap.m.routing.Router",
+      "viewType": "XML",
+      "viewPath": "com.example.myapp.view",
+      "controlId": "app",
+      "controlAggregation": "pages"
+    },
+    "routes": [
+      { "name": "main",   "pattern": "",           "target": "main"   },
+      { "name": "detail", "pattern": "detail/{id}", "target": "detail" }
+    ],
+    "targets": {
+      "main":   { "viewName": "Main"   },
+      "detail": { "viewName": "Detail" }
+    }
+  }
+}

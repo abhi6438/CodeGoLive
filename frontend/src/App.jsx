@@ -19,6 +19,7 @@ import AdminTagMerge from "./pages/AdminTagMerge";
 import RequireRole from "./components/RequireRole";
 import SearchPage from "./pages/SearchPage";
 import { MyCertificatePage, PublicCertificatePage } from "./pages/CertificatePage";
+import ProgressPage from "./pages/ProgressPage";
 
 function NotFound() {
   return (
@@ -65,6 +66,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/certificate" element={<MyCertificatePage />} />
+            <Route path="/progress" element={<ProgressPage />} />
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
 
             {/* Admin routes */}

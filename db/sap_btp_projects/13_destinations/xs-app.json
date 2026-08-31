@@ -1,0 +1,18 @@
+{
+  "welcomeFile": "/ui/index.html",
+  "authenticationMethod": "route",
+  "routes": [
+    {
+      "source": "^/catalog/(.*)",
+      "target": "/catalog/$1",
+      "destination": "MyBackend",
+      "authenticationType": "xsuaa"
+    },
+    {
+      "source": "^/ui/(.*)",
+      "target": "$1",
+      "localDir": "../bookshop-ui/webapp",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

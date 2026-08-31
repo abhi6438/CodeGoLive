@@ -1,0 +1,16 @@
+{
+  "dataSources": {
+    "mainService": {
+      "uri": "/catalog/",
+      "type": "OData",
+      "settings": { "odataVersion": "4.0" }
+    }
+  },
+  "models": {
+    "": {
+      "dataSource": "mainService",
+      "preload": true,
+      "settings": { "synchronizationMode": "None", "operationMode": "Server" }
+    }
+  }
+}
