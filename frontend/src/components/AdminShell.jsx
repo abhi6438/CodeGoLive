@@ -27,6 +27,7 @@ const NAV = [
     section: "System",
     items: [
       { to: "/admin/users", label: "Users", icon: "👥" },
+      { to: "/admin/analytics", label: "Analytics", icon: "📊" },
     ],
   },
 ];

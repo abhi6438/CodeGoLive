@@ -13,6 +13,8 @@ import CourseWorkspace from "./pages/CourseWorkspace";
 import Community from "./pages/Community";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAnalytics from "./pages/AdminAnalytics";
+import PageViewTracker from "./hooks/usePageView";
 import AdminModeration from "./pages/AdminModeration";
 import AdminTopics from "./pages/AdminTopics";
 import AdminUsers from "./pages/AdminUsers";
@@ -61,7 +63,8 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
         <TopBar onMobileMenuToggle={() => setMobileOpen((o) => !o)} />
 
         <div className="app-content">
-          <Routes>
+          <PageViewTracker />
+        <Routes>
             {/* Learner routes */}
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Navigate to="/" replace />} />
@@ -90,6 +93,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/admin/topics" element={<RequireRole roles={["admin"]}><AdminTopics /></RequireRole>} />
             <Route path="/admin/users" element={<RequireRole roles={["admin"]}><AdminUsers /></RequireRole>} />
             <Route path="/admin/tags" element={<RequireRole roles={["admin"]}><AdminTagMerge /></RequireRole>} />
+            <Route path="/admin/analytics" element={<RequireRole roles={["admin"]}><AdminAnalytics /></RequireRole>} />
             <Route path="/admin/moderation" element={<RequireRole roles={["moderator","admin"]}><AdminModeration /></RequireRole>} />
 
             <Route path="*" element={<NotFound />} />

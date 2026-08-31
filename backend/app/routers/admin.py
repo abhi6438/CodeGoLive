@@ -391,3 +391,95 @@ async def delete_video(video_id: str, user: CurrentUser = Depends(get_current_us
     sb = get_supabase()
     sb.table("topic_videos").delete().eq("id", video_id).execute()
     return {"ok": True}
+
+
+@router.get("/analytics")
+async def get_analytics(user: CurrentUser = Depends(require_admin)):
+    """Return aggregated analytics for the admin dashboard."""
+    sb = get_supabase()
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    week_start  = (now - timedelta(days=7)).isoformat()
+    month_start = (now - timedelta(days=30)).isoformat()
+
+    def count_since(since: str) -> int:
+        r = sb.table("page_views").select("id", count="exact").gte("created_at", since).execute()
+        return r.count or 0
+
+    views_today = count_since(today_start)
+    views_7d    = count_since(week_start)
+    views_30d   = count_since(month_start)
+
+    # Average session duration (last 30d, only rows with duration recorded)
+    dur_rows = (
+        sb.table("page_views")
+        .select("duration_seconds")
+        .gte("created_at", month_start)
+        .not_.is_("duration_seconds", "null")
+        .execute()
+        .data or []
+    )
+    durations = [r["duration_seconds"] for r in dur_rows if r["duration_seconds"]]
+    avg_duration = round(sum(durations) / len(durations)) if durations else 0
+
+    # Top 10 pages (last 30d)
+    all_views = (
+        sb.table("page_views")
+        .select("path")
+        .gte("created_at", month_start)
+        .execute()
+        .data or []
+    )
+    from collections import Counter
+    top_pages = [
+        {"path": p, "count": c}
+        for p, c in Counter(r["path"] for r in all_views).most_common(10)
+    ]
+
+    # Top 10 countries (last 30d)
+    country_rows = (
+        sb.table("page_views")
+        .select("country")
+        .gte("created_at", month_start)
+        .not_.is_("country", "null")
+        .execute()
+        .data or []
+    )
+    top_countries = [
+        {"country": co, "count": c}
+        for co, c in Counter(r["country"] for r in country_rows if r["country"]).most_common(10)
+    ]
+
+    # Logged-in vs anonymous (last 30d)
+    logged_in = (
+        sb.table("page_views")
+        .select("id", count="exact")
+        .gte("created_at", month_start)
+        .not_.is_("user_id", "null")
+        .execute()
+        .count or 0
+    )
+
+    # Recent 50 visits
+    recent = (
+        sb.table("page_views")
+        .select("id, path, country, city, user_id, duration_seconds, created_at")
+        .order("created_at", desc=True)
+        .limit(50)
+        .execute()
+        .data or []
+    )
+
+    return {
+        "views_today": views_today,
+        "views_7d": views_7d,
+        "views_30d": views_30d,
+        "avg_duration_seconds": avg_duration,
+        "top_pages": top_pages,
+        "top_countries": top_countries,
+        "logged_in_count": logged_in,
+        "anonymous_count": views_30d - logged_in,
+        "recent": recent,
+    }
+
