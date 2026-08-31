@@ -394,7 +394,8 @@ async def delete_video(video_id: str, user: CurrentUser = Depends(get_current_us
 
 
 @router.get("/analytics")
-async def get_analytics(user: CurrentUser = Depends(require_admin)):
+async def get_analytics(user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
     """Return aggregated analytics for the admin dashboard."""
     sb = get_supabase()
     from datetime import datetime, timedelta, timezone

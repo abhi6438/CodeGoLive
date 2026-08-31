@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from pydantic import BaseModel
 from typing import Optional
-import httpx
+import urllib.request, json
 from ..supabase_client import get_supabase
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
@@ -16,14 +16,14 @@ class PageViewUpdate(BaseModel):
     duration_seconds: Optional[int] = None
 
 
-async def _get_geo(ip: str) -> dict:
-    """Free geo lookup via ip-api.com — no key needed, 1000 req/min."""
-    if not ip or ip in ("127.0.0.1", "::1", "testclient"):
+def _get_geo(ip: str) -> dict:
+    """Free geo lookup via ip-api.com — no key, 1000 req/min, stdlib only."""
+    if not ip or ip in ("127.0.0.1", "::1", "testclient", ""):
         return {"country": None, "city": None}
     try:
-        async with httpx.AsyncClient(timeout=2.0) as client:
-            r = await client.get(f"http://ip-api.com/json/{ip}?fields=country,city,status")
-            data = r.json()
+        url = f"http://ip-api.com/json/{ip}?fields=country,city,status"
+        with urllib.request.urlopen(url, timeout=2) as resp:
+            data = json.loads(resp.read())
             if data.get("status") == "success":
                 return {"country": data.get("country"), "city": data.get("city")}
     except Exception:
@@ -33,12 +33,11 @@ async def _get_geo(ip: str) -> dict:
 
 @router.post("")
 async def record_pageview(body: PageViewIn, request: Request):
-    """Record a page view. Called silently from the frontend on every route change."""
-    # Get client IP (Vercel sets X-Forwarded-For)
+    """Record a page view silently on every route change."""
     forwarded = request.headers.get("x-forwarded-for", "")
     ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "")
 
-    geo = await _get_geo(ip)
+    geo = _get_geo(ip)
 
     sb = get_supabase()
     row = {
@@ -48,12 +47,10 @@ async def record_pageview(body: PageViewIn, request: Request):
         "city": geo["city"],
     }
 
-    # Attach user_id if authenticated (best-effort — ignore auth errors)
+    # Attach user_id if authenticated (best-effort)
     try:
         auth_header = request.headers.get("authorization", "")
         if auth_header.startswith("Bearer "):
-            from ..auth import get_current_user
-            from fastapi.security import HTTPAuthorizationCredentials
             token = auth_header[7:]
             user_data = sb.auth.get_user(token)
             if user_data and user_data.user:
@@ -69,7 +66,7 @@ async def record_pageview(body: PageViewIn, request: Request):
 
 @router.patch("/{view_id}")
 async def update_duration(view_id: int, body: PageViewUpdate):
-    """Update the time-spent (duration) for an already-recorded page view."""
+    """Update time-spent for an already-recorded page view."""
     if body.duration_seconds is None or body.duration_seconds < 0:
         return {"ok": False}
     sb = get_supabase()
