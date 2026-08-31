@@ -20,7 +20,6 @@
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
-    "@rollup/rollup-linux-arm64-gnu": "^4.63.1",
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.6"
   }
