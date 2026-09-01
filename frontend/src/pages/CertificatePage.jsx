@@ -451,7 +451,7 @@ export function MyCertificatePage() {
           <h2 style={{ marginBottom: "0.5rem" }}>One step left — Final Assessment</h2>
           <p style={{ color: "var(--text-2)", marginBottom: "1rem", lineHeight: 1.6 }}>
             To earn your certificate, pass the <strong>Final Assessment</strong> with 70% or higher.
-            30 questions chosen randomly from a pool of 55+, unlimited retakes.
+
           </p>
           {lastAttempt && (
             <p style={{ fontSize: "0.85rem", color: "var(--text-3)", marginBottom: "1rem" }}>
