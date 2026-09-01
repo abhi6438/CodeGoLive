@@ -50,7 +50,6 @@ function NotFound() {
 function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
-  const hideFooter = isAdmin || location.pathname.startsWith("/assessment");
 
   return (
     <div className={"app-shell" + (collapsed ? " sidebar-collapsed" : "") + (mobileOpen ? " mobile-sidebar-open" : "")}>
@@ -107,8 +106,8 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="*" element={<NotFound />} />
           </Routes>
 
-          {/* Footer — hidden on admin and assessment pages */}
-          {!hideFooter && <Footer />}
+          {/* Footer — always visible, sticky to bottom */}
+          {<Footer />}
         </div>
       </div>
 

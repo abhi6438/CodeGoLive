@@ -4735,6 +4735,8 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 /* ── Site Footer ─────────────────────────────────────────────── */
 .site-footer {
+  position: sticky;
+  bottom: 0;
   background: var(--bg);
   border-top: 1px solid var(--border);
   padding: 0.55rem 1.25rem;
