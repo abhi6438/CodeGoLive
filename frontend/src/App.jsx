@@ -24,6 +24,7 @@ import AdminTagMerge from "./pages/AdminTagMerge";
 import RequireRole from "./components/RequireRole";
 import SearchPage from "./pages/SearchPage";
 import { MyCertificatePage, PublicCertificatePage } from "./pages/CertificatePage";
+import ProfilePage from "./pages/ProfilePage";
 import ProgressPage from "./pages/ProgressPage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
@@ -78,6 +79,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/certificate" element={<MyCertificatePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
             <Route path="/progress" element={<ProgressPage />} />
 

@@ -36,7 +36,15 @@ export function AuthProvider({ children }) {
           console.log("[Auth] no profile found, creating one...");
           supabase
             .from("profiles")
-            .insert({ id: session.user.id, role: "learner" })
+            .insert({
+              id: session.user.id,
+              role: "learner",
+              display_name:
+                session.user.user_metadata?.full_name ||
+                session.user.user_metadata?.name ||
+                session.user.email?.split("@")[0] ||
+                "Learner",
+            })
             .select()
             .single()
             .then(({ data: created, error: createErr }) => {
@@ -70,10 +78,21 @@ export function AuthProvider({ children }) {
   const resendConfirmation = (email) =>
     supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin } });
 
+  const updateProfile = async (fields) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .update(fields)
+      .eq("id", session.user.id)
+      .select()
+      .single();
+    if (!error && data) setProfile(data);
+    return { data, error };
+  };
+
   const signOut = () => supabase.auth.signOut();
 
   return (
-    <AuthContext.Provider value={{ session, profile, loading, signInWithGoogle, signInWithEmail, signInWithPassword, signUpWithPassword, resendConfirmation, resetPassword, updatePassword, signOut }}>
+    <AuthContext.Provider value={{ session, profile, loading, signInWithGoogle, signInWithEmail, signInWithPassword, signUpWithPassword, resendConfirmation, resetPassword, updatePassword, updateProfile, signOut }}>
       {children}
     </AuthContext.Provider>
   );
