@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import SEO from "../components/SEO";
+import QuoteBanner from "../components/QuoteBanner";
+import { QUOTES } from "../constants/quotes";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
@@ -198,6 +200,9 @@ export function MyCertificatePage() {
     <>
       <SEO title="My Certificate" robots="noindex, nofollow" />
       <div style={{ minHeight: "calc(100vh - 64px)", paddingBottom: "4rem" }}>
+        <div style={{ maxWidth: 960, margin: "1.5rem auto 0", padding: "0 1.5rem" }}>
+          <QuoteBanner quote={QUOTES.CERTIFICATE} emoji="📜" variant="success" />
+        </div>
         <CertCard cert={cert} isOwn={true} />
       </div>
     </>
@@ -213,6 +218,7 @@ export function MyCertificatePage() {
       <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem 1rem" }}>
         <div className="card" style={{ textAlign: "center", padding: "3rem 2rem", maxWidth: 500 }}>
           <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>📋</div>
+          <QuoteBanner quote={QUOTES.ASSESSMENT_RETRY} emoji="🔄" variant="warning" style={{marginBottom:"1rem"}} />
           <h2 style={{ marginBottom: "0.5rem" }}>One step left — Final Assessment</h2>
           <p style={{ color: "var(--text-2)", marginBottom: "1rem", lineHeight: 1.6 }}>
             To earn your certificate, pass the <strong>Final Assessment</strong> with 70% or higher.
@@ -239,6 +245,7 @@ export function MyCertificatePage() {
       <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div className="card" style={{ textAlign: "center", padding: "3rem 2rem", maxWidth: 440 }}>
           <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>📚</div>
+          <QuoteBanner quote={QUOTES.MILESTONE} emoji="🎯" variant="default" style={{marginBottom:"1rem"}} />
           <h2 style={{ marginBottom: "0.5rem" }}>Almost there!</h2>
           <p style={{ color: "var(--text-2)", marginBottom: "1.25rem" }}>
             You've passed the assessment! Complete all remaining topics to unlock your certificate.
@@ -289,6 +296,9 @@ export function PublicCertificatePage() {
         description={`${name} successfully completed the CodeGoLive SAP BTP Development with CAP course.`}
       />
       <div style={{ minHeight: "calc(100vh - 64px)", paddingBottom: "4rem" }}>
+        <div style={{ maxWidth: 960, margin: "1.5rem auto 0", padding: "0 1.5rem" }}>
+          <QuoteBanner quote={QUOTES.SUCCESS} emoji="🎉" variant="success" />
+        </div>
         <CertCard cert={cert} isOwn={false} />
       </div>
     </>

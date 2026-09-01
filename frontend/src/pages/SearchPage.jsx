@@ -6,6 +6,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
+import QuoteBanner from "../components/QuoteBanner";
+import { QUOTES } from "../constants/quotes";
 
 /* ── badge color cycle (like module colors) ────────────────── */
 const COURSE_LABELS = {
@@ -244,6 +246,7 @@ export default function SearchPage() {
         {/* No query */}
         {results === null && !loading && (
           <div className="srp-empty">
+            <QuoteBanner quote={QUOTES.SEARCH_EMPTY} emoji="🔍" variant="default" />
             <div className="srp-empty-icon">⌕</div>
             <p>Type a keyword and press Enter — or pick a suggestion.</p>
           </div>

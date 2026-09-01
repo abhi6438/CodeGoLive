@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import SEO from "../components/SEO";
+import QuoteBanner from "../components/QuoteBanner";
+import { QUOTES } from "../constants/quotes";
 
 export default function ProfilePage() {
   const { session, profile, updateProfile } = useAuth();
@@ -43,6 +45,7 @@ export default function ProfilePage() {
     <>
       <SEO title="Edit Profile" robots="noindex, nofollow" />
       <div className="prof-page">
+        <QuoteBanner quote={QUOTES.PROFILE} emoji="👤" variant="default" style={{marginBottom:"1.25rem"}} />
         <div className="prof-card">
           {/* Avatar */}
           <div className="prof-avatar-wrap">

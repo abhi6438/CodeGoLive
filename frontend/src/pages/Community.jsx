@@ -3,6 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
+import QuoteBanner from "../components/QuoteBanner";
+import { QUOTES } from "../constants/quotes";
 
 /* ─── helpers ─── */
 function timeAgo(iso) {
@@ -374,6 +376,7 @@ export default function Community() {
           <div className="cp-hero-left">
             <h1 className="cp-hero-title">Community Q&amp;A</h1>
             <p className="cp-hero-sub">Ask questions, share solutions, learn together.</p>
+            <QuoteBanner quote={QUOTES.COMMUNITY} emoji="💬" variant="default" style={{marginTop:"0.75rem"}} />
           </div>
           {session && (
             <button className="btn cp-ask-toggle" onClick={() => { setShowForm((f) => !f); setPostFeedback(null); }}>

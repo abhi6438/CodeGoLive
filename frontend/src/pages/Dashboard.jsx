@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { COURSES } from "../lib/courses";
+import QuoteBanner from "../components/QuoteBanner";
+import { QUOTES } from "../constants/quotes";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
 
@@ -160,6 +162,8 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      <QuoteBanner quote={QUOTES.DASHBOARD} emoji="🚀" variant="default" className="qb-banner--hero" style={{margin:"0 1.5rem 0"}} />
 
       <div className="dash-body">
         {/* Available courses — featured two-column card */}

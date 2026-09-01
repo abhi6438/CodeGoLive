@@ -34,10 +34,14 @@ import TermsPage from "./pages/TermsPage";
 import CookiePage from "./pages/CookiePage";
 import DisclaimerPage from "./pages/DisclaimerPage";
 
+import QuoteBanner from "./components/QuoteBanner";
+import { QUOTES } from "./constants/quotes";
+
 function NotFound() {
   return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
       <div style={{ textAlign: "center", padding: "2rem" }}>
+        <QuoteBanner quote={QUOTES.NOT_FOUND} emoji="🔙" variant="warning" style={{marginBottom:"1.25rem"}} />
         <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.2 }}>404</div>
         <h2 style={{ marginBottom: "0.5rem" }}>Page not found</h2>
         <p style={{ color: "var(--text-2)", marginBottom: "1.25rem" }}>The page you're looking for doesn't exist.</p>
