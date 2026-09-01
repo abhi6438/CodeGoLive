@@ -163,9 +163,8 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <QuoteCard quote={QUOTES.DASHBOARD} emoji="🚀" variant="hero" style={{margin:"0 1.5rem 0"}} />
-
       <div className="dash-body">
+        <QuoteCard quote={QUOTES.DASHBOARD} emoji="🚀" variant="hero" style={{marginBottom:"1.5rem"}} />
         {/* Available courses — featured two-column card */}
         {available.length > 0 && (
           <div className="dash-section">

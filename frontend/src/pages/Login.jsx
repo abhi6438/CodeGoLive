@@ -141,7 +141,7 @@ export default function Login() {
             <p className="lp-tagline-sub">
               Hands-on courses by practitioners — free forever.
             </p>
-            <QuoteCard quote={QUOTES.WELCOME} emoji="👋" variant="default" />
+            <QuoteCard quote={QUOTES.WELCOME} emoji="👋" variant="glass" />
 
             <div className="lp-courses">
               <p className="lp-courses-label">Available courses</p>

@@ -376,7 +376,7 @@ export default function Community() {
           <div className="cp-hero-left">
             <h1 className="cp-hero-title">Community Q&amp;A</h1>
             <p className="cp-hero-sub">Ask questions, share solutions, learn together.</p>
-            <QuoteCard quote={QUOTES.COMMUNITY} emoji="💬" variant="default" style={{marginTop:"0.75rem"}} />
+
           </div>
           {session && (
             <button className="btn cp-ask-toggle" onClick={() => { setShowForm((f) => !f); setPostFeedback(null); }}>
