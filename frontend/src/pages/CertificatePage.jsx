@@ -159,14 +159,18 @@ function CertCard({ cert, isOwn }) {
 export function MyCertificatePage() {
   const { session } = useAuth();
   const [cert, setCert] = useState(null);
+  const [assessmentStatus, setAssessmentStatus] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session) { setLoading(false); return; }
-    api.get("/api/certificates/me")
-      .then(setCert)
-      .catch(() => setCert(null))
-      .finally(() => setLoading(false));
+    Promise.all([
+      api.get("/api/certificates/me").catch(() => null),
+      api.get("/api/assessment/status").catch(() => null),
+    ]).then(([certData, asmtData]) => {
+      setCert(certData);
+      setAssessmentStatus(asmtData);
+    }).finally(() => setLoading(false));
   }, [session]);
 
   if (!session) return (
@@ -189,27 +193,58 @@ export function MyCertificatePage() {
     </div>
   );
 
-  if (!cert) return (
+  // Certificate earned
+  if (cert) return (
     <>
       <SEO title="My Certificate" robots="noindex, nofollow" />
-      <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div className="card" style={{ textAlign: "center", padding: "3rem 2rem", maxWidth: 440 }}>
-          <div style={{ fontSize: "3rem", marginBottom: "0.75rem", opacity: 0.6 }}>🔒</div>
-          <h2 style={{ marginBottom: "0.5rem" }}>Not yet earned</h2>
-          <p style={{ color: "var(--text-2)", marginBottom: "1.25rem" }}>
-            Complete all topics to unlock your certificate of completion.
+      <div style={{ minHeight: "calc(100vh - 64px)", paddingBottom: "4rem" }}>
+        <CertCard cert={cert} isOwn={true} />
+      </div>
+    </>
+  );
+
+  // Assessment not yet passed
+  const assessmentPassed = assessmentStatus?.passed;
+  const lastAttempt = assessmentStatus?.last_attempt;
+
+  if (!assessmentPassed) return (
+    <>
+      <SEO title="My Certificate" robots="noindex, nofollow" />
+      <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem 1rem" }}>
+        <div className="card" style={{ textAlign: "center", padding: "3rem 2rem", maxWidth: 500 }}>
+          <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>📋</div>
+          <h2 style={{ marginBottom: "0.5rem" }}>One step left — Final Assessment</h2>
+          <p style={{ color: "var(--text-2)", marginBottom: "1rem", lineHeight: 1.6 }}>
+            To earn your certificate, pass the <strong>Final Assessment</strong> with 70% or higher.
+            30 questions chosen randomly from a pool of 55+, unlimited retakes.
           </p>
-          <Link to="/" className="btn btn-primary">Continue learning →</Link>
+          {lastAttempt && (
+            <p style={{ fontSize: "0.85rem", color: "var(--text-3)", marginBottom: "1rem" }}>
+              Last attempt: {lastAttempt.score}/{lastAttempt.total} ({Math.round((lastAttempt.score / lastAttempt.total) * 100)}%)
+            </p>
+          )}
+          <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link to="/assessment" className="btn btn-primary">Take the Assessment →</Link>
+            <Link to="/" className="btn" style={{ background: "var(--bg)", border: "1px solid var(--border)" }}>Back to Courses</Link>
+          </div>
         </div>
       </div>
     </>
   );
 
+  // Assessment passed, topics not all done yet
   return (
     <>
       <SEO title="My Certificate" robots="noindex, nofollow" />
-      <div style={{ minHeight: "calc(100vh - 64px)", paddingBottom: "4rem" }}>
-        <CertCard cert={cert} isOwn={true} />
+      <div style={{ minHeight: "calc(100vh - 64px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div className="card" style={{ textAlign: "center", padding: "3rem 2rem", maxWidth: 440 }}>
+          <div style={{ fontSize: "3rem", marginBottom: "0.75rem" }}>📚</div>
+          <h2 style={{ marginBottom: "0.5rem" }}>Almost there!</h2>
+          <p style={{ color: "var(--text-2)", marginBottom: "1.25rem" }}>
+            You've passed the assessment! Complete all remaining topics to unlock your certificate.
+          </p>
+          <Link to="/" className="btn btn-primary">Continue learning →</Link>
+        </div>
       </div>
     </>
   );
