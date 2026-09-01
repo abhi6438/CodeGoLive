@@ -126,11 +126,18 @@ export default function AssessmentPage() {
   const [submitResult, setSubmitResult] = useState(null);
   const [error, setError] = useState(null);
   const [showAllReview, setShowAllReview] = useState(false);
+  const [savedAttempt, setSavedAttempt] = useState(null);
 
   // Load status when courseId is set
   useEffect(() => {
     if (!courseId) return;
     setPhase(PHASE.LOADING);
+    // Load saved attempt from localStorage for "review last attempt"
+    try {
+      const saved = localStorage.getItem(`cgl-last-attempt-${courseId}`);
+      if (saved) setSavedAttempt(JSON.parse(saved));
+    } catch (_) {}
+
     api.get(`/api/assessment/status?course_id=${courseId}`)
       .then((data) => { setStatus(data); setPhase(PHASE.INTRO); })
       .catch((err) => { setError(err.message || "Failed to load status"); setPhase(PHASE.ERROR); });
@@ -161,6 +168,13 @@ export default function AssessmentPage() {
       });
       setSubmitResult(result);
       setStatus({ passed: result.passed });
+      // Persist for "review last attempt" on the intro screen
+      try {
+        localStorage.setItem(
+          `cgl-last-attempt-${courseId}`,
+          JSON.stringify({ ...result, saved_at: new Date().toISOString() })
+        );
+      } catch (_) {}
       setPhase(PHASE.REVIEW);
     } catch (err) {
       setError(err.message || "Submission failed");
@@ -244,7 +258,15 @@ export default function AssessmentPage() {
                 <button className="asmt-btn asmt-btn-primary" onClick={() => navigate("/certificate")}>
                   View My Certificate →
                 </button>
-                <button className="asmt-btn asmt-btn-secondary" onClick={loadQuestions}>
+                {savedAttempt && (
+                  <button
+                    className="asmt-btn asmt-btn-secondary"
+                    onClick={() => { setSubmitResult(savedAttempt); setPhase(PHASE.REVIEW); }}
+                  >
+                    📝 Review last attempt ({savedAttempt.correct}/{savedAttempt.total} · {savedAttempt.score_percentage}%)
+                  </button>
+                )}
+                <button className="asmt-btn asmt-btn-ghost" onClick={loadQuestions}>
                   Retake for practice
                 </button>
               </div>
@@ -271,6 +293,14 @@ export default function AssessmentPage() {
                 <button className="asmt-btn asmt-btn-primary asmt-btn-lg" onClick={loadQuestions}>
                   Start Assessment →
                 </button>
+                {savedAttempt && (
+                  <button
+                    className="asmt-btn asmt-btn-secondary"
+                    onClick={() => { setSubmitResult(savedAttempt); setPhase(PHASE.REVIEW); }}
+                  >
+                    📝 Review last attempt ({savedAttempt.correct}/{savedAttempt.total} · {savedAttempt.score_percentage}%)
+                  </button>
+                )}
                 <button className="asmt-btn asmt-btn-ghost" onClick={() => setPhase(PHASE.COURSE_SELECT)}>
                   ← Change course
                 </button>
