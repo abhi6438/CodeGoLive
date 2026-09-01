@@ -191,6 +191,7 @@ export default function AssessmentPage() {
   const [error, setError] = useState(null);
   const [showAllReview, setShowAllReview] = useState(false);
   const [savedAttempt, setSavedAttempt] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!courseId) return;
@@ -210,7 +211,7 @@ export default function AssessmentPage() {
         setPhase(PHASE.INTRO);
       })
       .catch((err) => { setError(err.message || "Failed to load"); setPhase(PHASE.ERROR); });
-  }, [courseId]);
+  }, [courseId, refreshKey]);
 
   // Load available courses from backend
   useEffect(() => {
@@ -578,7 +579,7 @@ export default function AssessmentPage() {
                 <button className="asmt-secondary-btn" onClick={loadQuestions}>
                   {passed ? "Retake for practice" : "Try Again"}
                 </button>
-                <button className="asmt-ghost-btn" onClick={() => setPhase(PHASE.INTRO)}>Back</button>
+                <button className="asmt-ghost-btn" onClick={() => setRefreshKey(k => k + 1)}>Back</button>
               </div>
             </div>
           </div>
