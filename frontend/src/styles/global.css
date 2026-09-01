@@ -6230,55 +6230,97 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 }
 
 
-/* ── QuoteBanner ─────────────────────────────────────────────────────────── */
-.qb-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.72rem 1.1rem;
-  border-radius: 10px;
-  border-left: 3.5px solid var(--primary);
-  background: var(--primary-light);
+/* ── QuoteCard ────────────────────────────────────────────────────────────── */
+.qc {
+  --qc-accent: var(--primary);
+  position: relative;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.2rem 1.4rem 1rem;
+  box-shadow: var(--s1);
   margin-bottom: 1.25rem;
 }
 
-.qb-banner--success {
-  border-left-color: var(--success);
-  background: color-mix(in srgb, var(--success) 10%, var(--bg));
+/* Accent top stripe */
+.qc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--qc-accent);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
 }
 
-.qb-banner--error {
-  border-left-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 10%, var(--bg));
+/* Large decorative opening quote mark */
+.qc-mark {
+  display: block;
+  font-size: 3.25rem;
+  line-height: 1;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  color: var(--qc-accent);
+  opacity: 0.13;
+  user-select: none;
+  margin-bottom: -0.65rem;
+  margin-left: -0.1rem;
 }
 
-.qb-banner--warning {
-  border-left-color: #d97706;
-  background: color-mix(in srgb, #d97706 10%, var(--bg));
+.qc-quote {
+  margin: 0 0 0.85rem;
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
 }
 
-.qb-emoji {
-  font-size: 1.1rem;
+.qc-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.qc-emoji {
+  font-size: 0.9rem;
   line-height: 1;
   flex-shrink: 0;
 }
 
-.qb-text {
-  font-size: 0.88rem;
-  font-weight: 600;
-  font-style: italic;
-  color: var(--text-2);
-  line-height: 1.45;
-  letter-spacing: 0.01em;
+.qc-rule {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
 }
 
-/* Page-level quote: full-width, slightly bigger — for hero placement */
-.qb-banner--hero {
-  padding: 0.85rem 1.25rem;
-  border-radius: 12px;
-  margin-bottom: 1.75rem;
+.qc-brand {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--qc-accent);
+  opacity: 0.75;
+  flex-shrink: 0;
 }
-.qb-banner--hero .qb-text {
-  font-size: 0.96rem;
-  color: var(--text);
+
+/* Variant accent colors */
+.qc--success { --qc-accent: var(--success); }
+.qc--warning  { --qc-accent: var(--warning); }
+.qc--error    { --qc-accent: var(--danger);  }
+
+/* Hero variant — slightly larger for dashboard / landing placement */
+.qc--hero .qc-quote {
+  font-size: 1.05rem;
+  letter-spacing: 0.015em;
+}
+.qc--hero .qc-mark {
+  font-size: 3.75rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .qc { padding: 1rem 1.1rem 0.875rem; }
+  .qc-mark { font-size: 2.5rem; margin-bottom: -0.5rem; }
+  .qc-quote { font-size: 0.875rem; }
 }

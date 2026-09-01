@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "../lib/api";
-import QuoteBanner from "../components/QuoteBanner";
+import QuoteCard from "../components/QuoteCard";
 import { QUOTES } from "../constants/quotes";
 import { useAuth } from "../lib/AuthContext";
 import { getCourse } from "../lib/courses";
@@ -248,7 +248,7 @@ function TopicContent({ topic, onComplete, onPrev, onNext, prevTopic, nextTopic,
 
   return (
     <article className="ws-content">
-      <QuoteBanner quote={QUOTES.COURSE_LEARNING} emoji="📖" variant="default" style={{margin:"1.25rem 1.5rem 0"}} />
+      <QuoteCard quote={QUOTES.COURSE_LEARNING} emoji="📖" variant="default" style={{margin:"1.25rem 1.5rem 0"}} />
       {/* Topic header */}
       <header className="ws-topic-header">
         <h1 className="ws-content-title">{topic.title}</h1>

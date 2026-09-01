@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
-import QuoteBanner from "../components/QuoteBanner";
+import QuoteCard from "../components/QuoteCard";
 import { QUOTES } from "../constants/quotes";
 
 const AVAILABLE_COURSES = [
@@ -386,7 +386,7 @@ export default function AssessmentPage() {
                 <p className="asmt-cc-sub">Pass the final assessment to earn your CodeGoLive certificate.</p>
               </div>
 
-              <QuoteBanner quote={QUOTES.ASSESSMENT_START} emoji="🧪" variant="default" />
+              <QuoteCard quote={QUOTES.ASSESSMENT_START} emoji="🧪" variant="default" />
               <div className="asmt-rules-grid">
                 <div className="asmt-rule-item">
                   <span className="asmt-rule-val">30</span>
@@ -537,7 +537,7 @@ export default function AssessmentPage() {
         <SEO title="Assessment Result" robots="noindex" />
         <div className="asmt-shell">
           {/* Result card */}
-          <QuoteBanner
+          <QuoteCard
             quote={perfect ? QUOTES.ACHIEVEMENT : passed ? QUOTES.ASSESSMENT_PASSED : QUOTES.ASSESSMENT_FAILED}
             emoji={perfect ? "🏆" : passed ? "✅" : "❌"}
             variant={passed ? "success" : "error"}

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import SEO from "../components/SEO";
-import QuoteBanner from "../components/QuoteBanner";
+import QuoteCard from "../components/QuoteCard";
 import { QUOTES } from "../constants/quotes";
 import Logo from "../components/Logo";
 
@@ -141,7 +141,7 @@ export default function Login() {
             <p className="lp-tagline-sub">
               Hands-on courses by practitioners — free forever.
             </p>
-            <QuoteBanner quote={QUOTES.WELCOME} emoji="👋" variant="default" />
+            <QuoteCard quote={QUOTES.WELCOME} emoji="👋" variant="default" />
 
             <div className="lp-courses">
               <p className="lp-courses-label">Available courses</p>
