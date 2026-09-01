@@ -626,23 +626,39 @@ export function VerifyCertificatePage() {
 
           {status === "notfound" && (
             <div style={{
-              textAlign: "center", padding: "2.5rem 1.5rem",
-              background: "var(--surface)", borderRadius: 12, border: "1px solid var(--border)"
+              textAlign: "center", padding: "3rem 1.5rem",
+              background: "var(--surface)", borderRadius: 12,
+              border: "1.5px solid rgba(239,68,68,0.35)"
             }}>
-              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🔍</div>
-              <p style={{ color: "var(--text-2)", fontWeight: 600 }}>No certificate found</p>
-              <p style={{ color: "var(--text-3)", fontSize: "0.88rem", marginTop: "0.4rem" }}>
-                Double-check the Cert No. and try again. IDs are case-insensitive.
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>🚫</div>
+              <p style={{ color: "var(--text-1)", fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.4rem" }}>
+                No certificate found
+              </p>
+              <p style={{ color: "var(--text-2)", fontSize: "0.9rem", marginBottom: "0.3rem" }}>
+                We couldn't find a certificate matching <strong style={{ color: "var(--text-1)" }}>{query.trim().toUpperCase()}</strong>.
+              </p>
+              <p style={{ color: "var(--text-3)", fontSize: "0.85rem" }}>
+                Certificate IDs look like <code style={{ background: "rgba(201,150,58,0.15)", color: "#e8b96a", padding: "2px 6px", borderRadius: 4 }}>CGL-7CBE4AE0</code>. Check the ID on the certificate and try again.
               </p>
             </div>
           )}
 
           {status === "error" && (
             <div style={{
-              textAlign: "center", padding: "2rem 1.5rem",
-              background: "var(--surface)", borderRadius: 12, border: "1px solid #dc3545"
+              textAlign: "center", padding: "3rem 1.5rem",
+              background: "var(--surface)", borderRadius: 12,
+              border: "1.5px solid rgba(239,68,68,0.35)"
             }}>
-              <p style={{ color: "#dc3545" }}>{errMsg}</p>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>⚠️</div>
+              <p style={{ color: "var(--text-1)", fontWeight: 700, fontSize: "1.05rem", marginBottom: "0.4rem" }}>
+                Invalid Certificate ID
+              </p>
+              <p style={{ color: "var(--text-2)", fontSize: "0.9rem", marginBottom: "0.3rem" }}>
+                {errMsg}
+              </p>
+              <p style={{ color: "var(--text-3)", fontSize: "0.85rem" }}>
+                The correct format is <code style={{ background: "rgba(201,150,58,0.15)", color: "#e8b96a", padding: "2px 6px", borderRadius: 4 }}>CGL-XXXXXXXX</code> — 8 characters after the dash.
+              </p>
             </div>
           )}
 
