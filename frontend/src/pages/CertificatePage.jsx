@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import html2canvas from "html2canvas";
 import SEO from "../components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
@@ -6,6 +7,41 @@ import { useAuth } from "../lib/AuthContext";
 
 function CertCard({ cert, isOwn }) {
   const [copied, setCopied] = useState(false);
+  const [format, setFormat] = useState("landscape");
+  const [imgLoading, setImgLoading] = useState(false);
+  const certRef = useRef(null); // landscape | portrait | whatsapp
+
+  const handleDownload = () => {
+    const existing = document.getElementById("cgl-print-page");
+    if (existing) existing.remove();
+    const style = document.createElement("style");
+    style.id = "cgl-print-page";
+    style.textContent = format === "landscape"
+      ? "@page { size: landscape; }"
+      : "@page { size: portrait; }";
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => document.getElementById("cgl-print-page")?.remove(), 1500);
+  };
+
+  const handleDownloadImage = async () => {
+    const el = certRef.current;
+    if (!el) return;
+    setImgLoading(true);
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+      const link = document.createElement("a");
+      link.download = `codegolive-certificate-${format}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (e) { console.error(e); }
+    finally { setImgLoading(false); }
+  };
   const name = cert.profiles?.display_name || "Learner";
   const date = new Date(cert.issued_at).toLocaleDateString("en-GB", {
     day: "numeric", month: "long", year: "numeric",
@@ -22,8 +58,172 @@ function CertCard({ cert, isOwn }) {
 
   return (
     <div className="cert-wrapper">
-      {/* ── The Certificate ── */}
-      <div className="cert-card">
+      {/* ── Format Picker ── */}
+      <div className="cert-format-picker">
+        {[
+          { key: "landscape", icon: "⬛", label: "Landscape" },
+          { key: "portrait",  icon: "📄", label: "Portrait" },
+          { key: "whatsapp",  icon: "📱", label: "Mobile" },
+        ].map((f) => (
+          <button
+            key={f.key}
+            className={`cert-fmt-btn${format === f.key ? " cert-fmt-btn--active" : ""}`}
+            onClick={() => setFormat(f.key)}
+          >
+            <span className="cert-fmt-icon">{f.icon}</span>
+            <span>{f.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* ── WhatsApp Status Card ── */}
+      {format === "whatsapp" && (
+        <div className="cert-wa-card" ref={certRef}>
+          <div className="cert-wa-circle cert-wa-circle--tl" />
+          <div className="cert-wa-circle cert-wa-circle--br" />
+
+          {/* ── Row 1: brand | label | seal ── */}
+          <div className="cert-wa-top">
+            <div className="cert-wa-brand">
+              <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+                <defs>
+                  <linearGradient id="cg-wa-grad" x1="0" y1="0" x2="32" y2="32">
+                    <stop offset="0%" stopColor="#a5b4fc"/>
+                    <stop offset="100%" stopColor="#6366f1"/>
+                  </linearGradient>
+                </defs>
+                <rect width="32" height="32" rx="7" fill="url(#cg-wa-grad)"/>
+                <path d="M9.5 11.5 L17.5 16 L9.5 20.5" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <rect x="19.5" y="19" width="5" height="2.6" rx="1.3" fill="white" fillOpacity="0.85"/>
+              </svg>
+              <span className="cert-wa-brand-name">CodeGoLive</span>
+            </div>
+            <div className="cert-wa-top-label">Verified<br/>Completion</div>
+            <div className="cert-wa-badge-ring" style={{margin:0,width:44,height:44}}>
+              <span className="cert-wa-badge-star" style={{fontSize:"1.1rem"}}>✦</span>
+            </div>
+          </div>
+
+          <div className="cert-wa-divider" />
+
+          {/* ── Row 2: certificate body ── */}
+          <div className="cert-wa-center">
+            <div className="cert-wa-eyebrow">Certificate of Completion</div>
+            <div className="cert-wa-title-text">This certifies that</div>
+            <div className="cert-wa-line" />
+            <div className="cert-wa-awarded">awarded to</div>
+            <div className="cert-wa-name">{name}</div>
+            <div className="cert-wa-completed-text">has successfully completed all modules and assessments of</div>
+            <div className="cert-wa-course">SAP BTP Development with CAP</div>
+            <div className="cert-wa-meta-inline">
+              <div className="cert-wa-meta-col">
+                <span className="cert-wa-meta-label">Issued</span>
+                <span className="cert-wa-meta-val">{date}</span>
+              </div>
+              <span className="cert-wa-meta-dot">·</span>
+              <div className="cert-wa-meta-col">
+                <span className="cert-wa-meta-label">Topics</span>
+                <span className="cert-wa-meta-val">{cert.completed_topics ?? cert.total_topics ?? "—"}</span>
+              </div>
+              <span className="cert-wa-meta-dot">·</span>
+              <div className="cert-wa-meta-col">
+                <span className="cert-wa-meta-label">ID</span>
+                <span className="cert-wa-meta-val">CGL-{cert.user_id.slice(0,8).toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="cert-wa-divider" />
+
+          {/* ── Row 3: verified | sig ── */}
+          <div className="cert-wa-bottom">
+            <div className="cert-wa-verified">
+              <div className="cert-verified-icon" style={{width:28,height:28,fontSize:"0.75rem"}}>✓</div>
+              <div className="cert-verified-label" style={{fontSize:"0.5rem"}}>Verified<br/>Certificate</div>
+            </div>
+            <div className="cert-wa-footer-sep" />
+            <div className="cert-wa-sig">
+              <div className="cert-wa-sig-line" />
+              <div className="cert-wa-sig-name">CodeGoLive</div>
+              <div className="cert-wa-url">codegolive.com</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── The Certificate (landscape / portrait) ── */}
+      {format === "portrait" && (
+        <div className="cert-card cert-card--portrait" ref={certRef}>
+          <div className="cert-corner cert-corner-tr" /><div className="cert-corner cert-corner-bl" />
+          <div className="cert-glow-top" /><div className="cert-glow-bottom" />
+          <div className="cert-portrait-body">
+            {/* Header row */}
+            <div className="cert-pt-header">
+              <div className="cert-brand">
+                <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+                  <defs><linearGradient id="cg-pt-grad" x1="0" y1="0" x2="32" y2="32">
+                    <stop offset="0%" stopColor="#7c7dfa"/><stop offset="100%" stopColor="#3730a3"/>
+                  </linearGradient></defs>
+                  <rect width="32" height="32" rx="7" fill="url(#cg-pt-grad)"/>
+                  <path d="M9.5 11.5 L17.5 16 L9.5 20.5" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <rect x="19.5" y="19" width="5" height="2.6" rx="1.3" fill="white" fillOpacity="0.85"/>
+                </svg>
+                <span className="cert-brand-name">CodeGoLive</span>
+              </div>
+              <div className="cert-pt-header-label">Verified<br/>Completion</div>
+              <div className="cert-seal-ring" style={{width:52,height:52,margin:0}}>
+                <span className="cert-seal-star">✦</span>
+              </div>
+            </div>
+            <div className="cert-pt-divider" />
+            {/* Main content */}
+            <div className="cert-pt-main">
+              <div className="cert-eyebrow">Certificate of Completion</div>
+              <div className="cert-title-text">This certifies that</div>
+              <div className="cert-divider-gold" />
+              <div className="cert-presented-to">awarded to</div>
+              <div className="cert-name">{name}</div>
+              <p className="cert-completed">has successfully completed all modules and assessments of</p>
+              <div className="cert-course-pill">SAP BTP Development with CAP</div>
+              <div className="cert-meta-row" style={{justifyContent:"center",marginTop:"1.5rem"}}>
+                <div className="cert-meta-item"><span className="cert-meta-label">Issued</span><span className="cert-meta-val">{date}</span></div>
+                <div className="cert-meta-dot"/>
+                <div className="cert-meta-item"><span className="cert-meta-label">Topics</span><span className="cert-meta-val">{cert.completed_topics ?? cert.total_topics}</span></div>
+                <div className="cert-meta-dot"/>
+                <div className="cert-meta-item"><span className="cert-meta-label">ID</span><span className="cert-meta-val">{certId}</span></div>
+              </div>
+            </div>
+            <div className="cert-pt-divider" />
+            {/* Footer — 3 sections: verified | skills | sig */}
+            <div className="cert-pt-footer">
+              {/* Section 1: Verified Certificate */}
+              <div className="cert-verified" style={{flexDirection:"column",gap:"0.4rem"}}>
+                <div className="cert-verified-icon">✓</div>
+                <div className="cert-verified-label">Verified<br/>Certificate</div>
+              </div>
+              <div className="cert-pt-footer-sep" />
+              {/* Section 2: Skills */}
+              <div className="cert-skills" style={{flex:1}}>
+                <div className="cert-skills-title">Skills Covered</div>
+                <div className="cert-chips">
+                  {["CAP","Node.js","CDS","HANA Cloud","OData","BTP CF"].map(s=>(
+                    <span key={s} className="cert-chip">{s}</span>
+                  ))}
+                </div>
+              </div>
+              <div className="cert-pt-footer-sep" />
+              {/* Section 3: Signature */}
+              <div className="cert-sig">
+                <div className="cert-sig-line"/>
+                <div className="cert-sig-name">CodeGoLive</div>
+                <div className="cert-sig-role">Course Platform</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {format === "landscape" && <div className={`cert-card cert-card--landscape`} ref={certRef}>
         {/* Corner ornaments */}
         <div className="cert-corner cert-corner-tr" />
         <div className="cert-corner cert-corner-bl" />
@@ -110,15 +310,21 @@ function CertCard({ cert, isOwn }) {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* ── Actions ── */}
       <div className="cert-actions">
-        <button className="btn btn-outline" onClick={() => window.print()}>
+        <button className="btn btn-outline" onClick={handleDownload}>
           <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 12L2 6h3V1h6v5h3L8 12zm-6 3h12v-1.5H2V15z" />
           </svg>
           Download PDF
+        </button>
+        <button className="btn btn-outline" onClick={handleDownloadImage} disabled={imgLoading}>
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M1 11h2v2h10v-2h2v4H1v-4zm6-9h2v6.586l2.293-2.293 1.414 1.414L8 12.414l-4.707-4.707 1.414-1.414L7 8.586V2z" />
+          </svg>
+          {imgLoading ? "Saving…" : "Download Image"}
         </button>
 
         {isOwn && (

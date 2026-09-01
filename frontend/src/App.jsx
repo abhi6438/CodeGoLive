@@ -67,6 +67,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
 
         <div className="app-content">
           <PageViewTracker />
+        <div style={{ flex: 1 }}>
         <Routes>
             {/* Learner routes */}
             <Route path="/" element={<Dashboard />} />
@@ -106,6 +107,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="*" element={<NotFound />} />
           </Routes>
 
+        </div>
           {/* Footer — always visible, sticky to bottom */}
           {<Footer />}
         </div>
