@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import SEO from "../components/SEO";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../lib/api";
@@ -29,32 +29,36 @@ function CertCard({ cert, isOwn }) {
     if (!el) return;
     setImgLoading(true);
     try {
-      // Pre-load fonts so html2canvas captures them
       await document.fonts.ready;
-      const elW = el.offsetWidth;
-      const elH = el.offsetHeight;
-      const canvas = await html2canvas(el, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-        imageTimeout: 15000,
-        removeContainer: true,
-        width: elW,
-        height: elH,
-        onclone: (_doc, clone) => {
-          // html2canvas doesn't support aspect-ratio; force exact pixel dimensions
-          clone.style.width = elW + "px";
-          clone.style.height = elH + "px";
-          clone.style.aspectRatio = "unset";
-          clone.style.minWidth = "unset";
-          clone.style.maxWidth = "unset";
+      const rect = el.getBoundingClientRect();
+
+      // Pass style overrides directly to html-to-image so it applies them
+      // to its internal clone — the real DOM element is never touched,
+      // no flash, and the clone inherits the full CSS cascade.
+      // position:fixed + top/left:0 moves the clone to the viewport origin
+      // so the capture doesn't include the margin:0 auto offset whitespace.
+      const dataUrl = await toPng(el, {
+        pixelRatio: 2,
+        width: rect.width,
+        height: rect.height,
+        cacheBust: true,
+        style: {
+          width:       rect.width  + "px",
+          height:      rect.height + "px",
+          minWidth:    rect.width  + "px",
+          minHeight:   rect.height + "px",
+          maxWidth:    rect.width  + "px",
+          aspectRatio: "unset",
+          position:    "fixed",
+          top:         "0",
+          left:        "0",
+          margin:      "0",
         },
       });
+
       const link = document.createElement("a");
       link.download = `codegolive-certificate-${format === "whatsapp" ? "mobile" : format}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.href = dataUrl;
       link.click();
     } catch (e) { console.error(e); }
     finally { setImgLoading(false); }
@@ -343,7 +347,14 @@ function CertCard({ cert, isOwn }) {
           </svg>
           Download PDF
         </button>
-{/* Download Image hidden — html2canvas aspect-ratio issue; PDF is perfect */}
+        <button
+          className="btn btn-outline"
+          onClick={handleDownloadImage}
+          disabled={imgLoading}
+          style={{display:"flex",alignItems:"center",gap:"0.5rem"}}
+        >
+          {imgLoading ? "Generating…" : "⬇ Download Image"}
+        </button>
 
         {isOwn && (
           <>
