@@ -4735,9 +4735,6 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 /* ── Site Footer ─────────────────────────────────────────────── */
 .site-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
   background: var(--bg);
   border-top: 1px solid var(--border);
   padding: 0.55rem 1.25rem;
@@ -5339,11 +5336,11 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 ═══════════════════════════════════════════════════════════ */
 
 .asmt-page {
-  min-height: 100vh;
   padding: 2rem 1rem 4rem;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  flex: 1;
 }
 
 /* Loading / spinner */
@@ -5710,3 +5707,44 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   align-self: flex-start;
 }
 .asmt-review-link:hover { text-decoration: underline; }
+
+/* ── Assessment course picker ── */
+.asmt-course-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+.asmt-course-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+  color: var(--text-1);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.asmt-course-btn:hover:not(.asmt-course-btn-disabled) {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+.asmt-course-btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.asmt-course-icon { font-size: 1.5rem; flex-shrink: 0; }
+.asmt-course-name { flex: 1; }
+.asmt-course-soon {
+  font-size: 0.72rem;
+  color: var(--text-3);
+  background: var(--border);
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+}

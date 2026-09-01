@@ -82,6 +82,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/certificate" element={<MyCertificatePage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/assessment" element={<AssessmentPage />} />
+            <Route path="/assessment/:courseId" element={<AssessmentPage />} />
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
             <Route path="/progress" element={<ProgressPage />} />
 

@@ -16,14 +16,17 @@ COURSE_ID = "sap-btp"
 # GET /api/assessment/status
 # ─────────────────────────────────────────────
 @router.get("/status")
-def assessment_status(user: CurrentUser = Depends(get_current_user)):
-    """Has the user passed the assessment for the sap-btp course?"""
+def assessment_status(
+    user: CurrentUser = Depends(get_current_user),
+    course_id: str = COURSE_ID,
+):
+    """Has the user passed the assessment for the given course?"""
     sb = get_supabase()
     res = (
         sb.table("assessment_attempts")
         .select("id, score, total, passed, attempted_at")
         .eq("user_id", user.id)
-        .eq("course_id", COURSE_ID)
+        .eq("course_id", course_id)
         .order("attempted_at", desc=True)
         .limit(1)
         .execute()
@@ -32,7 +35,7 @@ def assessment_status(user: CurrentUser = Depends(get_current_user)):
         sb.table("assessment_attempts")
         .select("score, total")
         .eq("user_id", user.id)
-        .eq("course_id", COURSE_ID)
+        .eq("course_id", course_id)
         .eq("passed", True)
         .limit(1)
         .execute()
@@ -47,13 +50,16 @@ def assessment_status(user: CurrentUser = Depends(get_current_user)):
 # GET /api/assessment/questions
 # ─────────────────────────────────────────────
 @router.get("/questions")
-def get_questions(user: CurrentUser = Depends(get_current_user)):
+def get_questions(
+    user: CurrentUser = Depends(get_current_user),
+    course_id: str = COURSE_ID,
+):
     """Return a randomised subset of questions (without revealing correct answers)."""
     sb = get_supabase()
     res = (
         sb.table("assessment_questions")
         .select("id, question, options, topic_slug, order_num")
-        .eq("course_id", COURSE_ID)
+        .eq("course_id", course_id)
         .execute()
     )
     if not res.data:
@@ -77,6 +83,7 @@ class AnswerItem(BaseModel):
 
 
 class SubmitBody(BaseModel):
+    course_id: str = COURSE_ID
     answers: List[AnswerItem]
 
 
@@ -131,7 +138,7 @@ def submit_assessment(body: SubmitBody, user: CurrentUser = Depends(get_current_
     # Record attempt
     sb.table("assessment_attempts").insert({
         "user_id": user.id,
-        "course_id": COURSE_ID,
+        "course_id": body.course_id,
         "score": correct_count,
         "total": total,
         "passed": passed,
