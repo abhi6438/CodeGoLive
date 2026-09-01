@@ -4375,7 +4375,8 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   box-shadow: none !important;
   background: transparent !important;
   font-size: 0.84rem;
-  color: var(--text);
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
   min-width: 0;
   appearance: none;
   -webkit-appearance: none;
@@ -4584,7 +4585,8 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   box-shadow: none !important;
   background: transparent !important;
   font-size: 0.83rem;
-  color: var(--text);
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
   min-width: 0;
   padding: 0;
 }
