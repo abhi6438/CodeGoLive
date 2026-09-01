@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
+import { api } from "./api";
 
 const AuthContext = createContext(null);
 
@@ -79,14 +80,13 @@ export function AuthProvider({ children }) {
     supabase.auth.resend({ type: "signup", email, options: { emailRedirectTo: window.location.origin } });
 
   const updateProfile = async (fields) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .update(fields)
-      .eq("id", session.user.id)
-      .select()
-      .maybeSingle();
-    if (!error && data) setProfile(data);
-    return { data, error };
+    try {
+      const data = await api.patch("/api/profile", fields);
+      if (data) setProfile(prev => ({ ...prev, ...data }));
+      return { data, error: null };
+    } catch (err) {
+      return { data: null, error: err };
+    }
   };
 
   const signOut = () => supabase.auth.signOut();

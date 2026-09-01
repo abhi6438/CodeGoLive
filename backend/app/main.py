@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from .config import get_settings
-from .routers import modules, topics, questions, answers, replies, moderation, admin, notifications, certificates, courses, progress, analytics
+from .routers import modules, topics, questions, answers, replies, moderation, admin, notifications, certificates, courses, progress, analytics, profile
 
 settings = get_settings()
 
@@ -44,6 +44,7 @@ app.include_router(admin.router)
 app.include_router(notifications.router)
 app.include_router(certificates.router)
 app.include_router(analytics.router)
+app.include_router(profile.router)
 
 
 @app.get("/api/health")
