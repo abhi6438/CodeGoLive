@@ -132,15 +132,21 @@ export default function AssessmentPage() {
   useEffect(() => {
     if (!courseId) return;
     setPhase(PHASE.LOADING);
-    // Load saved attempt from localStorage for "review last attempt"
-    try {
-      const saved = localStorage.getItem(`cgl-last-attempt-${courseId}`);
-      if (saved) setSavedAttempt(JSON.parse(saved));
-    } catch (_) {}
-
-    api.get(`/api/assessment/status?course_id=${courseId}`)
-      .then((data) => { setStatus(data); setPhase(PHASE.INTRO); })
-      .catch((err) => { setError(err.message || "Failed to load status"); setPhase(PHASE.ERROR); });
+    // Load status + last attempt details in parallel
+    Promise.all([
+      api.get(`/api/assessment/status?course_id=${courseId}`),
+      api.get(`/api/assessment/last-attempt?course_id=${courseId}`).catch(() => {
+        // Fallback to localStorage if no DB record yet (older attempts)
+        try {
+          const saved = localStorage.getItem(`cgl-last-attempt-${courseId}`);
+          return saved ? JSON.parse(saved) : null;
+        } catch (_) { return null; }
+      }),
+    ]).then(([statusData, attemptData]) => {
+      setStatus(statusData);
+      if (attemptData) setSavedAttempt(attemptData);
+      setPhase(PHASE.INTRO);
+    }).catch((err) => { setError(err.message || "Failed to load status"); setPhase(PHASE.ERROR); });
   }, [courseId]);
 
   const loadQuestions = useCallback(() => {

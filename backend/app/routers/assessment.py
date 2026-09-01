@@ -144,14 +144,29 @@ def submit_assessment(body: SubmitBody, user: CurrentUser = Depends(get_current_
     score_pct = round((correct_count / total) * 100) if total else 0
     passed = score_pct >= PASS_PERCENTAGE
 
-    # Record attempt
-    sb.table("assessment_attempts").insert({
+    # Record attempt + per-question answers
+    attempt_insert = sb.table("assessment_attempts").insert({
         "user_id": user.id,
         "course_id": body.course_id,
         "score": correct_count,
         "total": total,
         "passed": passed,
     }).execute()
+
+    # Store per-question answers for cross-device review
+    if attempt_insert.data:
+        attempt_id = attempt_insert.data[0]["id"]
+        answer_rows = [
+            {
+                "attempt_id": attempt_id,
+                "question_id": r["question_id"],
+                "selected_option": r["selected_option"],
+                "is_correct": r["is_correct"],
+            }
+            for r in results
+        ]
+        if answer_rows:
+            sb.table("assessment_attempt_answers").insert(answer_rows).execute()
 
     # If passed, try to issue certificate (check all topics complete too)
     cert_issued = False
@@ -181,3 +196,72 @@ def submit_assessment(body: SubmitBody, user: CurrentUser = Depends(get_current_
         "pass_percentage": PASS_PERCENTAGE,
         "results": results,
     }
+
+
+# ─────────────────────────────────────────────
+# GET /api/assessment/last-attempt
+# ─────────────────────────────────────────────
+@router.get("/last-attempt")
+def get_last_attempt(
+    user: CurrentUser = Depends(get_current_user),
+    course_id: str = COURSE_ID,
+):
+    """Return the full per-question detail of the user's most recent attempt."""
+    sb = get_supabase()
+
+    # Get the latest attempt
+    attempt_res = (
+        sb.table("assessment_attempts")
+        .select("id, score, total, passed, attempted_at")
+        .eq("user_id", user.id)
+        .eq("course_id", course_id)
+        .order("attempted_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    if not attempt_res.data:
+        raise HTTPException(404, "No attempt found")
+
+    attempt = attempt_res.data[0]
+    attempt_id = attempt["id"]
+
+    # Get per-question answers joined with question details
+    answers_res = (
+        sb.table("assessment_attempt_answers")
+        .select("selected_option, is_correct, question_id, assessment_questions(question, options, correct_option, explanation, topic_slug)")
+        .eq("attempt_id", attempt_id)
+        .execute()
+    )
+
+    results = []
+    correct_count = 0
+    for row in answers_res.data:
+        q = row.get("assessment_questions") or {}
+        is_correct = row["is_correct"]
+        if is_correct:
+            correct_count += 1
+        results.append({
+            "question_id": row["question_id"],
+            "question": q.get("question", ""),
+            "options": q.get("options", []),
+            "selected_option": row["selected_option"],
+            "correct_option": q.get("correct_option", 0),
+            "is_correct": is_correct,
+            "explanation": q.get("explanation", ""),
+            "topic_slug": q.get("topic_slug", ""),
+        })
+
+    total = attempt["total"]
+    score_pct = round((correct_count / total) * 100) if total else 0
+
+    return {
+        "attempt_id": attempt_id,
+        "correct": correct_count,
+        "total": total,
+        "score_percentage": score_pct,
+        "passed": attempt["passed"],
+        "attempted_at": attempt["attempted_at"],
+        "cert_issued": False,
+        "results": results,
+    }
+
