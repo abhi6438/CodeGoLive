@@ -101,6 +101,7 @@
 /* ── Dark mode tokens ──────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --bg:        #111113;
     --surface:   #1c1c1f;
     --surface-2: #232326;
@@ -120,6 +121,7 @@
   }
 }
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --bg:        #111113;
   --surface:   #1c1c1f;
   --surface-2: #232326;
@@ -137,6 +139,8 @@
   --card-bg: var(--surface-2);
   --cream: var(--bg); --cream-2: var(--surface-2); --cream-3: var(--surface-3);
 }
+
+:root { color-scheme: light; }
 
 /* ── Reset ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
