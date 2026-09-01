@@ -2907,10 +2907,10 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
     --fs-xs:   0.72rem;
   }
 
-  /* ── App shell: allow page-level scroll on mobile ─ */
+  /* ── App shell: page-level scroll on mobile ─ */
   .app-shell { height: 100vh; overflow: hidden; }
   .app-main  { overflow: hidden; }
-  .app-content { overflow: hidden; display: flex; flex-direction: column; }
+  .app-content { overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; }
 
   /* ── Topbar ────────────────────────────────────── */
   .topbar {

@@ -87,7 +87,7 @@ async def community_stats():
         q_count = sb.table("questions").select("id", count="exact").eq("deleted", False).execute().count or 0
         a_count = sb.table("answers").select("id", count="exact").execute().count or 0
         u_count = sb.table("profiles").select("id", count="exact").execute().count or 0
-        tags = sb.table("tags").select("id, name, usage_count").order("usage_count", desc=True).limit(12).execute().data or []
+        tags = sb.table("tags").select("id, name, usage_count").gt("usage_count", 0).order("usage_count", desc=True).limit(12).execute().data or []
         return {"question_count": q_count, "answer_count": a_count, "member_count": u_count, "top_tags": tags}
     except Exception:
         return {"question_count": 0, "answer_count": 0, "member_count": 0, "top_tags": []}
@@ -142,5 +142,17 @@ async def delete_question(question_id: str, user: CurrentUser = Depends(get_curr
     role = profile.data.get("role", "learner") if profile and profile.data else "learner"
     if q["user_id"] != user.id and role != "admin":
         raise HTTPException(403, "Not allowed")
+    # Decrement usage_count for each tag on this question before soft-deleting
+    try:
+        qt_res = sb.table("question_tags").select("tag_id").eq("question_id", question_id).execute()
+        if qt_res and qt_res.data:
+            for qt in qt_res.data:
+                tag_res = sb.table("tags").select("id, usage_count").eq("id", qt["tag_id"]).limit(1).execute()
+                if tag_res and tag_res.data:
+                    current = tag_res.data[0].get("usage_count") or 0
+                    new_count = max(0, current - 1)
+                    sb.table("tags").update({"usage_count": new_count}).eq("id", qt["tag_id"]).execute()
+    except Exception:
+        pass  # tag decrement is non-fatal
     sb.table("questions").update({"deleted": True}).eq("id", question_id).execute()
     return {"ok": True}
