@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
       .from("profiles")
       .select("*")
       .eq("id", session.user.id)
-      .single()
+      .maybeSingle()
       .then(({ data, error }) => {
         console.log("[Auth] profile result:", data, "error:", error);
         if (data) {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
                 "Learner",
             })
             .select()
-            .single()
+            .maybeSingle()
             .then(({ data: created, error: createErr }) => {
               console.log("[Auth] created profile:", created, "error:", createErr);
               setProfile(created);
@@ -84,7 +84,7 @@ export function AuthProvider({ children }) {
       .update(fields)
       .eq("id", session.user.id)
       .select()
-      .single();
+      .maybeSingle();
     if (!error && data) setProfile(data);
     return { data, error };
   };
