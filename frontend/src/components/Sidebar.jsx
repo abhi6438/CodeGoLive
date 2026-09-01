@@ -52,6 +52,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         {navLink("/", "Course", "📚", true)}
         {navLink("/community", "Community", "💬")}
         {session && navLink("/certificate", "Certificate", "🎓")}
+        {session && navLink("/assessment", "Assessment", "📋")}
       </nav>
 
       {/* Admin shortcut */}
