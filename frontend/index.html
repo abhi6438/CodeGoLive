@@ -13,6 +13,7 @@
   <!-- Google Analytics 4 loaded dynamically in production only (see src/hooks/usePageView.js) -->
 </head>
   <body>
+    <script>(function(){var t=localStorage.getItem("cgl-theme");if(t==="light")document.documentElement.setAttribute("data-theme","light");else{document.documentElement.setAttribute("data-theme","dark");if(!t)localStorage.setItem("cgl-theme","dark");}})()</script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
