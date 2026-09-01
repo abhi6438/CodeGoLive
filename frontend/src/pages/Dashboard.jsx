@@ -20,6 +20,21 @@ const COURSE_MODULES = {
     { emoji: "🔗", label: "App Integration" },
     { emoji: "🚀", label: "Production Deploy" },
   ],
+  "sap-is": [
+    { emoji: "🏗️", label: "IS Foundations" },
+    { emoji: "🔌", label: "Adapters & Connectivity" },
+    { emoji: "🗺️", label: "Message Mapping" },
+    { emoji: "🛡️", label: "Error Handling & Security" },
+    { emoji: "📊", label: "Deploy & Monitor" },
+  ],
+  "sde-to-fde": [
+    { emoji: "🤝", label: "Customer Foundations" },
+    { emoji: "🏛️", label: "Technical Breadth" },
+    { emoji: "🎯", label: "Pre-Sales & Solutioning" },
+    { emoji: "🚢", label: "Delivery Excellence" },
+    { emoji: "🗣️", label: "Stakeholder Mastery" },
+    { emoji: "📈", label: "FDE Career & Growth" },
+  ],
 };
 
 function MetaItem({ icon, text }) {
@@ -52,8 +67,16 @@ function CourseStats({ course }) {
   );
 }
 
+// Module number → emoji fallback for visual richness
+const MODULE_EMOJIS = ["🧭","🎨","⚙️","🔗","🚀","🏆","🤖","💬","🔧","📡","🛡️","📊","🤝","🏛️","🎯","🚢","🗣️","📈"];
+
 function FeaturedCard({ course }) {
-  const modules = COURSE_MODULES[course.id] || [];
+  // Use DB modules array if available, fall back to static COURSE_MODULES
+  const dbMods = Array.isArray(course.modulesList) && course.modulesList.length > 0 ? course.modulesList : null;
+  const staticMods = COURSE_MODULES[course.id] || [];
+  const modules = dbMods
+    ? dbMods.map((m, i) => ({ label: m.title, emoji: staticMods[i]?.emoji || MODULE_EMOJIS[i % MODULE_EMOJIS.length] }))
+    : staticMods;
   const card = (
     <div className="featured-card">
       <div className="featured-card-left">
@@ -78,13 +101,18 @@ function FeaturedCard({ course }) {
       <div className="featured-card-right">
         <div className="featured-path-label">Course Modules</div>
         <ol className="featured-path-steps">
-          {modules.map((m) => (
+          {modules.slice(0, 6).map((m) => (
             <li key={m.label} className="featured-path-step">
               <span className="path-step-emoji">{m.emoji}</span>
               <span className="path-step-label">{m.label}</span>
             </li>
           ))}
         </ol>
+        {modules.length > 6 && (
+          <div style={{ fontSize:"0.72rem", color:"var(--text-3)", marginTop:"0.5rem", paddingLeft:"0.25rem" }}>
+            +{modules.length - 6} more modules
+          </div>
+        )}
       </div>
     </div>
   );
@@ -117,25 +145,33 @@ function SoonCard({ course }) {
 }
 
 export default function Dashboard() {
-  const [courses, setCourses] = useState(COURSES); // start with static data
+  const [courses, setCourses] = useState(COURSES); // start with static data as fallback
 
   useEffect(() => {
     api.get("/api/courses").then((dbCourses) => {
-      // Merge DB data (status, title, subtitle, description, icon, estimated_hours)
-      // with static data (tags, level, accentColor, highlights, etc.)
-      const merged = COURSES.map((staticC) => {
-        const db = dbCourses.find((d) => d.id === staticC.id);
-        if (!db) return staticC;
+      // DB is the source of truth — loop over DB courses, supplement with static for visual fields
+      const merged = dbCourses.map((db) => {
+        const staticC = COURSES.find((s) => s.id === db.id) || {};
         return {
-          ...staticC,
+          // Visual / static-only fields (defaults for DB-only courses)
+          accentColor: staticC.accentColor ?? "#4B5563",
+          accentLight: staticC.accentLight ?? "#f3f4f6",
+          tags: staticC.tags ?? [],
+          level: staticC.level ?? "All levels",
+          highlights: staticC.highlights ?? [],
+          apiBase: staticC.apiBase ?? "/api",
+          badge: staticC.badge ?? null,
+          // DB fields (authoritative)
+          id: db.id,
           title: db.title ?? staticC.title,
           subtitle: db.subtitle ?? staticC.subtitle,
           description: db.description ?? staticC.description,
-          status: db.status ?? staticC.status,
-          icon: db.icon ?? staticC.icon,
+          status: db.status ?? staticC.status ?? "coming_soon",
+          icon: db.icon ?? staticC.icon ?? "📚",
           estimatedHours: db.estimated_hours ?? staticC.estimatedHours,
           modules: db.module_count ?? staticC.modules,
           topics: db.topic_count ?? staticC.topics,
+          modulesList: db.modules ?? [],  // array of {title, subtitle, number} from DB
         };
       });
       setCourses(merged);

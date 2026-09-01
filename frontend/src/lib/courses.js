@@ -67,7 +67,30 @@ export const COURSES = [
       "Deploy and operate integrations on SAP BTP",
     ],
     apiBase: "/api",
-  }
+  },
+  {
+    id: "sde-to-fde",
+    title: "SDE to Forward-Deployed Engineer",
+    subtitle: "From writing code to deploying it at enterprise customers",
+    description: "Go from pure software engineering to the full FDE skillset. Learn customer discovery, solution architecture, demo delivery, PoC design, implementation planning, incident management, executive communication, and career growth — everything you need to work directly with enterprise customers.",
+    status: "coming_soon",
+    badge: null,
+    icon: "⚡",
+    accentColor: "#1D6FE8",
+    accentLight: "#e8f0ff",
+    tags: ["Customer Success", "Pre-Sales", "Solutioning", "Delivery", "Career"],
+    level: "Intermediate → Senior",
+    estimatedHours: 35,
+    modules: 6,
+    topics: 21,
+    highlights: [
+      "Run technical discovery calls and map customer pain to solutions",
+      "Build and deliver demos and PoCs that close deals",
+      "Lead implementations, incidents, and customer handoffs",
+      "Communicate with executives and grow your FDE career",
+    ],
+    apiBase: "/api",
+  },
 ];
 
 export function getCourse(id) {

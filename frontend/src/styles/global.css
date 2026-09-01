@@ -1776,13 +1776,12 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
   margin-bottom: 2.5rem;
 }
-.ws-lesson-nav-side { display: flex; }
+.ws-lesson-nav-side { display: flex; min-width: 0; }
 .ws-lesson-nav-right { justify-content: flex-end; }
 .ws-lesson-nav-center { display: flex; justify-content: center; }
 .ws-nav-btn {
   font-size: 0.8rem; padding: 0.45rem 0.85rem;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  max-width: 200px;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .ws-complete-btn { white-space: nowrap; }
 
