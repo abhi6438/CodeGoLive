@@ -24,3 +24,24 @@ export default function QuoteCard({
     </div>
   );
 }
+
+/**
+ * QuoteBand — full-width motivational strip.
+ * Breaks out of any max-width container; arms extend into page margins.
+ * Props: quote, className
+ */
+export function QuoteBand({ quote, className = "" }) {
+  if (!quote) return null;
+  return (
+    <div className={`qb${className ? " " + className : ""}`} role="note" aria-label="Motivational quote">
+      <div className="qb-arm qb-arm--l" aria-hidden="true" />
+      <div className="qb-inner">
+        <span className="qb-open" aria-hidden="true">&ldquo;</span>
+        <span className="qb-text">{quote}</span>
+        <div className="qb-dot" aria-hidden="true" />
+        <span className="qb-brand" aria-hidden="true">CodeGoLive</span>
+      </div>
+      <div className="qb-arm qb-arm--r" aria-hidden="true" />
+    </div>
+  );
+}

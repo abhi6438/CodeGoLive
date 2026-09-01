@@ -263,10 +263,11 @@ export default function AssessmentPage() {
       <div className="asmt-page">
         <SEO title="Assessment" robots="noindex" />
         <div className="asmt-center-card">
-          <div className="asmt-cc-head">
+          <div className="asmt-card-band">
             <h1 className="asmt-cc-title">Final Assessment</h1>
             <p className="asmt-cc-sub">Choose the course you want to be assessed on</p>
           </div>
+          <div className="asmt-card-body">
           <div className="asmt-course-list">
             {AVAILABLE_COURSES.map((c) => (
               <button
@@ -284,6 +285,7 @@ export default function AssessmentPage() {
                   : <span className="asmt-cc-soon">Soon</span>}
               </button>
             ))}
+          </div>
           </div>
         </div>
       </div>
@@ -346,11 +348,12 @@ export default function AssessmentPage() {
         <div className="asmt-center-card">
           {status?.passed ? (
             <>
-              <span className="asmt-passed-badge">Passed ✓</span>
-              <div className="asmt-cc-head">
+              <div className="asmt-card-band">
+                <span className="asmt-passed-badge">Passed ✓</span>
                 <h1 className="asmt-cc-title">{course?.title}</h1>
                 <p className="asmt-cc-sub">You've already passed and earned your certificate.</p>
               </div>
+              <div className="asmt-card-body">
               {status?.total_attempts > 0 && (
                 <div className="asmt-stat-row">
                   <div className="asmt-stat-pill">
@@ -376,13 +379,15 @@ export default function AssessmentPage() {
                 )}
                 <button className="asmt-ghost-btn" onClick={loadQuestions}>Retake for practice</button>
               </div>
+              </div>
             </>
           ) : (
             <>
-              <div className="asmt-cc-head">
+              <div className="asmt-card-band">
                 <h1 className="asmt-cc-title">{course?.title}</h1>
                 <p className="asmt-cc-sub">Pass the final assessment to earn your CodeGoLive certificate.</p>
               </div>
+              <div className="asmt-card-body">
               <div className="asmt-rules-grid">
                 <div className="asmt-rule-item">
                   <span className="asmt-rule-val">30</span>
@@ -425,6 +430,7 @@ export default function AssessmentPage() {
                 <button className="asmt-ghost-btn" onClick={() => setPhase(PHASE.COURSE_SELECT)}>
                   ← Change course
                 </button>
+              </div>
               </div>
             </>
           )}
