@@ -6237,49 +6237,44 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 3px solid var(--qc-accent);
   border-radius: var(--r-lg);
-  padding: 1.2rem 1.4rem 1rem;
+  padding: 1.1rem 1.4rem 1rem;
   box-shadow: var(--s1);
   margin-bottom: 1.25rem;
 }
 
-/* Accent top stripe */
-.qc::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--qc-accent);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
-}
-
-/* Large decorative opening quote mark */
+/* Watermark quote glyph — absolutely positioned so it never pushes text */
 .qc-mark {
-  display: block;
-  font-size: 3.25rem;
+  position: absolute;
+  top: -0.4rem;
+  right: 0.85rem;
+  font-size: 5rem;
   line-height: 1;
   font-family: Georgia, 'Times New Roman', serif;
   font-weight: 700;
   color: var(--qc-accent);
-  opacity: 0.13;
+  opacity: 0.07;
   user-select: none;
-  margin-bottom: -0.65rem;
-  margin-left: -0.1rem;
+  pointer-events: none;
 }
 
 .qc-quote {
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.8rem;
   font-size: 0.925rem;
   font-weight: 600;
   color: var(--text);
   line-height: 1.6;
   letter-spacing: 0.01em;
+  position: relative;         /* sits above the watermark */
+  padding-right: 2rem;        /* keeps text from running into the watermark */
 }
 
 .qc-footer {
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  position: relative;
 }
 
 .qc-emoji {
@@ -6309,18 +6304,14 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 .qc--warning  { --qc-accent: var(--warning); }
 .qc--error    { --qc-accent: var(--danger);  }
 
-/* Hero variant — slightly larger for dashboard / landing placement */
-.qc--hero .qc-quote {
-  font-size: 1.05rem;
-  letter-spacing: 0.015em;
-}
-.qc--hero .qc-mark {
-  font-size: 3.75rem;
-}
+/* Hero variant — larger text for dashboard placement */
+.qc--hero .qc-quote { font-size: 1.05rem; letter-spacing: 0.015em; }
+.qc--hero .qc-mark  { font-size: 6.5rem; top: -0.8rem; opacity: 0.06; }
 
 /* Responsive */
 @media (max-width: 640px) {
   .qc { padding: 1rem 1.1rem 0.875rem; }
-  .qc-mark { font-size: 2.5rem; margin-bottom: -0.5rem; }
-  .qc-quote { font-size: 0.875rem; }
+  .qc-quote { font-size: 0.875rem; padding-right: 1rem; }
+  .qc-mark  { font-size: 3.5rem; }
 }
+
