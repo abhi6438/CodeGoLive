@@ -23,7 +23,7 @@ import AdminCourses from "./pages/AdminCourses";
 import AdminTagMerge from "./pages/AdminTagMerge";
 import RequireRole from "./components/RequireRole";
 import SearchPage from "./pages/SearchPage";
-import { MyCertificatePage, PublicCertificatePage } from "./pages/CertificatePage";
+import { MyCertificatePage, PublicCertificatePage, VerifyCertificatePage } from "./pages/CertificatePage";
 import ProfilePage from "./pages/ProfilePage";
 import AssessmentPage from "./pages/AssessmentPage";
 import ProgressPage from "./pages/ProgressPage";
@@ -85,6 +85,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/assessment" element={<AssessmentPage />} />
             <Route path="/assessment/:courseId" element={<AssessmentPage />} />
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
+            <Route path="/verify" element={<VerifyCertificatePage />} />
             <Route path="/progress" element={<ProgressPage />} />
 
             {/* Info / legal routes */}

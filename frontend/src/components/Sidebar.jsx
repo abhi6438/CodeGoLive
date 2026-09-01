@@ -51,6 +51,7 @@ export default function Sidebar({ collapsed, onToggle }) {
         {!collapsed && <div className="sidebar-section-label">Menu</div>}
         {navLink("/", "Course", "📚", true)}
         {navLink("/community", "Community", "💬")}
+        {navLink("/verify", "Verify Certificate", "🔍")}
         {session && navLink("/certificate", "Certificate", "🎓")}
         {session && navLink("/assessment", "Assessment", "📋")}
       </nav>

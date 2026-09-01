@@ -48,3 +48,38 @@ async def public_certificate(user_id: str):
     if not res.data:
         raise HTTPException(404, "No certificate found for this user")
     return res.data
+
+
+@router.get("/verify/{cgl_id}")
+async def verify_certificate(cgl_id: str):
+    """Public endpoint to verify a certificate by CGL ID (e.g. CGL-7CBE4AE0)."""
+    sb = get_supabase()
+    # Strip prefix if present, normalise to lowercase for UUID prefix match
+    code = cgl_id.upper().replace("CGL-", "").replace("CGL", "").strip()
+    if len(code) != 8:
+        raise HTTPException(400, "Invalid CGL ID format. Expected CGL-XXXXXXXX (8 characters).")
+    prefix = code.lower()  # UUID stored in lowercase
+    # UUID range: match all UUIDs whose first 8 hex chars equal the prefix
+    res = (
+        sb.table("certificates")
+        .select("*, profiles(display_name)")
+        .gte("user_id", f"{prefix}-0000-0000-0000-000000000000")
+        .lte("user_id", f"{prefix}-ffff-ffff-ffff-ffffffffffff")
+        .limit(1)
+        .execute()
+    )
+    if not res.data:
+        raise HTTPException(404, "No certificate found for this ID.")
+    cert_data = res.data[0]
+    # Enrich with topic count
+    progress_res = (
+        sb.table("user_progress")
+        .select("topic_id")
+        .eq("user_id", cert_data["user_id"])
+        .eq("status", "completed")
+        .execute()
+    )
+    return {
+        **cert_data,
+        "completed_topics": len(progress_res.data),
+    }

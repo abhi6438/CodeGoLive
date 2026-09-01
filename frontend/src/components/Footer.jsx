@@ -10,7 +10,7 @@ export default function Footer() {
         <Link to="/privacy">Privacy Policy</Link>
         <Link to="/terms">Terms &amp; Conditions</Link>
         <Link to="/cookies">Cookie Policy</Link>
-        <Link to="/disclaimer">Disclaimer</Link>
+        <Link to="/disclaimer">Disclaimer</Link> · <Link to="/verify">Verify Certificate</Link>
       </nav>
       <p className="site-footer-copy">
         &copy; {year} CodeGoLive. All rights reserved. Educational content provided for learning purposes.

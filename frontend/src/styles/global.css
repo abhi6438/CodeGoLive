@@ -1244,6 +1244,10 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   font-size: 0.72rem; font-weight: 600; color: #f0ede4;
   background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3);
   padding: 0.35em 1em; border-radius: 2px; letter-spacing: 0.02em;
+  align-self: center;
+  text-align: center;
+  display: block;
+  max-width: 100%;
 }
 
 .cert-meta-row { display: flex; align-items: center; gap: 0.9rem; justify-content: center; }
@@ -1267,10 +1271,14 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 .cert-verified { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; text-align: center; }
 .cert-verified-icon {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 32px; height: 32px;
+  min-width: 32px; min-height: 32px;
+  border-radius: 50%;
   background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.35);
   display: flex; align-items: center; justify-content: center;
   font-size: 0.9rem; color: #a5b4fc;
+  flex-shrink: 0;
+  box-sizing: content-box;
 }
 .cert-verified-label {
   font-size: 0.48rem; color: #7a8fab; letter-spacing: 0.12em;
@@ -6233,8 +6241,22 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 .cert-pt-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 1.1rem;
+}
+.cert-pt-header .cert-brand {
+  flex: 1;
+  align-items: flex-start;
+}
+.cert-pt-header .cert-pt-header-label {
+  flex: 1;
+  text-align: center;
+}
+/* cert-pt-top-ring uses dedicated class now */
+.cert-pt-seal-col {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 .cert-pt-header-label {
   font-size: 0.6rem;
@@ -6327,27 +6349,37 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 /* Top brand bar */
 .cert-wa-top {
   width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   padding: 1.25rem 1.25rem 0;
   align-self: flex-start;
   z-index: 1;
 }
 .cert-wa-top .cert-wa-brand {
-  justify-self: start;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
 }
 .cert-wa-top .cert-wa-top-label {
-  justify-self: center;
+  flex: 1;
+  text-align: center;
 }
-.cert-wa-top .cert-wa-badge-ring {
-  justify-self: end;
+/* cert-wa-top-ring uses dedicated class now */
+.cert-wa-seal-col {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 .cert-wa-brand-name {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.85);
-  letter-spacing: 0.03em;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(240,237,228,0.5);
+  text-transform: uppercase;
 }
 .cert-wa-top-label {
   font-size: 0.52rem;
@@ -6502,11 +6534,12 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   color: #f0ede4;
   background: rgba(99,102,241,0.15);
   border: 1px solid rgba(99,102,241,0.3);
-  padding: 0.35em 1em;
+  padding: 0.4em 1em;
   border-radius: 2px;
   letter-spacing: 0.02em;
   text-align: center;
-  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Bottom meta */
@@ -6536,9 +6569,10 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 .cert-wa-meta-label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.46rem;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.1em;
   color: #7a8fab;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 .cert-wa-meta-val {
   font-family: 'JetBrains Mono', monospace;
@@ -6652,4 +6686,55 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   font-size: 0.55rem;
   color: rgba(196,181,253,0.8);
   letter-spacing: 0.04em;
+}
+
+
+/* ── Row-1 seal rings — dedicated classes, no CSS cascade conflicts ── */
+.cert-wa-top-ring {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201,150,58,0.7);
+  background: radial-gradient(circle, rgba(201,150,58,0.08) 0%, transparent 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.cert-wa-top-ring::before {
+  content: '';
+  position: absolute;
+  top: 4px; right: 4px; bottom: 4px; left: 4px;
+  border-radius: 50%;
+  border: 0.5px dashed rgba(201,150,58,0.35);
+}
+.cert-wa-top-star {
+  color: #c9963a;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.cert-pt-top-ring {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  border-radius: 50%;
+  border: 1.5px solid #c9963a;
+  background: radial-gradient(circle, rgba(201,150,58,0.07) 0%, transparent 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.cert-pt-top-ring::before {
+  content: '';
+  position: absolute;
+  top: 5px; right: 5px; bottom: 5px; left: 5px;
+  border-radius: 50%;
+  border: 0.5px dashed rgba(201,150,58,0.35);
 }

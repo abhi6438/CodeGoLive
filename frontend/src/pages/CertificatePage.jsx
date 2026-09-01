@@ -29,14 +29,31 @@ function CertCard({ cert, isOwn }) {
     if (!el) return;
     setImgLoading(true);
     try {
+      // Pre-load fonts so html2canvas captures them
+      await document.fonts.ready;
+      const elW = el.offsetWidth;
+      const elH = el.offsetHeight;
       const canvas = await html2canvas(el, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
+        allowTaint: true,
         backgroundColor: null,
         logging: false,
+        imageTimeout: 15000,
+        removeContainer: true,
+        width: elW,
+        height: elH,
+        onclone: (_doc, clone) => {
+          // html2canvas doesn't support aspect-ratio; force exact pixel dimensions
+          clone.style.width = elW + "px";
+          clone.style.height = elH + "px";
+          clone.style.aspectRatio = "unset";
+          clone.style.minWidth = "unset";
+          clone.style.maxWidth = "unset";
+        },
       });
       const link = document.createElement("a");
-      link.download = `codegolive-certificate-${format}.png`;
+      link.download = `codegolive-certificate-${format === "whatsapp" ? "mobile" : format}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (e) { console.error(e); }
@@ -79,6 +96,8 @@ function CertCard({ cert, isOwn }) {
       {/* ── WhatsApp Status Card ── */}
       {format === "whatsapp" && (
         <div className="cert-wa-card" ref={certRef}>
+          <div className="cert-corner cert-corner-tr" />
+          <div className="cert-corner cert-corner-bl" />
           <div className="cert-wa-circle cert-wa-circle--tl" />
           <div className="cert-wa-circle cert-wa-circle--br" />
 
@@ -99,8 +118,10 @@ function CertCard({ cert, isOwn }) {
               <span className="cert-wa-brand-name">CodeGoLive</span>
             </div>
             <div className="cert-wa-top-label">Verified<br/>Completion</div>
-            <div className="cert-wa-badge-ring" style={{margin:0,width:44,height:44}}>
-              <span className="cert-wa-badge-star" style={{fontSize:"1.1rem"}}>✦</span>
+            <div className="cert-wa-seal-col">
+              <div className="cert-wa-top-ring" style={{width:44,height:44,minWidth:44,minHeight:44,borderRadius:"50%",flexShrink:0}}>
+                <span className="cert-wa-top-star">✦</span>
+              </div>
             </div>
           </div>
 
@@ -114,7 +135,7 @@ function CertCard({ cert, isOwn }) {
             <div className="cert-wa-awarded">awarded to</div>
             <div className="cert-wa-name">{name}</div>
             <div className="cert-wa-completed-text">has successfully completed all modules and assessments of</div>
-            <div className="cert-wa-course">SAP BTP Development with CAP</div>
+            <div className="cert-wa-course" style={{display:"block",textAlign:"center",alignSelf:"center",width:"100%",boxSizing:"border-box"}}>SAP BTP Development with CAP</div>
             <div className="cert-wa-meta-inline">
               <div className="cert-wa-meta-col">
                 <span className="cert-wa-meta-label">Issued</span>
@@ -127,7 +148,7 @@ function CertCard({ cert, isOwn }) {
               </div>
               <span className="cert-wa-meta-dot">·</span>
               <div className="cert-wa-meta-col">
-                <span className="cert-wa-meta-label">ID</span>
+                <span className="cert-wa-meta-label">Certificate No.</span>
                 <span className="cert-wa-meta-val">CGL-{cert.user_id.slice(0,8).toUpperCase()}</span>
               </div>
             </div>
@@ -138,7 +159,7 @@ function CertCard({ cert, isOwn }) {
           {/* ── Row 3: verified | sig ── */}
           <div className="cert-wa-bottom">
             <div className="cert-wa-verified">
-              <div className="cert-verified-icon" style={{width:28,height:28,fontSize:"0.75rem"}}>✓</div>
+              <div className="cert-verified-icon" style={{width:28,height:28,minWidth:28,minHeight:28,borderRadius:"50%",fontSize:"0.75rem",flexShrink:0}}>✓</div>
               <div className="cert-verified-label" style={{fontSize:"0.5rem"}}>Verified<br/>Certificate</div>
             </div>
             <div className="cert-wa-footer-sep" />
@@ -171,8 +192,10 @@ function CertCard({ cert, isOwn }) {
                 <span className="cert-brand-name">CodeGoLive</span>
               </div>
               <div className="cert-pt-header-label">Verified<br/>Completion</div>
-              <div className="cert-seal-ring" style={{width:52,height:52,margin:0}}>
-                <span className="cert-seal-star">✦</span>
+              <div className="cert-pt-seal-col">
+                <div className="cert-pt-top-ring" style={{width:52,height:52,minWidth:52,minHeight:52,borderRadius:"50%",flexShrink:0}}>
+                  <span className="cert-seal-star">✦</span>
+                </div>
               </div>
             </div>
             <div className="cert-pt-divider" />
@@ -184,13 +207,13 @@ function CertCard({ cert, isOwn }) {
               <div className="cert-presented-to">awarded to</div>
               <div className="cert-name">{name}</div>
               <p className="cert-completed">has successfully completed all modules and assessments of</p>
-              <div className="cert-course-pill">SAP BTP Development with CAP</div>
+              <div className="cert-course-pill" style={{display:"block",textAlign:"center",alignSelf:"center"}}>SAP BTP Development with CAP</div>
               <div className="cert-meta-row" style={{justifyContent:"center",marginTop:"1.5rem"}}>
                 <div className="cert-meta-item"><span className="cert-meta-label">Issued</span><span className="cert-meta-val">{date}</span></div>
                 <div className="cert-meta-dot"/>
                 <div className="cert-meta-item"><span className="cert-meta-label">Topics</span><span className="cert-meta-val">{cert.completed_topics ?? cert.total_topics}</span></div>
                 <div className="cert-meta-dot"/>
-                <div className="cert-meta-item"><span className="cert-meta-label">ID</span><span className="cert-meta-val">{certId}</span></div>
+                <div className="cert-meta-item"><span className="cert-meta-label">Certificate No.</span><span className="cert-meta-val">{certId}</span></div>
               </div>
             </div>
             <div className="cert-pt-divider" />
@@ -198,7 +221,7 @@ function CertCard({ cert, isOwn }) {
             <div className="cert-pt-footer">
               {/* Section 1: Verified Certificate */}
               <div className="cert-verified" style={{flexDirection:"column",gap:"0.4rem"}}>
-                <div className="cert-verified-icon">✓</div>
+                <div className="cert-verified-icon" style={{width:32,height:32,minWidth:32,minHeight:32,borderRadius:"50%",flexShrink:0}}>✓</div>
                 <div className="cert-verified-label">Verified<br/>Certificate</div>
               </div>
               <div className="cert-pt-footer-sep" />
@@ -251,7 +274,7 @@ function CertCard({ cert, isOwn }) {
               <span className="cert-brand-name">CodeGoLive</span>
             </div>
 
-            <div className="cert-seal-ring">
+            <div className="cert-seal-ring" style={{width:70,height:70,minWidth:70,minHeight:70,borderRadius:"50%",flexShrink:0}}>
               <span className="cert-seal-star">✦</span>
             </div>
 
@@ -268,7 +291,7 @@ function CertCard({ cert, isOwn }) {
             <p className="cert-completed">
               has successfully completed all modules and assessments of
             </p>
-            <div className="cert-course-pill">SAP BTP Development with CAP</div>
+            <div className="cert-course-pill" style={{display:"block",textAlign:"center",alignSelf:"center"}}>SAP BTP Development with CAP</div>
             <div className="cert-meta-row">
               <div className="cert-meta-item">
                 <span className="cert-meta-label">Issued</span>
@@ -281,7 +304,7 @@ function CertCard({ cert, isOwn }) {
               </div>
               <div className="cert-meta-dot" />
               <div className="cert-meta-item">
-                <span className="cert-meta-label">ID</span>
+                <span className="cert-meta-label">Certificate No.</span>
                 <span className="cert-meta-val">{certId}</span>
               </div>
             </div>
@@ -290,7 +313,7 @@ function CertCard({ cert, isOwn }) {
           {/* RIGHT — validation */}
           <div className="cert-col-right">
             <div className="cert-verified">
-              <div className="cert-verified-icon">✓</div>
+              <div className="cert-verified-icon" style={{width:32,height:32,minWidth:32,minHeight:32,borderRadius:"50%",flexShrink:0}}>✓</div>
               <div className="cert-verified-label">Verified<br />Certificate</div>
             </div>
 
@@ -320,12 +343,7 @@ function CertCard({ cert, isOwn }) {
           </svg>
           Download PDF
         </button>
-        <button className="btn btn-outline" onClick={handleDownloadImage} disabled={imgLoading}>
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M1 11h2v2h10v-2h2v4H1v-4zm6-9h2v6.586l2.293-2.293 1.414 1.414L8 12.414l-4.707-4.707 1.414-1.414L7 8.586V2z" />
-          </svg>
-          {imgLoading ? "Saving…" : "Download Image"}
-        </button>
+{/* Download Image hidden — html2canvas aspect-ratio issue; PDF is perfect */}
 
         {isOwn && (
           <>
@@ -354,9 +372,7 @@ function CertCard({ cert, isOwn }) {
         )}
       </div>
 
-      <p className="cert-verify-note">
-        Publicly verifiable at {window.location.origin}/certificates/{cert.user_id}
-      </p>
+
     </div>
   );
 }
@@ -500,6 +516,151 @@ export function PublicCertificatePage() {
         <div style={{ maxWidth: 960, margin: "1.5rem auto 0", padding: "0 1.5rem" }}>
         </div>
         <CertCard cert={cert} isOwn={false} />
+      </div>
+    </>
+  );
+}
+
+/* ── Certificate Verification page (/verify) ──────────────────────────── */
+export function VerifyCertificatePage() {
+  const [query, setQuery] = useState("");
+  const [cert, setCert] = useState(null);
+  const [status, setStatus] = useState("idle"); // idle | loading | found | notfound | error
+  const [errMsg, setErrMsg] = useState("");
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const raw = query.trim().toUpperCase();
+    if (!raw) return;
+    setStatus("loading");
+    setCert(null);
+    try {
+      const data = await api.get(`/api/certificates/verify/${encodeURIComponent(raw)}`);
+      setCert(data);
+      setStatus("found");
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        setStatus("notfound");
+      } else if (err?.response?.status === 400) {
+        setErrMsg(err?.response?.data?.detail || "Invalid ID format.");
+        setStatus("error");
+      } else {
+        setErrMsg("Something went wrong. Please try again.");
+        setStatus("error");
+      }
+    }
+  };
+
+  return (
+    <>
+      <SEO title="Verify Certificate" description="Verify the authenticity of a CodeGoLive certificate using its Cert No." />
+      <div style={{ minHeight: "calc(100vh - 64px)", paddingBottom: "4rem" }}>
+
+        {/* Hero search area */}
+        <div style={{
+          background: "linear-gradient(135deg, #0d1526 0%, #0e1d3a 100%)",
+          borderBottom: "1px solid var(--border)",
+          padding: "3rem 1.5rem 2.5rem",
+          textAlign: "center"
+        }}>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🎓</div>
+          <h1 style={{ fontSize: "1.6rem", fontWeight: 700, color: "#f0ede4", marginBottom: "0.5rem" }}>
+            Verify a Certificate
+          </h1>
+          <p style={{ color: "rgba(240,237,228,0.6)", marginBottom: "2rem", fontSize: "0.92rem" }}>
+            Enter a Certificate No. (e.g. <code style={{ background: "rgba(201,150,58,0.15)", color: "#e8b96a", padding: "2px 6px", borderRadius: 4 }}>CGL-7CBE4AE0</code>) to confirm its authenticity.
+          </p>
+
+          <form onSubmit={handleSearch} style={{ display: "flex", gap: "0.75rem", maxWidth: 460, margin: "0 auto", justifyContent: "center", flexWrap: "wrap" }}>
+            <input
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="CGL-XXXXXXXX"
+              spellCheck={false}
+              style={{
+                flex: 1, minWidth: 200,
+                padding: "0.65rem 1rem",
+                borderRadius: 8,
+                border: "1.5px solid rgba(201,150,58,0.5)",
+                background: "rgba(255,255,255,0.06)",
+                color: "#f0ede4",
+                fontSize: "1rem",
+                letterSpacing: "0.05em",
+                outline: "none",
+              }}
+            />
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              style={{
+                padding: "0.65rem 1.5rem",
+                borderRadius: 8,
+                border: "none",
+                background: "#c9963a",
+                color: "#fff",
+                fontWeight: 600,
+                fontSize: "0.95rem",
+                cursor: "pointer",
+                opacity: status === "loading" ? 0.7 : 1,
+              }}
+            >
+              {status === "loading" ? "Searching…" : "Verify"}
+            </button>
+          </form>
+        </div>
+
+        {/* Results */}
+        <div style={{ maxWidth: 960, margin: "2rem auto", padding: "0 1.5rem" }}>
+
+          {status === "notfound" && (
+            <div style={{
+              textAlign: "center", padding: "2.5rem 1.5rem",
+              background: "var(--surface)", borderRadius: 12, border: "1px solid var(--border)"
+            }}>
+              <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🔍</div>
+              <p style={{ color: "var(--text-2)", fontWeight: 600 }}>No certificate found</p>
+              <p style={{ color: "var(--text-3)", fontSize: "0.88rem", marginTop: "0.4rem" }}>
+                Double-check the Cert No. and try again. IDs are case-insensitive.
+              </p>
+            </div>
+          )}
+
+          {status === "error" && (
+            <div style={{
+              textAlign: "center", padding: "2rem 1.5rem",
+              background: "var(--surface)", borderRadius: 12, border: "1px solid #dc3545"
+            }}>
+              <p style={{ color: "#dc3545" }}>{errMsg}</p>
+            </div>
+          )}
+
+          {status === "found" && cert && (
+            <div>
+              <div style={{
+                display: "flex", alignItems: "center", gap: "0.6rem",
+                marginBottom: "1.25rem", justifyContent: "center"
+              }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%",
+                  background: "rgba(34,197,94,0.15)", border: "1.5px solid #22c55e",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "#22c55e", fontSize: "0.8rem", fontWeight: 700, flexShrink: 0
+                }}>✓</div>
+                <span style={{ color: "#22c55e", fontWeight: 600, fontSize: "0.95rem" }}>
+                  Certificate verified — this is an authentic CodeGoLive certificate
+                </span>
+              </div>
+              <CertCard cert={cert} isOwn={false} />
+            </div>
+          )}
+
+          {status === "idle" && (
+            <div style={{ textAlign: "center", color: "var(--text-3)", fontSize: "0.88rem", paddingTop: "1rem" }}>
+              Enter a certificate ID above to get started.
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
