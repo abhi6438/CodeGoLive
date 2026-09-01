@@ -23,14 +23,10 @@ class ProfileUpdate(BaseModel):
 @router.patch("")
 def update_profile(body: ProfileUpdate, user: CurrentUser = Depends(get_current_user)):
     sb = get_supabase()
-    res = (
-        sb.table("profiles")
-        .update({"display_name": body.display_name})
-        .eq("id", user.id)
-        .select()
-        .maybe_single()
-        .execute()
-    )
+    # Update (Python client doesn't support chaining .select() after .update())
+    sb.table("profiles").update({"display_name": body.display_name}).eq("id", user.id).execute()
+    # Fetch updated row
+    res = sb.table("profiles").select("*").eq("id", user.id).maybe_single().execute()
     if not res.data:
         raise HTTPException(status_code=404, detail="Profile not found")
     return res.data
