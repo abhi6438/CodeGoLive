@@ -3,11 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
 
-const AVAILABLE_COURSES = [
-  { id: "sap-btp", title: "SAP BTP & CAP Development", subtitle: "55+ questions · 30 per attempt", available: true },
-  { id: "sap-ai", title: "SAP AI Core & Generative AI", subtitle: "Coming soon", available: false },
-];
-
 const PASS_PERCENTAGE = 70;
 
 const PHASE = {
@@ -186,6 +181,7 @@ export default function AssessmentPage() {
 
   const [courseId, setCourseId] = useState(paramCourseId || null);
   const [phase, setPhase] = useState(paramCourseId ? PHASE.LOADING : PHASE.COURSE_SELECT);
+  const [availableCourses, setAvailableCourses] = useState([]);
   const [status, setStatus] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [total, setTotal] = useState(0);
@@ -215,6 +211,13 @@ export default function AssessmentPage() {
       })
       .catch((err) => { setError(err.message || "Failed to load"); setPhase(PHASE.ERROR); });
   }, [courseId]);
+
+  // Load available courses from backend
+  useEffect(() => {
+    api.get("/api/assessment/courses")
+      .then((data) => setAvailableCourses(Array.isArray(data) ? data : []))
+      .catch(() => setAvailableCourses([]));
+  }, []);
 
   const loadQuestions = useCallback(() => {
     setPhase(PHASE.LOADING);
@@ -269,7 +272,7 @@ export default function AssessmentPage() {
           </div>
           <div className="asmt-card-body">
           <div className="asmt-course-list">
-            {AVAILABLE_COURSES.map((c) => (
+            {availableCourses.map((c) => (
               <button
                 key={c.id}
                 className={`asmt-course-card${!c.available ? " asmt-course-disabled" : ""}`}
@@ -338,7 +341,7 @@ export default function AssessmentPage() {
 
   // ── INTRO ──────────────────────────────────────────────────────
   if (phase === PHASE.INTRO) {
-    const course = AVAILABLE_COURSES.find((c) => c.id === courseId);
+    const course = availableCourses.find((c) => c.id === courseId);
     const lastScore = status?.last_attempt;
     const lastPct = lastScore ? Math.round((lastScore.score / lastScore.total) * 100) : null;
 

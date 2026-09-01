@@ -484,3 +484,42 @@ async def get_analytics(user: CurrentUser = Depends(get_current_user)):
         "recent": recent,
     }
 
+
+
+# ─── Assessment Settings ──────────────────────────────────────────────────────
+
+class AssessmentSettingUpdate(BaseModel):
+    enabled: bool
+
+
+@router.get("/assessment-settings")
+async def list_assessment_settings(user: CurrentUser = Depends(get_current_user)):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    courses = sb.table("courses").select("id, title, status").order("order_index").execute().data or []
+    settings_res = sb.table("course_assessment_settings").select("course_id, enabled").execute().data or []
+    settings_map = {s["course_id"]: s["enabled"] for s in settings_res}
+    return [
+        {
+            "course_id": c["id"],
+            "title": c["title"],
+            "status": c["status"],
+            "assessment_enabled": settings_map.get(c["id"], False),
+        }
+        for c in courses
+    ]
+
+
+@router.patch("/assessment-settings/{course_id}")
+async def update_assessment_setting(
+    course_id: str,
+    body: AssessmentSettingUpdate,
+    user: CurrentUser = Depends(get_current_user),
+):
+    assert_role(user, "admin")
+    sb = get_supabase()
+    sb.table("course_assessment_settings").upsert(
+        {"course_id": course_id, "enabled": body.enabled},
+        on_conflict="course_id",
+    ).execute()
+    return {"course_id": course_id, "assessment_enabled": body.enabled}

@@ -94,6 +94,14 @@ export default function AdminCourses() {
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [saveError, setSaveError] = useState(null);
+  const [assessmentSettings, setAssessmentSettings] = useState([]);
+  const [togglingId, setTogglingId] = useState(null);
+
+  const loadAssessmentSettings = () => {
+    api.get("/api/admin/assessment-settings")
+      .then(setAssessmentSettings)
+      .catch(() => {});
+  };
 
   const load = () => {
     setError(null);
@@ -102,7 +110,7 @@ export default function AdminCourses() {
       .catch((e) => setError(e.message));
   };
 
-  useEffect(load, []);
+  useEffect(() => { load(); loadAssessmentSettings(); }, []);
 
   const handleCreate = async (form) => {
     if (!form.id || !form.title) return setSaveError("ID and Title are required");
@@ -132,6 +140,15 @@ export default function AdminCourses() {
       setConfirmDelete(null);
       load();
     } catch (e) { setError(e.message); setConfirmDelete(null); }
+  };
+
+  const handleAssessmentToggle = async (courseId, currentEnabled) => {
+    setTogglingId(courseId);
+    try {
+      await api.patch(`/api/admin/assessment-settings/${courseId}`, { enabled: !currentEnabled });
+      loadAssessmentSettings();
+    } catch (e) { /* ignore */ }
+    finally { setTogglingId(null); }
   };
 
   return (
@@ -218,6 +235,55 @@ export default function AdminCourses() {
             onCancel={() => setConfirmDelete(null)}
           />
         )}
+
+        {/* Assessment Settings */}
+        <div className="admin-section" style={{ marginTop: "2.5rem" }}>
+          <div className="admin-section-header">
+            <h2 className="admin-section-title">Assessment Availability</h2>
+            <p className="admin-section-desc">Enable or disable the final assessment for each course. Only enabled courses appear on the Assessment page.</p>
+          </div>
+          {assessmentSettings.length === 0 && (
+            <p className="admin-empty" style={{ marginTop: "1rem" }}>No courses found or settings unavailable.</p>
+          )}
+          {assessmentSettings.length > 0 && (
+            <div className="admin-table-wrap" style={{ marginTop: "1rem" }}>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Course</th>
+                    <th>Status</th>
+                    <th style={{ width: 120 }}>Assessment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assessmentSettings.map((s) => (
+                    <tr key={s.course_id}>
+                      <td>
+                        <div className="admin-table-primary">{s.title}</div>
+                        <div className="admin-table-meta">{s.course_id}</div>
+                      </td>
+                      <td><StatusBadge status={s.status} /></td>
+                      <td>
+                        <button
+                          className={`asmt-toggle${s.assessment_enabled ? " asmt-toggle--on" : ""}`}
+                          disabled={togglingId === s.course_id}
+                          onClick={() => handleAssessmentToggle(s.course_id, s.assessment_enabled)}
+                          title={s.assessment_enabled ? "Disable assessment" : "Enable assessment"}
+                        >
+                          <span className="asmt-toggle-track">
+                            <span className="asmt-toggle-knob" />
+                          </span>
+                          <span className="asmt-toggle-label">{s.assessment_enabled ? "On" : "Off"}</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
       </div>
     </AdminShell>
   );

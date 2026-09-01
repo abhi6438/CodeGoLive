@@ -12,6 +12,43 @@ QUESTIONS_PER_ATTEMPT = 30  # random subset shown per attempt
 COURSE_ID = "sap-btp"
 
 
+
+# ─────────────────────────────────────────────
+# GET /api/assessment/courses  (public)
+# ─────────────────────────────────────────────
+@router.get("/courses")
+def list_assessment_courses():
+    """Public: list courses with their assessment availability."""
+    sb = get_supabase()
+    try:
+        settings_res = (
+            sb.table("course_assessment_settings")
+            .select("course_id, enabled")
+            .execute()
+            .data or []
+        )
+        enabled_ids = {s["course_id"] for s in settings_res if s.get("enabled")}
+    except Exception:
+        enabled_ids = {"sap-btp"}  # fallback so app still works before table is created
+
+    courses = (
+        sb.table("courses")
+        .select("id, title, subtitle, status")
+        .order("order_index")
+        .execute()
+        .data or []
+    )
+    return [
+        {
+            "id": c["id"],
+            "title": c["title"],
+            "subtitle": c.get("subtitle") or "",
+            "available": c["id"] in enabled_ids,
+        }
+        for c in courses
+    ]
+
+
 # ─────────────────────────────────────────────
 # GET /api/assessment/status
 # ─────────────────────────────────────────────
