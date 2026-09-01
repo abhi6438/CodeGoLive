@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import SEO from "../components/SEO";
-import QuoteCard from "../components/QuoteCard";
 import { QUOTES } from "../constants/quotes";
 
 export default function ProfilePage() {

@@ -3,8 +3,6 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
-import QuoteCard from "../components/QuoteCard";
-import { QUOTES } from "../constants/quotes";
 
 /* ─── helpers ─── */
 function timeAgo(iso) {

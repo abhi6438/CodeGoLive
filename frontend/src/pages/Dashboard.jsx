@@ -1,8 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { COURSES } from "../lib/courses";
-import QuoteCard from "../components/QuoteCard";
-import { QUOTES } from "../constants/quotes";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
 
@@ -164,7 +162,6 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-body">
-        <QuoteCard quote={QUOTES.DASHBOARD} emoji="🚀" variant="hero" style={{marginBottom:"1.5rem"}} />
         {/* Available courses — featured two-column card */}
         {available.length > 0 && (
           <div className="dash-section">

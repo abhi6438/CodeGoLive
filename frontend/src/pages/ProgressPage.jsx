@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import { COURSES } from "../lib/courses";
-import QuoteCard from "../components/QuoteCard";
-import { QUOTES } from "../constants/quotes";
 
 /* ─── Ring SVG ─────────────────────────────────────────────── */
 function Ring({ pct, size = 88, stroke = 8, color }) {
@@ -218,7 +216,6 @@ export default function ProgressPage() {
       {/* Page header */}
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 800, color: "var(--text)" }}>My Progress</h1>
-        <QuoteCard quote={QUOTES.PROGRESS} emoji="📊" variant="default" style={{marginTop:"0.75rem"}} />
         <p style={{ margin: "0.4rem 0 0", color: "var(--text-2)", fontSize: "0.9rem" }}>
           Track your learning journey across all courses.
         </p>
