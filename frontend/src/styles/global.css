@@ -6230,100 +6230,91 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 }
 
 
-/* ── QuoteCard ────────────────────────────────────────────────────────────── */
+/* ── QuoteCard — compact motivational strip ──────────────────────────────── */
 .qc {
   --qc-accent: var(--primary);
-  position: relative;
-  overflow: hidden;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--qc-accent);
-  border-radius: var(--r-lg);
-  padding: 1.1rem 1.4rem 1rem;
-  box-shadow: var(--s1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.52rem 1rem;
+  border-left: 2.5px solid var(--qc-accent);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  background: color-mix(in srgb, var(--qc-accent) 5%, var(--surface));
   margin-bottom: 1.25rem;
 }
 
-/* Watermark quote glyph — absolutely positioned so it never pushes text */
+/* Opening quote glyph */
 .qc-mark {
-  position: absolute;
-  top: -0.4rem;
-  right: 0.85rem;
-  font-size: 5rem;
-  line-height: 1;
   font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--qc-accent);
-  opacity: 0.07;
-  user-select: none;
-  pointer-events: none;
-}
-
-.qc-quote {
-  margin: 0 0 0.8rem;
-  font-size: 0.925rem;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.6;
-  letter-spacing: 0.01em;
-  position: relative;         /* sits above the watermark */
-  padding-right: 2rem;        /* keeps text from running into the watermark */
-}
-
-.qc-footer {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  position: relative;
-}
-
-.qc-emoji {
-  font-size: 0.9rem;
+  opacity: 0.45;
   line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+  margin-top: -0.1rem;
+}
+
+/* Quote text */
+.qc-quote {
+  flex: 1;
+  font-size: 0.845rem;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.01em;
+  line-height: 1.45;
+}
+
+/* Optional context emoji */
+.qc-emoji {
+  font-size: 0.85rem;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* Thin separator rule */
+.qc-rule {
+  width: 18px;
+  height: 1px;
+  background: var(--border-strong);
   flex-shrink: 0;
 }
 
-.qc-rule {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
+/* Brand label */
 .qc-brand {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--qc-accent);
-  opacity: 0.75;
+  color: var(--text-3);
   flex-shrink: 0;
 }
 
-/* Variant accent colors */
+/* Variant accent colours */
 .qc--success { --qc-accent: var(--success); }
 .qc--warning  { --qc-accent: var(--warning); }
 .qc--error    { --qc-accent: var(--danger);  }
 
-/* Glass variant — for cards placed on dark backgrounds (Login, dark hero panels) */
+/* Hero — slightly stronger text, used on dashboard */
+.qc--hero .qc-quote { font-size: 0.9rem; color: var(--text); font-style: italic; }
+.qc--hero .qc-mark  { opacity: 0.55; }
+
+/* Glass — for dark-background panels (Login left panel, etc.) */
 .qc--glass {
   background: rgba(255,255,255,0.07);
-  border-color: rgba(255,255,255,0.14);
-  border-top-color: rgba(99,102,241,0.65);
-  box-shadow: none;
+  border-left-color: rgba(99,102,241,0.55);
 }
-.qc--glass .qc-quote { color: rgba(255,255,255,0.92); }
-.qc--glass .qc-mark  { color: #fff; opacity: 0.12; }
-.qc--glass .qc-rule  { background: rgba(255,255,255,0.18); }
-.qc--glass .qc-brand { color: rgba(255,255,255,0.55); opacity: 1; letter-spacing: 0.1em; }
+.qc--glass .qc-mark  { color: #fff; opacity: 0.4; }
+.qc--glass .qc-quote { color: rgba(255,255,255,0.82); }
+.qc--glass .qc-emoji { opacity: 0.7; }
+.qc--glass .qc-rule  { background: rgba(255,255,255,0.22); }
+.qc--glass .qc-brand { color: rgba(255,255,255,0.35); }
 
-/* Hero variant — larger text for dashboard placement */
-.qc--hero .qc-quote { font-size: 1.05rem; letter-spacing: 0.015em; }
-.qc--hero .qc-mark  { font-size: 6.5rem; top: -0.8rem; opacity: 0.06; }
-
-/* Responsive */
-@media (max-width: 640px) {
-  .qc { padding: 1rem 1.1rem 0.875rem; }
-  .qc-quote { font-size: 0.875rem; padding-right: 1rem; }
-  .qc-mark  { font-size: 3.5rem; }
+/* Responsive — hide brand+rule on very small screens */
+@media (max-width: 480px) {
+  .qc-rule, .qc-brand { display: none; }
+  .qc { padding: 0.48rem 0.85rem; }
 }
 

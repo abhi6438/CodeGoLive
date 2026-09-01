@@ -1,7 +1,8 @@
 /**
- * QuoteCard — premium motivational quote component for CodeGoLive.
- * Props: quote (string), variant ("default"|"success"|"warning"|"error"|"hero"),
- *        emoji (string, optional), className (string), style (object)
+ * QuoteCard — compact motivational strip for CodeGoLive.
+ * Single-row: mark · quote · [emoji] · rule · brand
+ * Props: quote, variant ("default"|"success"|"warning"|"error"|"hero"|"glass"),
+ *        emoji, className, style
  */
 export default function QuoteCard({
   quote,
@@ -11,28 +12,15 @@ export default function QuoteCard({
   style,
 }) {
   if (!quote) return null;
-
-  const variantClass =
-    variant !== "default" ? ` qc--${variant}` : "";
-
+  const cls = ["qc", variant !== "default" ? `qc--${variant}` : "", className]
+    .filter(Boolean).join(" ");
   return (
-    <div
-      className={`qc${variantClass} ${className}`.trim()}
-      style={style}
-      role="note"
-      aria-label="Motivational quote"
-    >
+    <div className={cls} style={style} role="note" aria-label="Motivational quote">
       <span className="qc-mark" aria-hidden="true">&ldquo;</span>
-      <p className="qc-quote">{quote}</p>
-      <div className="qc-footer">
-        {emoji && (
-          <span className="qc-emoji" aria-hidden="true">
-            {emoji}
-          </span>
-        )}
-        <div className="qc-rule" />
-        <span className="qc-brand">CodeGoLive</span>
-      </div>
+      <span className="qc-quote">{quote}</span>
+      {emoji && <span className="qc-emoji" aria-hidden="true">{emoji}</span>}
+      <div className="qc-rule" aria-hidden="true" />
+      <span className="qc-brand" aria-hidden="true">CodeGoLive</span>
     </div>
   );
 }
