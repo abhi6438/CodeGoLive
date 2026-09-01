@@ -554,7 +554,7 @@ export default function CourseWorkspace() {
   const nextTopic = currentIdx < allTopics.length - 1 ? allTopics[currentIdx + 1] : null;
 
   const navigateToTopic = (slug) => {
-    navigate(`/course/${courseId}/${slug}`);
+    navigate(`/course/${courseId}/${slug}`, { preventScrollReset: true });
   };
 
   const handleComplete = (topicId, courseCompleted, courseId) => {

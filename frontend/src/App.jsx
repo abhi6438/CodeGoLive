@@ -50,6 +50,7 @@ function NotFound() {
 function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
+  const isCourse = location.pathname.startsWith("/course");
 
   return (
     <div className={"app-shell" + (collapsed ? " sidebar-collapsed" : "") + (mobileOpen ? " mobile-sidebar-open" : "")}>
@@ -67,7 +68,7 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
 
         <div className="app-content">
           <PageViewTracker />
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: isCourse ? 1 : "0 0 auto", display: "flex", flexDirection: "column", minHeight: 0 }}>
         <Routes>
             {/* Learner routes */}
             <Route path="/" element={<Dashboard />} />
@@ -109,8 +110,8 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
           </Routes>
 
         </div>
-          {/* Footer — always visible, sticky to bottom */}
-          {<Footer />}
+          {/* Footer — hidden on admin and course workspace pages */}
+          {!isAdmin && !isCourse && <Footer />}
         </div>
       </div>
 

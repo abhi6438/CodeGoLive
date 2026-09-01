@@ -1596,13 +1596,15 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 .workspace-inner {
   flex: 1; display: grid;
   grid-template-columns: 270px 1fr;
+  grid-template-rows: 1fr;
   min-height: 0; overflow: hidden;
 }
 
 /* ── sidebar ───────────────────────────────────── */
 .ws-sidebar-wrap {
+    background: var(--surface);
   border-right: 1px solid var(--border);
-  background: var(--surface); display: flex; flex-direction: column; overflow: hidden;
+  display: flex; flex-direction: column; overflow: hidden;
 }
 .ws-sidebar { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 .ws-sidebar--loading { align-items: center; justify-content: center; padding: 2rem; }
@@ -3001,6 +3003,7 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
   /* Sidebar becomes drawer */
   .ws-sidebar-wrap {
+    background: var(--surface);
     position: fixed;
     inset: 0 auto 0 0;
     width: 85vw;
@@ -4785,6 +4788,7 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 /* ── Site Footer ─────────────────────────────────────────────── */
 .site-footer {
+  flex-shrink: 0;
   position: sticky;
   bottom: 0;
   background: var(--bg);
