@@ -6241,6 +6241,7 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
   border-radius: 0 var(--r-sm) var(--r-sm) 0;
   background: color-mix(in srgb, var(--qc-accent) 5%, var(--surface));
   margin-bottom: 1.25rem;
+  max-width: 580px;
 }
 
 /* Opening quote glyph */

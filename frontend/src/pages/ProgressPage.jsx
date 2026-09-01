@@ -222,7 +222,6 @@ export default function ProgressPage() {
         <p style={{ margin: "0.4rem 0 0", color: "var(--text-2)", fontSize: "0.9rem" }}>
           Track your learning journey across all courses.
         </p>
-        <QuoteCard quote={QUOTES.PROGRESS} emoji="📊" variant="default" style={{marginTop:"1rem"}} />
       </div>
 
       {/* Top stats */}

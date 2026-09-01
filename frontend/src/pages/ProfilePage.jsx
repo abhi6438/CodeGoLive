@@ -45,7 +45,6 @@ export default function ProfilePage() {
     <>
       <SEO title="Edit Profile" robots="noindex, nofollow" />
       <div className="prof-page">
-        <QuoteCard quote={QUOTES.PROFILE} emoji="👤" variant="default" style={{marginBottom:"1.25rem"}} />
         <div className="prof-card">
           {/* Avatar */}
           <div className="prof-avatar-wrap">
