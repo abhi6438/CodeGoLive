@@ -40,9 +40,18 @@ def assessment_status(
         .limit(1)
         .execute()
     )
+    # Count all attempts
+    count_res = (
+        sb.table("assessment_attempts")
+        .select("id", count="exact")
+        .eq("user_id", user.id)
+        .eq("course_id", course_id)
+        .execute()
+    )
     return {
         "passed": bool(best.data),
         "last_attempt": res.data[0] if res.data else None,
+        "total_attempts": count_res.count or 0,
     }
 
 

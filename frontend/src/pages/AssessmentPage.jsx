@@ -254,6 +254,18 @@ export default function AssessmentPage() {
               <p className="asmt-intro-sub">
                 You've already passed the <strong>{course?.title}</strong> assessment. Your certificate has been issued.
               </p>
+              {status?.total_attempts > 0 && (
+                <div className="asmt-attempts-info">
+                  <span className="asmt-attempts-count">
+                    🔄 {status.total_attempts} attempt{status.total_attempts !== 1 ? "s" : ""} total
+                  </span>
+                  {status.last_attempt && (
+                    <span className="asmt-attempts-last">
+                      Last score: {status.last_attempt.score}/{status.last_attempt.total} ({Math.round((status.last_attempt.score / status.last_attempt.total) * 100)}%)
+                    </span>
+                  )}
+                </div>
+              )}
               <div className="asmt-intro-actions">
                 <button className="asmt-btn asmt-btn-primary" onClick={() => navigate("/certificate")}>
                   View My Certificate →
@@ -284,10 +296,17 @@ export default function AssessmentPage() {
                 <li>✦ <strong>Unlimited retakes</strong> — new random set each time</li>
                 <li>✦ Full review with explanations and topic links after submission</li>
               </ul>
-              {status?.last_attempt && (
-                <p className="asmt-intro-prev">
-                  Last attempt: {status.last_attempt.score}/{status.last_attempt.total} ({Math.round((status.last_attempt.score / status.last_attempt.total) * 100)}%)
-                </p>
+              {status?.total_attempts > 0 && (
+                <div className="asmt-attempts-info">
+                  <span className="asmt-attempts-count">
+                    🔄 {status.total_attempts} attempt{status.total_attempts !== 1 ? "s" : ""} so far
+                  </span>
+                  {status.last_attempt && (
+                    <span className="asmt-attempts-last">
+                      Last score: {status.last_attempt.score}/{status.last_attempt.total} ({Math.round((status.last_attempt.score / status.last_attempt.total) * 100)}%)
+                    </span>
+                  )}
+                </div>
               )}
               <div className="asmt-intro-actions">
                 <button className="asmt-btn asmt-btn-primary asmt-btn-lg" onClick={loadQuestions}>
