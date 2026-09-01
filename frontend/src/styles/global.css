@@ -5425,7 +5425,7 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 
 /* Colored header band inside center card */
 .asmt-card-band {
-  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  background: linear-gradient(135deg, #0d1526 0%, #130d2e 60%, #1a0d3a 100%);
   padding: 2rem 2rem 1.75rem;
   display: flex;
   flex-direction: column;
