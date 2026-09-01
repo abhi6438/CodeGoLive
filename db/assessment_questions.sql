@@ -69,7 +69,7 @@ values
 -- ===== MODULE 1: Multi Screen & Routing (2-ms-test) =====
 ('sap-btp',
  'Where is SAPUI5 routing configuration defined?',
- '["In Component.js directly", "In the `sap.ui5.routing` section of manifest.json", "In the controller\'s onInit method", "In a separate routes.json file"]',
+ '["In Component.js directly", "In the `sap.ui5.routing` section of manifest.json", "In the controller''s onInit method", "In a separate routes.json file"]',
  1,
  'Routing is configured in the `sap.ui5.routing` section of manifest.json. It declares routes (URL patterns), targets (views to display), and the router class.',
  '2-ms-test', 9),
@@ -180,7 +180,7 @@ values
  'Where do you put CSV seed data in a CAP project for SQLite?',
  '["In the root package.json under `seeds`", "In `db/data/` as `<namespace>-<EntityName>.csv` files", "In the `srv/` folder as service-data files", "In a `data.json` file at the project root"]',
  1,
- 'CAP automatically loads CSV files from `db/data/` during `cds deploy`. The file name must match the entity\'s fully qualified name, e.g., `my.namespace-Books.csv`.',
+ 'CAP automatically loads CSV files from `db/data/` during `cds deploy`. The file name must match the entity''s fully qualified name, e.g., `my.namespace-Books.csv`.',
  '6-sqllite-test', 24),
 
 ('sap-btp',
@@ -207,7 +207,7 @@ values
 
 ('sap-btp',
  'What is the OData $metadata document used for?',
- '["It documents the privacy policy of the service", "It describes the service\'s entity types, properties, and relationships in XML so clients can understand the API", "It lists the server performance metrics", "It contains the deployment configuration"]',
+ '["It documents the privacy policy of the service", "It describes the service''s entity types, properties, and relationships in XML so clients can understand the API", "It lists the server performance metrics", "It contains the deployment configuration"]',
  1,
  'OData $metadata is a machine-readable XML document at `<serviceRoot>/$metadata` that describes all entity types, key fields, navigation properties, and service operations.',
  '7-cap-ss-test', 28),
@@ -258,7 +258,7 @@ values
  '10-validation-test', 34),
 
 ('sap-btp',
- 'What does CAP\'s `@assert.range` annotation do?',
+ 'What does CAP''s `@assert.range` annotation do?',
  '["It specifies the date range for data archival", "It automatically validates that a field value falls within allowed bounds at the service layer", "It sets min/max on an HTML input element", "It restricts database column size"]',
  1,
  '`@assert.range` is a CDS annotation that makes CAP automatically reject requests where the annotated field falls outside the specified range, returning an OData error.',
@@ -283,7 +283,7 @@ values
  'In an OData request, what does the `$filter` system query option do?',
  '["Specifies which properties to return (projection)", "Filters the result set server-side based on a Boolean expression", "Limits the number of returned records", "Sorts results by a field"]',
  1,
- '`$filter` (e.g., `?$filter=Price gt 20`) is an OData query option that filters records on the server before returning them. SAPUI5\'s OData model translates Filter objects into `$filter` automatically.',
+ '`$filter` (e.g., `?$filter=Price gt 20`) is an OData query option that filters records on the server before returning them. SAPUI5''s OData model translates Filter objects into `$filter` automatically.',
  '11-filter-sort-test', 38),
 
 -- ===== MODULE 4: Auth / XSUAA (12-auth-test) =====
@@ -312,13 +312,13 @@ values
  'In a CAP custom handler, how do you get the current logged-in user?',
  '["req.headers.user", "req.user (or req.user.id) provided by the CAP request context", "process.env.USER", "this.getModel(\"user\").getProperty(\"/name\")"]',
  1,
- 'CAP automatically populates `req.user` with the authenticated user\'s details (id, tenant, roles) from the JWT token. You access it in any `before/on/after` handler.',
+ 'CAP automatically populates `req.user` with the authenticated user''s details (id, tenant, roles) from the JWT token. You access it in any `before/on/after` handler.',
  '12-auth-test', 42),
 
 -- ===== MODULE 4: Destinations (13-destination-test) =====
 ('sap-btp',
  'What problem does a BTP Destination solve?',
- '["It speeds up database queries by caching results", "It externalises backend service URLs and credentials so they aren\'t hardcoded in application code", "It routes HTTP traffic between Cloud Foundry spaces", "It translates OData V2 to OData V4 automatically"]',
+ '["It speeds up database queries by caching results", "It externalises backend service URLs and credentials so they aren''t hardcoded in application code", "It routes HTTP traffic between Cloud Foundry spaces", "It translates OData V2 to OData V4 automatically"]',
  1,
  'Destinations store connectivity details (URL, auth type, credentials) in the BTP cockpit. Apps reference the destination by name — the actual URL and credentials are never hardcoded.',
  '13-destination-test', 43),
@@ -340,7 +340,7 @@ values
 
 ('sap-btp',
  'What is the xs-app.json file used for?',
- '["Defining CAP entity models", "Configuring the App Router\'s route rules — which paths map to which backend services or static resources", "Listing Cloud Foundry environment variables", "Configuring BTP subaccount entitlements"]',
+ '["Defining CAP entity models", "Configuring the App Router''s route rules — which paths map to which backend services or static resources", "Listing Cloud Foundry environment variables", "Configuring BTP subaccount entitlements"]',
  1,
  'xs-app.json is the routing configuration file for the App Router. Each route entry specifies a URL pattern (`source`) and where to forward it (`destination`, `localDir`, or `service`).',
  '14-approuter-test', 46),
@@ -393,14 +393,14 @@ values
  'What is the difference between `Association` and `Composition` in CDS?',
  '["Association is for integers, Composition is for strings", "Association links to independently managed entities; Composition creates a parent-child ownership — composed child entities cannot exist without the parent", "Composition is a many-to-many association", "They are identical keywords — interchangeable"]',
  1,
- 'In CDS: `Association` is a loose link between independent entities. `Composition` implies ownership — the child\'s lifecycle is bound to the parent. CAP enforces cascaded operations on Compositions.',
+ 'In CDS: `Association` is a loose link between independent entities. `Composition` implies ownership — the child''s lifecycle is bound to the parent. CAP enforces cascaded operations on Compositions.',
  '16-mp-1-test', 53),
 
 ('sap-btp',
  'In SAPUI5 data binding, what does the curly brace syntax `{property}` in XML attributes represent?',
  '["A CSS class name", "A property binding expression that binds the attribute value to a model property at the current binding context path", "A JavaScript function call", "An i18n text key"]',
  1,
- '`{propertyName}` is SAPUI5\'s shorthand for property binding. It reads the value from the model at the current context path and keeps it in sync. E.g., `<Text text=\"{firstName}\"/>`.',
+ '`{propertyName}` is SAPUI5''s shorthand for property binding. It reads the value from the model at the current context path and keeps it in sync. E.g., `<Text text=\"{firstName}\"/>`.',
  '17-mp-2-test', 54),
 
 -- ===== MODULE 6: Troubleshooting =====
