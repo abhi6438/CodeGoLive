@@ -223,11 +223,12 @@ export default function Dashboard() {
               <span>{soon.length} course{soon.length !== 1 ? "s" : ""}</span>
             </div>
             <div className="dash-soon-grid">
-              {soon.map((c) =>
-                c.user_has_access
+              {soon.map((c) => {
+                const isEarlyAccess = c.access_type === "restricted" && c.user_has_access;
+                return isEarlyAccess
                   ? <Link key={c.id} to={`/course/${c.id}`} style={{ textDecoration:"none" }}><SoonCard course={c} grantedAccess /></Link>
-                  : <SoonCard key={c.id} course={c} />
-              )}
+                  : <SoonCard key={c.id} course={c} />;
+              })}
             </div>
           </div>
         )}
