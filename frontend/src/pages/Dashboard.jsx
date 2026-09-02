@@ -119,14 +119,16 @@ function FeaturedCard({ course }) {
   return <Link to={`/course/${course.id}`} style={{ textDecoration:"none" }}>{card}</Link>;
 }
 
-function SoonCard({ course }) {
+function SoonCard({ course, grantedAccess }) {
   return (
-    <div className="soon-card" style={{ "--card-accent": course.accentColor }}>
+    <div className="soon-card" style={{ "--card-accent": course.accentColor, cursor: grantedAccess ? "pointer" : "default" }}>
       <div className="soon-card-accent-bar" />
       <div className="soon-card-inner">
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
           <span style={{ fontSize:"1.6rem" }}>{course.icon}</span>
-          <span style={{ fontSize:"0.7rem", fontWeight:700, padding:"0.2rem 0.6rem", borderRadius:"999px", border:`1px solid ${course.accentColor}`, color:course.accentColor }}>Coming Soon</span>
+          {grantedAccess
+            ? <span style={{ fontSize:"0.7rem", fontWeight:700, padding:"0.2rem 0.6rem", borderRadius:"999px", background: course.accentColor, color:"#fff" }}>🔓 Early Access</span>
+            : <span style={{ fontSize:"0.7rem", fontWeight:700, padding:"0.2rem 0.6rem", borderRadius:"999px", border:`1px solid ${course.accentColor}`, color:course.accentColor }}>Coming Soon</span>}
         </div>
         <h3 style={{ margin:0, fontSize:"0.95rem", fontWeight:700, color:"var(--text)" }}>{course.title}</h3>
         <p style={{ margin:0, fontSize:"0.82rem", color:"var(--text-2)", lineHeight:1.5 }}>{course.subtitle}</p>
@@ -172,6 +174,7 @@ export default function Dashboard() {
           modules: db.module_count ?? staticC.modules,
           topics: db.topic_count ?? staticC.topics,
           modulesList: db.modules ?? [],  // array of {title, subtitle, number} from DB
+          access_type: db.access_type ?? "public",
         };
       });
       setCourses(merged);
@@ -219,7 +222,11 @@ export default function Dashboard() {
               <span>{soon.length} course{soon.length !== 1 ? "s" : ""}</span>
             </div>
             <div className="dash-soon-grid">
-              {soon.map((c) => <SoonCard key={c.id} course={c} />)}
+              {soon.map((c) =>
+                c.access_type === "restricted"
+                  ? <Link key={c.id} to={`/course/${c.id}`} style={{ textDecoration:"none" }}><SoonCard course={c} grantedAccess /></Link>
+                  : <SoonCard key={c.id} course={c} />
+              )}
             </div>
           </div>
         )}
