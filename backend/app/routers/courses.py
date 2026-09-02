@@ -23,17 +23,16 @@ async def list_courses(user: CurrentUser | None = Depends(get_optional_user)):
 
     enriched = []
     for c in res.data:
-        # Skip restricted courses the user has no grant for
-        if c.get("access_type", "public") == "restricted" and c["id"] not in accessible:
-            # Admins always see everything
-            if not user or user.role not in ("admin", "moderator"):
-                continue
+        is_restricted = c.get("access_type", "public") == "restricted"
+        is_admin = user and user.role in ("admin", "moderator")
+        has_access = (not is_restricted) or is_admin or (c["id"] in accessible)
         mods = sorted(c.pop("modules", []) or [], key=lambda m: m.get("order_index", 0))
         topic_count = sum(len(m.get("topics") or []) for m in mods)
         enriched.append({
             **c,
             "module_count": len(mods),
             "topic_count": topic_count,
+            "user_has_access": has_access,
             "modules": [
                 {"title": m["title"], "subtitle": m.get("subtitle"), "number": m.get("number")}
                 for m in mods

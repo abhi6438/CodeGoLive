@@ -175,6 +175,7 @@ export default function Dashboard() {
           topics: db.topic_count ?? staticC.topics,
           modulesList: db.modules ?? [],  // array of {title, subtitle, number} from DB
           access_type: db.access_type ?? "public",
+          user_has_access: db.user_has_access ?? true,
         };
       });
       setCourses(merged);
@@ -223,7 +224,7 @@ export default function Dashboard() {
             </div>
             <div className="dash-soon-grid">
               {soon.map((c) =>
-                c.access_type === "restricted"
+                c.user_has_access
                   ? <Link key={c.id} to={`/course/${c.id}`} style={{ textDecoration:"none" }}><SoonCard course={c} grantedAccess /></Link>
                   : <SoonCard key={c.id} course={c} />
               )}
