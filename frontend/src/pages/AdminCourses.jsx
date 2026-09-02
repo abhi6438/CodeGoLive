@@ -125,17 +125,23 @@ function AccessPanel({ courseId }) {
   };
 
   return (
-    <div className="admin-form-panel" style={{ marginTop: "1rem" }}>
-      <h3 className="admin-form-title" style={{ marginBottom: "1rem" }}>🔐 Access Control</h3>
+    <div className="admin-form-panel" style={{ marginTop: "1.5rem", borderTop: "2px solid var(--accent)", paddingTop: "1.25rem" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+        <h3 className="admin-form-title" style={{ margin: 0 }}>🔐 Access Control</h3>
+        <span style={{ fontSize: "0.75rem", color: "var(--text-3)", background: "var(--surface-2)", padding: "0.2rem 0.6rem", borderRadius: "4px" }}>
+          Independent from Save ↑
+        </span>
+      </div>
       <p style={{ fontSize: "0.82rem", color: "var(--text-2)", marginBottom: "1rem" }}>
         This course is <strong>restricted</strong>. Only users listed below can see and enter it.
+        Grant or revoke access instantly — no need to click Save.
       </p>
       {error && <div className="admin-alert admin-alert--error" style={{ marginBottom: "0.75rem" }}>{error}</div>}
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
         <input
           className="admin-input"
           style={{ flex: 1 }}
-          placeholder="learner@email.com"
+          placeholder="Enter learner email e.g. user@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleGrant()}
@@ -169,7 +175,7 @@ function AccessPanel({ courseId }) {
                     {u.granted_at ? new Date(u.granted_at).toLocaleDateString() : "—"}
                   </td>
                   <td>
-                    <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => handleRevoke(u.user_id)} title="Revoke access">✕</button>
+                    <button className="admin-btn admin-btn--danger" style={{fontSize:"0.75rem",padding:"0.3rem 0.7rem"}} onClick={() => { if(window.confirm(`Revoke access for ${u.profiles?.email || u.user_id}?`)) handleRevoke(u.user_id); }} title="Revoke access">Revoke</button>
                   </td>
                 </tr>
               ))}
