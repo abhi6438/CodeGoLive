@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+from gotrue._sync.gotrue_admin_api import SyncGoTrueAdminAPI
 from ..supabase_client import get_supabase
 from ..auth import get_current_user, CurrentUser, assert_role
+from ..config import get_settings
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -143,9 +145,18 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     """Grant a user access to a restricted course by their email."""
     assert_role(user, "admin")
     sb = get_supabase()
-    # Email lives in auth.users, not in profiles — use auth admin API to look up
+    # Email lives in auth.users — use GoTrue admin API directly
+    # (supabase-py 2.x SyncClient does not expose .auth.admin)
+    settings = get_settings()
     try:
-        auth_users = sb.auth.admin.list_users()
+        admin_auth = SyncGoTrueAdminAPI(
+            url=f"{settings.SUPABASE_URL}/auth/v1",
+            headers={
+                "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+            },
+        )
+        auth_users = admin_auth.list_users()
         target_auth = next((u for u in auth_users if u.email == body.user_email), None)
     except Exception as e:
         raise HTTPException(500, f"Failed to look up user: {e}")

@@ -197,6 +197,7 @@ export default function AdminCourses() {
   const [saveError, setSaveError] = useState(null);
   const [assessmentSettings, setAssessmentSettings] = useState([]);
   const [togglingId, setTogglingId] = useState(null);
+  const [accessPanel, setAccessPanel] = useState(null); // course object whose access panel is open
 
   const loadAssessmentSettings = () => {
     api.get("/api/admin/assessment-settings")
@@ -275,8 +276,17 @@ export default function AdminCourses() {
         {editing && (
           <CourseForm initial={editing} onSave={handleUpdate} onCancel={() => setEditing(null)} saving={saving} />
         )}
-        {editing && (editing.access_type === "restricted") && (
-          <AccessPanel courseId={editing.id} />
+
+
+        {/* Standalone Access Control Panel */}
+        {accessPanel && (
+          <div className="admin-form-panel" style={{ marginTop: "1rem", borderTop: "2px solid var(--accent)", paddingTop: "1.25rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+              <h3 className="admin-form-title" style={{ margin: 0 }}>🔐 Access Control — {accessPanel.title}</h3>
+              <button className="admin-btn" onClick={() => setAccessPanel(null)}>✕ Close</button>
+            </div>
+            <AccessPanel courseId={accessPanel.id} />
+          </div>
         )}
 
         {/* Table */}
@@ -321,7 +331,10 @@ export default function AdminCourses() {
                     <td className="admin-table-num">{c.order_index}</td>
                     <td>
                       <div className="admin-row-actions">
-                        <button className="admin-btn-icon" onClick={() => { setEditing(c); setShowForm(false); setSaveError(null); }} title="Edit">✏️</button>
+                        <button className="admin-btn-icon" onClick={() => { setEditing(c); setShowForm(false); setSaveError(null); setAccessPanel(null); }} title="Edit">✏️</button>
+                        {c.access_type === "restricted" && (
+                          <button className="admin-btn-icon" style={accessPanel?.id === c.id ? { background: "var(--accent)", color: "#fff", borderRadius: "4px" } : {}} onClick={() => { setAccessPanel(accessPanel?.id === c.id ? null : c); setEditing(null); setShowForm(false); }} title="Manage Access">🔐</button>
+                        )}
                         <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => setConfirmDelete(c)} title="Delete">🗑</button>
                       </div>
                     </td>
