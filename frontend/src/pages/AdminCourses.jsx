@@ -127,10 +127,7 @@ function AccessPanel({ courseId }) {
   return (
     <div className="admin-form-panel" style={{ marginTop: "1.5rem", borderTop: "2px solid var(--accent)", paddingTop: "1.25rem" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-        <h3 className="admin-form-title" style={{ margin: 0 }}>🔐 Access Control</h3>
-        <span style={{ fontSize: "0.75rem", color: "var(--text-3)", background: "var(--surface-2)", padding: "0.2rem 0.6rem", borderRadius: "4px" }}>
-          Independent from Save ↑
-        </span>
+        <h3 className="admin-form-title" style={{ margin: 0 }}>Manage Access</h3>
       </div>
       <p style={{ fontSize: "0.82rem", color: "var(--text-2)", marginBottom: "1rem" }}>
         This course is <strong>restricted</strong>. Only users listed below can see and enter it.
@@ -285,7 +282,7 @@ export default function AdminCourses() {
               <h3 className="admin-form-title" style={{ margin: 0 }}>🔐 Access Control — {accessPanel.title}</h3>
               <button className="admin-btn" onClick={() => setAccessPanel(null)}>✕ Close</button>
             </div>
-            <AccessPanel courseId={accessPanel.id} />
+            <AccessPanel courseId={accessPanel.id} key={accessPanel.id} />
           </div>
         )}
 
@@ -311,6 +308,7 @@ export default function AdminCourses() {
                 <tr>
                   <th>Course</th>
                   <th>Status</th>
+                  <th>Access</th>
                   <th>Modules</th>
                   <th>Order</th>
                   <th></th>
@@ -327,6 +325,12 @@ export default function AdminCourses() {
                       <div className="admin-table-meta">{c.id}</div>
                     </td>
                     <td><StatusBadge status={c.status} /></td>
+                    <td>
+                      {c.access_type === "restricted"
+                        ? <span style={{fontSize:"0.72rem",padding:"0.18rem 0.5rem",borderRadius:"4px",background:"rgba(139,92,246,0.18)",color:"var(--accent)",fontWeight:600}}>🔐 Restricted</span>
+                        : <span style={{fontSize:"0.72rem",padding:"0.18rem 0.5rem",borderRadius:"4px",background:"rgba(34,197,94,0.12)",color:"#4ade80"}}>Public</span>
+                      }
+                    </td>
                     <td className="admin-table-num">{c.module_count ?? 0}</td>
                     <td className="admin-table-num">{c.order_index}</td>
                     <td>
