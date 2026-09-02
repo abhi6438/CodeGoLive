@@ -132,11 +132,25 @@ async def list_course_access(course_id: str, user: CurrentUser = Depends(get_cur
         return []
     # Step 2: look up profiles for each user_id
     user_ids = [r["user_id"] for r in rows]
-    profiles_res = sb.table("profiles").select("id, email, display_name").in_("id", user_ids).execute()
+    profiles_res = sb.table("profiles").select("id, display_name").in_("id", user_ids).execute()
     profile_map = {p["id"]: p for p in (profiles_res.data or [])}
+    # Get emails from auth admin API (email is NOT in public.profiles)
+    settings = get_settings()
+    try:
+        admin_auth = SyncGoTrueAdminAPI(
+            url=f"{settings.SUPABASE_URL}/auth/v1",
+            headers={
+                "apikey": settings.SUPABASE_SERVICE_ROLE_KEY,
+                "Authorization": f"Bearer {settings.SUPABASE_SERVICE_ROLE_KEY}",
+            },
+        )
+        auth_users = admin_auth.list_users()
+        email_map = {u.id: u.email for u in auth_users}
+    except Exception:
+        email_map = {}
     for r in rows:
         p = profile_map.get(r["user_id"], {})
-        r["profiles"] = {"email": p.get("email"), "display_name": p.get("display_name")}
+        r["profiles"] = {"email": email_map.get(r["user_id"]), "display_name": p.get("display_name")}
     return rows
 
 
