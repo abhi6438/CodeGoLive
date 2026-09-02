@@ -138,9 +138,14 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
             "granted_by": user.id,
         }).execute()
     except Exception as e:
-        if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+        err = str(e)
+        # supabase-py throws on HTTP 204 No Content — that means success, ignore it
+        if "204" in err or "Missing response" in err.lower():
+            pass
+        elif "unique" in err.lower() or "duplicate" in err.lower():
             raise HTTPException(409, "This user already has access to this course")
-        raise HTTPException(500, str(e))
+        else:
+            raise HTTPException(500, err)
     return {
         "ok": True,
         "user_id": profile.data["id"],

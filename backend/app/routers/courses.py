@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from ..supabase_client import get_supabase
+from ..auth import get_optional_user, CurrentUser
 
 router = APIRouter(prefix="/api/courses", tags=["courses"])
 
@@ -14,8 +15,11 @@ async def list_courses(user: CurrentUser | None = Depends(get_optional_user)):
     # Collect course IDs the user has been granted access to
     accessible: set = set()
     if user:
-        access_res = sb.table("user_course_access").select("course_id").eq("user_id", user.id).execute()
-        accessible = {r["course_id"] for r in (access_res.data or [])}
+        try:
+            access_res = sb.table("user_course_access").select("course_id").eq("user_id", user.id).execute()
+            accessible = {r["course_id"] for r in (access_res.data or [])}
+        except Exception:
+            pass  # table not yet created — treat as no grants
 
     enriched = []
     for c in res.data:
@@ -54,8 +58,11 @@ async def get_course(course_id: str, user: CurrentUser | None = Depends(get_opti
             if user.role in ("admin", "moderator"):
                 allowed = True
             else:
-                access = sb.table("user_course_access").select("id")                            .eq("user_id", user.id).eq("course_id", course_id)                            .maybe_single().execute()
-                allowed = bool(access.data)
+                try:
+                    access = sb.table("user_course_access").select("id")                                .eq("user_id", user.id).eq("course_id", course_id)                                .maybe_single().execute()
+                    allowed = bool(access.data)
+                except Exception:
+                    allowed = False  # table not yet created
         if not allowed:
             from fastapi import HTTPException
             raise HTTPException(404, "Course not found")
