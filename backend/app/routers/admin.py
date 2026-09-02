@@ -143,16 +143,19 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     """Grant a user access to a restricted course by their email."""
     assert_role(user, "admin")
     sb = get_supabase()
-    profile = sb.table("profiles").select("id, email, display_name").eq("email", body.user_email).maybe_single().execute()
-    if not profile.data:
+    # Use limit(1) instead of maybe_single() — maybe_single throws a 204 exception
+    # when 0 rows are found, which crashes before we can handle it.
+    _p = sb.table("profiles").select("id, email, display_name").eq("email", body.user_email).limit(1).execute()
+    if not (_p.data and len(_p.data) > 0):
         raise HTTPException(404, f"No user found with email: {body.user_email}")
+    profile_data = _p.data[0]
     # supabase-py 2.x has a known bug: INSERT returns HTTP 204 No Content
     # but the library throws an exception instead of handling it gracefully.
     # Workaround: catch ALL exceptions, then verify the row exists with a
     # follow-up SELECT. If it's there → success. If not → real failure.
     try:
         sb.table("user_course_access").insert({
-            "user_id":    profile.data["id"],
+            "user_id":    profile_data["id"],
             "course_id":  course_id,
             "granted_by": user.id,
         }).execute()
@@ -162,7 +165,7 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     # Verify the row was actually created (avoid maybe_single — it can also 204)
     verify = sb.table("user_course_access") \
                .select("id") \
-               .eq("user_id", profile.data["id"]) \
+               .eq("user_id", profile_data["id"]) \
                .eq("course_id", course_id) \
                .limit(1) \
                .execute()
@@ -171,9 +174,9 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
         raise HTTPException(500, "Failed to grant access — please try again")
     return {
         "ok": True,
-        "user_id": profile.data["id"],
-        "email": profile.data["email"],
-        "display_name": profile.data.get("display_name"),
+        "user_id": profile_data["id"],
+        "email": profile_data["email"],
+        "display_name": profile_data.get("display_name"),
     }
 
 
