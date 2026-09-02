@@ -146,21 +146,29 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     profile = sb.table("profiles").select("id, email, display_name").eq("email", body.user_email).maybe_single().execute()
     if not profile.data:
         raise HTTPException(404, f"No user found with email: {body.user_email}")
+    # supabase-py 2.x has a known bug: INSERT returns HTTP 204 No Content
+    # but the library throws an exception instead of handling it gracefully.
+    # Workaround: catch ALL exceptions, then verify the row exists with a
+    # follow-up SELECT. If it's there → success. If not → real failure.
     try:
-        # Chain .select() to force PostgREST Prefer: return=representation
-        # so it returns 200 + the row instead of 204 No Content.
-        # This avoids the supabase-py "Missing response, code 204" bug.
         sb.table("user_course_access").insert({
             "user_id":    profile.data["id"],
             "course_id":  course_id,
             "granted_by": user.id,
-        }).select().execute()
-    except Exception as e:
-        err = str(e)
-        if "unique" in err.lower() or "duplicate" in err.lower() or "23505" in err:
-            raise HTTPException(409, "This user already has access to this course")
-        else:
-            raise HTTPException(500, err)
+        }).execute()
+    except Exception:
+        pass  # may be the 204 bug — verify below
+
+    # Verify the row was actually created
+    verify = sb.table("user_course_access") \
+               .select("id") \
+               .eq("user_id", profile.data["id"]) \
+               .eq("course_id", course_id) \
+               .maybe_single() \
+               .execute()
+
+    if not verify.data:
+        raise HTTPException(500, "Failed to grant access — please try again")
     return {
         "ok": True,
         "user_id": profile.data["id"],
