@@ -147,19 +147,18 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     if not profile.data:
         raise HTTPException(404, f"No user found with email: {body.user_email}")
     try:
-        # returning="representation" forces PostgREST to return 200+row instead of 204,
-        # avoiding the supabase-py "Missing response, code 204" bug.
+        # Chain .select() to force PostgREST Prefer: return=representation
+        # so it returns 200 + the row instead of 204 No Content.
+        # This avoids the supabase-py "Missing response, code 204" bug.
         sb.table("user_course_access").insert({
             "user_id":    profile.data["id"],
             "course_id":  course_id,
             "granted_by": user.id,
-        }, returning="representation").execute()
+        }).select().execute()
     except Exception as e:
         err = str(e)
         if "unique" in err.lower() or "duplicate" in err.lower() or "23505" in err:
             raise HTTPException(409, "This user already has access to this course")
-        elif "204" in err or "missing response" in err.lower():
-            pass  # older supabase-py versions still throw on 204 — treat as success
         else:
             raise HTTPException(500, err)
     return {
