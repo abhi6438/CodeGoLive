@@ -119,8 +119,23 @@ async def list_course_access(course_id: str, user: CurrentUser = Depends(get_cur
     """List all users who have been granted access to a restricted course."""
     assert_role(user, "admin")
     sb = get_supabase()
-    res = sb.table("user_course_access")             .select("id, user_id, granted_at, profiles(email, display_name)")             .eq("course_id", course_id)             .order("granted_at")             .execute()
-    return res.data or []
+    # Step 1: get access rows (no join to avoid auth.users FK issue)
+    res = sb.table("user_course_access") \
+            .select("id, user_id, granted_at") \
+            .eq("course_id", course_id) \
+            .order("granted_at") \
+            .execute()
+    rows = res.data or []
+    if not rows:
+        return []
+    # Step 2: look up profiles for each user_id
+    user_ids = [r["user_id"] for r in rows]
+    profiles_res = sb.table("profiles").select("id, email, display_name").in_("id", user_ids).execute()
+    profile_map = {p["id"]: p for p in (profiles_res.data or [])}
+    for r in rows:
+        p = profile_map.get(r["user_id"], {})
+        r["profiles"] = {"email": p.get("email"), "display_name": p.get("display_name")}
+    return rows
 
 
 @router.post("/course-access/{course_id}")
@@ -132,18 +147,19 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     if not profile.data:
         raise HTTPException(404, f"No user found with email: {body.user_email}")
     try:
+        # returning="representation" forces PostgREST to return 200+row instead of 204,
+        # avoiding the supabase-py "Missing response, code 204" bug.
         sb.table("user_course_access").insert({
             "user_id":    profile.data["id"],
             "course_id":  course_id,
             "granted_by": user.id,
-        }).execute()
+        }, returning="representation").execute()
     except Exception as e:
         err = str(e)
-        # supabase-py throws on HTTP 204 No Content — that means success, ignore it
-        if "204" in err or "Missing response" in err.lower():
-            pass
-        elif "unique" in err.lower() or "duplicate" in err.lower():
+        if "unique" in err.lower() or "duplicate" in err.lower() or "23505" in err:
             raise HTTPException(409, "This user already has access to this course")
+        elif "204" in err or "missing response" in err.lower():
+            pass  # older supabase-py versions still throw on 204 — treat as success
         else:
             raise HTTPException(500, err)
     return {
