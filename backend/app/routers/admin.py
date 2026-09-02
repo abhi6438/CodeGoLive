@@ -143,12 +143,19 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     """Grant a user access to a restricted course by their email."""
     assert_role(user, "admin")
     sb = get_supabase()
-    # Use limit(1) instead of maybe_single() — maybe_single throws a 204 exception
-    # when 0 rows are found, which crashes before we can handle it.
-    _p = sb.table("profiles").select("id, email, display_name").eq("email", body.user_email).limit(1).execute()
-    if not (_p.data and len(_p.data) > 0):
+    # Email lives in auth.users, not in profiles — use auth admin API to look up
+    try:
+        auth_users = sb.auth.admin.list_users()
+        target_auth = next((u for u in auth_users if u.email == body.user_email), None)
+    except Exception as e:
+        raise HTTPException(500, f"Failed to look up user: {e}")
+    if not target_auth:
         raise HTTPException(404, f"No user found with email: {body.user_email}")
-    profile_data = _p.data[0]
+
+    # Get display name from profiles table
+    _pr = sb.table("profiles").select("display_name").eq("id", target_auth.id).limit(1).execute()
+    display_name = _pr.data[0].get("display_name") if _pr.data else None
+    profile_data = {"id": target_auth.id, "email": target_auth.email, "display_name": display_name}
     # supabase-py 2.x has a known bug: INSERT returns HTTP 204 No Content
     # but the library throws an exception instead of handling it gracefully.
     # Workaround: catch ALL exceptions, then verify the row exists with a
