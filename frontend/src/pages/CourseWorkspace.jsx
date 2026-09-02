@@ -488,6 +488,14 @@ export default function CourseWorkspace() {
     return () => setBar(null);
   }, [course?.title, setBar]);
 
+  // ── access control guard ────────────────────────────────────
+  // If course is restricted and user has no grant, the API returns 404 → redirect home
+  useEffect(() => {
+    api.get(`/api/courses/${courseId}`).catch(() => {
+      navigate("/", { replace: true });
+    });
+  }, [courseId]); // eslint-disable-line
+
   // ── load modules + topics once ──────────────────────────────
   useEffect(() => {
     if (!course) return;

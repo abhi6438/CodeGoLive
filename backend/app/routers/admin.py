@@ -56,6 +56,7 @@ class CourseUpdate(BaseModel):
     icon: str | None = None
     color: str | None = None
     order_index: int | None = None
+    access_type: str | None = None  # public | restricted
 
 
 @router.get("/courses")
@@ -104,6 +105,56 @@ async def delete_course(course_id: str, user: CurrentUser = Depends(get_current_
     if modules:
         raise HTTPException(409, f"Cannot delete course with {len(modules)} module(s). Remove modules first.")
     sb.table("courses").delete().eq("id", course_id).execute()
+    return {"ok": True}
+
+
+# ─── Course Access Control ────────────────────────────────────────────────────
+
+class AccessGrant(BaseModel):
+    user_email: str
+
+
+@router.get("/course-access/{course_id}")
+async def list_course_access(course_id: str, user: CurrentUser = Depends(get_current_user)):
+    """List all users who have been granted access to a restricted course."""
+    assert_role(user, "admin")
+    sb = get_supabase()
+    res = sb.table("user_course_access")             .select("id, user_id, granted_at, profiles(email, display_name)")             .eq("course_id", course_id)             .order("granted_at")             .execute()
+    return res.data or []
+
+
+@router.post("/course-access/{course_id}")
+async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUser = Depends(get_current_user)):
+    """Grant a user access to a restricted course by their email."""
+    assert_role(user, "admin")
+    sb = get_supabase()
+    profile = sb.table("profiles").select("id, email, display_name").eq("email", body.user_email).maybe_single().execute()
+    if not profile.data:
+        raise HTTPException(404, f"No user found with email: {body.user_email}")
+    try:
+        sb.table("user_course_access").insert({
+            "user_id":    profile.data["id"],
+            "course_id":  course_id,
+            "granted_by": user.id,
+        }).execute()
+    except Exception as e:
+        if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+            raise HTTPException(409, "This user already has access to this course")
+        raise HTTPException(500, str(e))
+    return {
+        "ok": True,
+        "user_id": profile.data["id"],
+        "email": profile.data["email"],
+        "display_name": profile.data.get("display_name"),
+    }
+
+
+@router.delete("/course-access/{course_id}/{user_id}")
+async def revoke_course_access(course_id: str, user_id: str, user: CurrentUser = Depends(get_current_user)):
+    """Remove a user's access to a restricted course."""
+    assert_role(user, "admin")
+    sb = get_supabase()
+    sb.table("user_course_access").delete().eq("course_id", course_id).eq("user_id", user_id).execute()
     return {"ok": True}
 
 

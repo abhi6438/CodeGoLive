@@ -33,7 +33,7 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
 function CourseForm({ initial, onSave, onCancel, saving }) {
   const [form, setForm] = useState(initial || {
     id: "", title: "", subtitle: "", description: "",
-    status: "coming_soon", icon: "", order_index: 0,
+    status: "coming_soon", icon: "", order_index: 0, access_type: "public",
   });
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -75,6 +75,13 @@ function CourseForm({ initial, onSave, onCancel, saving }) {
           <label className="admin-label">Order</label>
           <input className="admin-input" type="number" value={form.order_index} onChange={(e) => set("order_index", +e.target.value)} />
         </div>
+        <div className="admin-field">
+          <label className="admin-label">Access Type</label>
+          <select className="admin-select" value={form.access_type || "public"} onChange={(e) => set("access_type", e.target.value)}>
+            <option value="public">Public — open to all learners</option>
+            <option value="restricted">Restricted — invite only</option>
+          </select>
+        </div>
       </div>
       <div className="admin-form-actions">
         <button className="admin-btn admin-btn--ghost" onClick={onCancel}>Cancel</button>
@@ -82,6 +89,94 @@ function CourseForm({ initial, onSave, onCancel, saving }) {
           {saving ? "Saving…" : "Save"}
         </button>
       </div>
+    </div>
+  );
+}
+
+
+function AccessPanel({ courseId }) {
+  const [users, setUsers] = useState([]);
+  const [email, setEmail] = useState("");
+  const [granting, setGranting] = useState(false);
+  const [error, setError] = useState(null);
+
+  const reload = () => {
+    api.get(`/api/admin/course-access/${courseId}`).then(setUsers).catch(() => {});
+  };
+
+  useEffect(() => { reload(); }, [courseId]); // eslint-disable-line
+
+  const handleGrant = async () => {
+    if (!email.trim()) return;
+    setGranting(true); setError(null);
+    try {
+      await api.post(`/api/admin/course-access/${courseId}`, { user_email: email.trim() });
+      setEmail("");
+      reload();
+    } catch (e) { setError(e.message || "Failed to grant access"); }
+    finally { setGranting(false); }
+  };
+
+  const handleRevoke = async (userId) => {
+    try {
+      await api.del(`/api/admin/course-access/${courseId}/${userId}`);
+      reload();
+    } catch (e) { setError(e.message || "Failed to revoke access"); }
+  };
+
+  return (
+    <div className="admin-form-panel" style={{ marginTop: "1rem" }}>
+      <h3 className="admin-form-title" style={{ marginBottom: "1rem" }}>🔐 Access Control</h3>
+      <p style={{ fontSize: "0.82rem", color: "var(--text-2)", marginBottom: "1rem" }}>
+        This course is <strong>restricted</strong>. Only users listed below can see and enter it.
+      </p>
+      {error && <div className="admin-alert admin-alert--error" style={{ marginBottom: "0.75rem" }}>{error}</div>}
+      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.25rem" }}>
+        <input
+          className="admin-input"
+          style={{ flex: 1 }}
+          placeholder="learner@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleGrant()}
+        />
+        <button className="admin-btn admin-btn--primary" disabled={granting || !email.trim()} onClick={handleGrant}>
+          {granting ? "Granting…" : "Grant Access"}
+        </button>
+      </div>
+      {users.length === 0 ? (
+        <p style={{ fontSize: "0.82rem", color: "var(--text-3)" }}>No users have access yet.</p>
+      ) : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Granted</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.user_id}>
+                  <td>
+                    <div className="admin-table-primary">{u.profiles?.email || u.user_id}</div>
+                    {u.profiles?.display_name && (
+                      <div className="admin-table-meta">{u.profiles.display_name}</div>
+                    )}
+                  </td>
+                  <td style={{ fontSize: "0.78rem", color: "var(--text-3)" }}>
+                    {u.granted_at ? new Date(u.granted_at).toLocaleDateString() : "—"}
+                  </td>
+                  <td>
+                    <button className="admin-btn-icon admin-btn-icon--danger" onClick={() => handleRevoke(u.user_id)} title="Revoke access">✕</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
@@ -173,6 +268,9 @@ export default function AdminCourses() {
 
         {editing && (
           <CourseForm initial={editing} onSave={handleUpdate} onCancel={() => setEditing(null)} saving={saving} />
+        )}
+        {editing && (editing.access_type === "restricted") && (
+          <AccessPanel courseId={editing.id} />
         )}
 
         {/* Table */}
