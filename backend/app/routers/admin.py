@@ -159,15 +159,15 @@ async def grant_course_access(course_id: str, body: AccessGrant, user: CurrentUs
     except Exception:
         pass  # may be the 204 bug — verify below
 
-    # Verify the row was actually created
+    # Verify the row was actually created (avoid maybe_single — it can also 204)
     verify = sb.table("user_course_access") \
                .select("id") \
                .eq("user_id", profile.data["id"]) \
                .eq("course_id", course_id) \
-               .maybe_single() \
+               .limit(1) \
                .execute()
 
-    if not verify.data:
+    if not (verify.data and len(verify.data) > 0):
         raise HTTPException(500, "Failed to grant access — please try again")
     return {
         "ok": True,
