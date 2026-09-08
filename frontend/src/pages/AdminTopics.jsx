@@ -2,6 +2,10 @@ import React, { useEffect, useState, useCallback } from "react";
 import AdminShell from "../components/AdminShell";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const STATUS_LABELS = {
   published: { label: "Published", cls: "badge-green" },
@@ -29,11 +33,12 @@ function ConfirmDialog({ message, onConfirm, onCancel }) {
 }
 
 function TopicForm({ modules, initial, onSave, onCancel, saving, error }) {
+  const [mdPreview, setMdPreview] = useState(false);
   const [form, setForm] = useState(initial || {
     module_id: modules?.[0]?.id || "",
     number: "", slug: "", title: "", focus: "",
     description: "", video_url: "", github_url: "",
-    deliverable_note: "", order_index: 0, status: "draft",
+    deliverable_note: "", estimated_minutes: "", order_index: 0, status: "draft",
   });
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -91,9 +96,79 @@ function TopicForm({ modules, initial, onSave, onCancel, saving, error }) {
           <label className="admin-label">Deliverable Note</label>
           <textarea className="admin-textarea" rows={2} value={form.deliverable_note || ""} onChange={(e) => set("deliverable_note", e.target.value)} />
         </div>
+        <div className="admin-field">
+          <label className="admin-label">Est. Minutes</label>
+          <input
+            className="admin-input"
+            type="number"
+            min="1"
+            max="300"
+            value={form.estimated_minutes || ""}
+            onChange={(e) => set("estimated_minutes", e.target.value === "" ? null : +e.target.value)}
+            placeholder="e.g. 15"
+          />
+        </div>
         <div className="admin-field admin-field--full">
-          <label className="admin-label">Content (Markdown)</label>
-          <textarea className="admin-textarea admin-textarea--code" rows={10} value={form.content_md || ""} onChange={(e) => set("content_md", e.target.value)} placeholder="## Introduction&#10;..." />
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+            <label className="admin-label" style={{ marginBottom: 0 }}>Content (Markdown)</label>
+            <div style={{ display: "flex", gap: "0.35rem" }}>
+              <button
+                type="button"
+                className={`admin-btn admin-btn--sm ${!mdPreview ? "admin-btn--primary" : "admin-btn--ghost"}`}
+                onClick={() => setMdPreview(false)}
+                style={{ fontSize: "0.72rem", padding: "0.2rem 0.6rem" }}
+              >Edit</button>
+              <button
+                type="button"
+                className={`admin-btn admin-btn--sm ${mdPreview ? "admin-btn--primary" : "admin-btn--ghost"}`}
+                onClick={() => setMdPreview(true)}
+                style={{ fontSize: "0.72rem", padding: "0.2rem 0.6rem" }}
+              >Preview</button>
+            </div>
+          </div>
+          {!mdPreview ? (
+            <textarea
+              className="admin-textarea admin-textarea--code"
+              rows={16}
+              value={form.content_md || ""}
+              onChange={(e) => set("content_md", e.target.value)}
+              placeholder="## Introduction
+..."
+              style={{ fontFamily: "monospace", fontSize: "0.83rem" }}
+            />
+          ) : (
+            <div className="admin-md-preview" style={{
+              minHeight: "300px", maxHeight: "60vh", overflowY: "auto",
+              border: "1px solid var(--border)", borderRadius: "6px",
+              padding: "1.25rem 1.5rem", background: "var(--surface-2, var(--bg-2))",
+              fontSize: "0.9rem", lineHeight: 1.75
+            }}>
+              {form.content_md ? (
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    code({ inline, className, children }) {
+                      const match = /language-(\w+)/.exec(className || "");
+                      const lang = match ? match[1] : "";
+                      if (!inline) {
+                        return (
+                          <SyntaxHighlighter language={lang || "text"} style={vscDarkPlus} PreTag="pre"
+                            customStyle={{ borderRadius: "6px", fontSize: "0.82rem", margin: "0.75rem 0" }}>
+                            {String(children).replace(/\n$/, "")}
+                          </SyntaxHighlighter>
+                        );
+                      }
+                      return <code style={{ background: "var(--code-bg, #1e1e1e)", color: "#d4d4d4", borderRadius: "3px", padding: "0.1em 0.35em", fontSize: "0.88em" }}>{children}</code>;
+                    },
+                  }}
+                >
+                  {form.content_md}
+                </ReactMarkdown>
+              ) : (
+                <p style={{ color: "var(--text-3)", fontStyle: "italic" }}>Nothing to preview yet.</p>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="admin-form-actions">

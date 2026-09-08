@@ -171,6 +171,9 @@ function WorkspaceSidebar({ courseId, modules, topicsMap, progress, activeSlug, 
                         >
                           <span className="ws-topic-num">{ti + 1}</span>
                           <span className="ws-topic-title">{t.title}</span>
+                          {t.estimated_minutes && (
+                            <span className="ws-topic-mins">{t.estimated_minutes}m</span>
+                          )}
                           <StatusDot status={st} />
                         </button>
                       </li>

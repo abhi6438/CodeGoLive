@@ -315,6 +315,7 @@ class TopicUpdate(BaseModel):
     github_url: str | None = None
     deliverable_note: str | None = None
     content_md: str | None = None
+    estimated_minutes: int | None = None
     order_index: int | None = None
     status: str | None = None   # published | draft
 
@@ -344,6 +345,7 @@ class TopicCreate(BaseModel):
     github_url: str | None = None
     deliverable_note: str | None = None
     content_md: str | None = None
+    estimated_minutes: int | None = None
     order_index: int = 0
     status: str = "draft"
 

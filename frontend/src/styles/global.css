@@ -2650,6 +2650,7 @@ textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
 .ws-topic-btn.done.active { color: var(--primary); }
 .ws-topic-num { font-size: var(--fs-xs); color: var(--text-3); min-width: 14px; font-variant-numeric: tabular-nums; }
 .ws-topic-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-topic-mins { font-size: 0.67rem; color: var(--text-3); white-space: nowrap; flex-shrink: 0; letter-spacing: 0.01em; }
 .status-dot { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .status-dot--done { background: #d1fae5; color: #059669; }
 .status-dot--progress { background: var(--primary-light); color: var(--primary); }
