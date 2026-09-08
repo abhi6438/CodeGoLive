@@ -106,8 +106,7 @@ function CourseForm({ initial, onSave, onCancel, saving }) {
         </div>
         <div className="admin-field">
           <label className="admin-label">Highlights (one per line)</label>
-          <textarea className="admin-textarea" rows={4} value={Array.isArray(form.highlights) ? form.highlights.join("
-") : (form.highlights || "")} onChange={(e) => set("highlights", e.target.value)} placeholder="Build SAPUI5 apps&#10;Deploy with CI/CD" />
+          <textarea className="admin-textarea" rows={4} value={Array.isArray(form.highlights) ? form.highlights.join("\n") : (form.highlights || "")} onChange={(e) => set("highlights", e.target.value)} placeholder="Build SAPUI5 apps&#10;Deploy with CI/CD" />
         </div>
       <div className="admin-form-actions">
         <button className="admin-btn admin-btn--ghost" onClick={onCancel}>Cancel</button>
