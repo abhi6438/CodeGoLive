@@ -242,8 +242,7 @@ export default function AdminCourses() {
       ? form.tags.split(",").map(t => t.trim()).filter(Boolean)
       : (form.tags || []),
     highlights: typeof form.highlights === "string"
-      ? form.highlights.split("
-").map(h => h.trim()).filter(Boolean)
+      ? form.highlights.split("\n").map(h => h.trim()).filter(Boolean)
       : (form.highlights || []),
   });
 
