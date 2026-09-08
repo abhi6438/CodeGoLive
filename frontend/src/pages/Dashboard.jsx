@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { COURSES } from "../lib/courses";
 import { api } from "../lib/api";
 import SEO from "../components/SEO";
 
@@ -147,39 +146,32 @@ function SoonCard({ course, grantedAccess }) {
 }
 
 export default function Dashboard() {
-  const [courses, setCourses] = useState(COURSES); // start with static data as fallback
+  const [courses, setCourses] = useState([]);
 
   useEffect(() => {
     api.get("/api/courses").then((dbCourses) => {
-      // DB is the source of truth — loop over DB courses, supplement with static for visual fields
-      const merged = dbCourses.map((db) => {
-        const staticC = COURSES.find((s) => s.id === db.id) || {};
-        return {
-          // Visual / static-only fields (defaults for DB-only courses)
-          accentColor: staticC.accentColor ?? "#4B5563",
-          accentLight: staticC.accentLight ?? "#f3f4f6",
-          tags: staticC.tags ?? [],
-          level: staticC.level ?? "All levels",
-          highlights: staticC.highlights ?? [],
-          apiBase: staticC.apiBase ?? "/api",
-          badge: staticC.badge ?? null,
-          // DB fields (authoritative)
-          id: db.id,
-          title: db.title ?? staticC.title,
-          subtitle: db.subtitle ?? staticC.subtitle,
-          description: db.description ?? staticC.description,
-          status: db.status ?? staticC.status ?? "coming_soon",
-          icon: db.icon ?? staticC.icon ?? "📚",
-          estimatedHours: db.estimated_hours ?? staticC.estimatedHours,
-          modules: db.module_count ?? staticC.modules,
-          topics: db.topic_count ?? staticC.topics,
-          modulesList: db.modules ?? [],  // array of {title, subtitle, number} from DB
-          access_type: db.access_type ?? "public",
-          user_has_access: db.user_has_access ?? true,
-        };
-      });
-      setCourses(merged);
-    }).catch(() => {}); // fallback to static on error
+      const mapped = dbCourses.map((db) => ({
+        // All fields come from DB — no static fallback needed
+        id: db.id,
+        title: db.title ?? "Untitled",
+        subtitle: db.subtitle ?? "",
+        description: db.description ?? "",
+        status: db.status ?? "coming_soon",
+        icon: db.icon ?? "📚",
+        accentColor: db.accent_color ?? "#4B5563",
+        tags: db.tags ?? [],
+        level: db.level ?? "All levels",
+        highlights: db.highlights ?? [],
+        badge: db.badge ?? null,
+        estimatedHours: db.estimated_hours ?? 0,
+        modules: db.module_count ?? 0,
+        topics: db.topic_count ?? 0,
+        modulesList: db.modules ?? [],
+        access_type: db.access_type ?? "public",
+        user_has_access: db.user_has_access ?? true,
+      }));
+      setCourses(mapped);
+    }).catch(() => {});
   }, []);
 
   const available = courses.filter((c) => c.status === "available");

@@ -43,11 +43,18 @@ async def get_stats(user: CurrentUser = Depends(get_current_user)):
 class CourseCreate(BaseModel):
     id: str           # slug like "sap-btp"
     title: str
+    subtitle: str | None = None
     description: str | None = None
     status: str = "coming_soon"   # available | coming_soon | archived
     icon: str | None = None
-    color: str | None = None
+    accent_color: str | None = None
+    tags: list | None = None
+    level: str | None = None
+    highlights: list | None = None
+    badge: str | None = None
+    estimated_hours: int | None = None
     order_index: int = 0
+    access_type: str = "public"
 
 
 class CourseUpdate(BaseModel):
@@ -56,7 +63,12 @@ class CourseUpdate(BaseModel):
     description: str | None = None
     status: str | None = None
     icon: str | None = None
-    color: str | None = None
+    accent_color: str | None = None
+    tags: list | None = None
+    level: str | None = None
+    highlights: list | None = None
+    badge: str | None = None
+    estimated_hours: int | None = None
     order_index: int | None = None
     access_type: str | None = None  # public | restricted
 

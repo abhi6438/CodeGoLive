@@ -34,6 +34,8 @@ function CourseForm({ initial, onSave, onCancel, saving }) {
   const [form, setForm] = useState(initial || {
     id: "", title: "", subtitle: "", description: "",
     status: "coming_soon", icon: "", order_index: 0, access_type: "public",
+    accent_color: "#4B5563", tags: "", level: "All levels",
+    highlights: "", estimated_hours: 0,
   });
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -83,6 +85,30 @@ function CourseForm({ initial, onSave, onCancel, saving }) {
           </select>
         </div>
       </div>
+        <div className="admin-field">
+          <label className="admin-label">Accent Color</label>
+          <div style={{ display:"flex", gap:"0.5rem", alignItems:"center" }}>
+            <input type="color" value={form.accent_color || "#4B5563"} onChange={(e) => set("accent_color", e.target.value)} style={{ width:"2.5rem", height:"2.2rem", border:"1px solid var(--border)", borderRadius:"4px", cursor:"pointer", background:"none" }} />
+            <input className="admin-input" value={form.accent_color || ""} onChange={(e) => set("accent_color", e.target.value)} placeholder="#4B5563" style={{ flex:1 }} />
+          </div>
+        </div>
+        <div className="admin-field">
+          <label className="admin-label">Level</label>
+          <input className="admin-input" value={form.level || ""} onChange={(e) => set("level", e.target.value)} placeholder="e.g. Beginner → Advanced" />
+        </div>
+        <div className="admin-field">
+          <label className="admin-label">Estimated Hours</label>
+          <input className="admin-input" type="number" value={form.estimated_hours || 0} onChange={(e) => set("estimated_hours", +e.target.value)} />
+        </div>
+        <div className="admin-field">
+          <label className="admin-label">Tags (comma-separated)</label>
+          <input className="admin-input" value={Array.isArray(form.tags) ? form.tags.join(", ") : (form.tags || "")} onChange={(e) => set("tags", e.target.value)} placeholder="CAP, SAPUI5, BTP" />
+        </div>
+        <div className="admin-field">
+          <label className="admin-label">Highlights (one per line)</label>
+          <textarea className="admin-textarea" rows={4} value={Array.isArray(form.highlights) ? form.highlights.join("
+") : (form.highlights || "")} onChange={(e) => set("highlights", e.target.value)} placeholder="Build SAPUI5 apps&#10;Deploy with CI/CD" />
+        </div>
       <div className="admin-form-actions">
         <button className="admin-btn admin-btn--ghost" onClick={onCancel}>Cancel</button>
         <button className="admin-btn admin-btn--primary" disabled={saving} onClick={() => onSave(form)}>
@@ -211,11 +237,22 @@ export default function AdminCourses() {
 
   useEffect(() => { load(); loadAssessmentSettings(); }, []);
 
+  const normalizeForm = (form) => ({
+    ...form,
+    tags: typeof form.tags === "string"
+      ? form.tags.split(",").map(t => t.trim()).filter(Boolean)
+      : (form.tags || []),
+    highlights: typeof form.highlights === "string"
+      ? form.highlights.split("
+").map(h => h.trim()).filter(Boolean)
+      : (form.highlights || []),
+  });
+
   const handleCreate = async (form) => {
     if (!form.id || !form.title) return setSaveError("ID and Title are required");
     setSaving(true); setSaveError(null);
     try {
-      await api.post("/api/admin/courses", form);
+      await api.post("/api/admin/courses", normalizeForm(form));
       setShowForm(false);
       load();
     } catch (e) { setSaveError(e.message); }
@@ -226,7 +263,7 @@ export default function AdminCourses() {
     if (!form.title) return setSaveError("Title is required");
     setSaving(true); setSaveError(null);
     try {
-      await api.patch(`/api/admin/courses/${editing.id}`, form);
+      await api.patch(`/api/admin/courses/${editing.id}`, normalizeForm(form));
       setEditing(null);
       load();
     } catch (e) { setSaveError(e.message); }
