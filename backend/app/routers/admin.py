@@ -305,6 +305,9 @@ async def delete_module(module_id: str, user: CurrentUser = Depends(get_current_
 # ─── Topics ───────────────────────────────────────────────────────────────────
 
 class TopicUpdate(BaseModel):
+    module_id: str | None = None
+    number: str | None = None
+    slug: str | None = None
     title: str | None = None
     focus: str | None = None
     description: str | None = None
@@ -339,6 +342,8 @@ class TopicCreate(BaseModel):
     description: str | None = None
     video_url: str | None = None
     github_url: str | None = None
+    deliverable_note: str | None = None
+    content_md: str | None = None
     order_index: int = 0
     status: str = "draft"
 
