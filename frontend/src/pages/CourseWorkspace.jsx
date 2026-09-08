@@ -6,7 +6,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
-import { getCourse } from "../lib/courses";
+
 import QAThread from "../components/QAThread";
 import { useMobileBar } from "../lib/MobileBarContext";
 import SEO from "../components/SEO";
@@ -469,7 +469,8 @@ export default function CourseWorkspace() {
   const { courseId, topicSlug } = useParams();
   const navigate = useNavigate();
   const { session } = useAuth();
-  const course = getCourse(courseId);
+  const [course, setCourse] = useState(null);
+  const [courseLoading, setCourseLoading] = useState(true);
 
   const [modules, setModules] = useState([]);
   const [topicsMap, setTopicsMap] = useState({}); // moduleId → topics[]
@@ -488,12 +489,14 @@ export default function CourseWorkspace() {
     return () => setBar(null);
   }, [course?.title, setBar]);
 
-  // ── access control guard ────────────────────────────────────
-  // If course is restricted and user has no grant, the API returns 404 → redirect home
+  // ── load course + access control guard ──────────────────────
+  // Fetches course data from API; if restricted & not granted → 404 → redirect home
   useEffect(() => {
-    api.get(`/api/courses/${courseId}`).catch(() => {
-      navigate("/", { replace: true });
-    });
+    setCourseLoading(true);
+    api.get(`/api/courses/${courseId}`)
+      .then((data) => setCourse(data))
+      .catch(() => navigate("/", { replace: true }))
+      .finally(() => setCourseLoading(false));
   }, [courseId]); // eslint-disable-line
 
   // ── load modules + topics once ──────────────────────────────
@@ -520,7 +523,7 @@ export default function CourseWorkspace() {
         }
       }
     }).finally(() => setLoadingModules(false));
-  }, [courseId]); // eslint-disable-line
+  }, [courseId, course]); // eslint-disable-line
 
   // ── load progress when logged in ───────────────────────────
   useEffect(() => {
@@ -570,6 +573,10 @@ export default function CourseWorkspace() {
     setTopic((prev) => prev ? { ...prev, progress_status: "completed" } : prev);
     if (courseCompleted && courseId) setCompletedCourse(courseId);
   };
+
+  if (courseLoading) {
+    return <div style={{ textAlign: "center", padding: "4rem 1rem" }}>Loading...</div>;
+  }
 
   if (!course) {
     return (
