@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SEO from "../components/SEO";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
@@ -159,6 +160,11 @@ export default function Home() {
 
   return (
     <div>
+      <SEO
+        title="SAP BTP Developer Courses"
+        description="Learn SAP BTP, CAP Node.js, SAPUI5, and SAP AI Core with hands-on structured courses on CodeGoLive. Build real enterprise apps from scratch."
+        type="website"
+      />
       {/* ── Hero ────────────────────────────────────── */}
       <section className="hero">
         <div className="container hero-inner">
