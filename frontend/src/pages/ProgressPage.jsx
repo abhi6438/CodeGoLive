@@ -215,7 +215,7 @@ export default function ProgressPage() {
     <div style={{ maxWidth: 860, margin: "0 auto", padding: "2rem 1.25rem 4rem" }}>
       <SEO title="My Progress" robots="noindex, nofollow" />
 
-      {/* Page header */
+      {/* Page header */}
       <div style={{ marginBottom: "2rem" }}>
         <h1 style={{ margin: 0, fontSize: "1.6rem", fontWeight: 800, color: "var(--text)" }}>My Progress</h1>
         <p style={{ margin: "0.4rem 0 0", color: "var(--text-2)", fontSize: "0.9rem" }}>
