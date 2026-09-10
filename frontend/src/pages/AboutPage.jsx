@@ -81,8 +81,8 @@ export default function AboutPage() {
           slides or certification cramming.
         </p>
         <p style={{ color: "var(--text-3)", fontSize: "0.85rem", marginTop: "0.75rem", fontStyle: "italic" }}>
-          {/* CONFIGURE: Add creator name, bio, and LinkedIn/GitHub link here */}
-          [Platform maintained by independent SAP BTP developers — configure creator info here]
+          Content is written and maintained by independent SAP BTP developers with hands-on experience
+          building and deploying enterprise applications on the SAP Business Technology Platform.
         </p>
       </Section>
 

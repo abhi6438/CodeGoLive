@@ -36,7 +36,7 @@ function CookieTable({ rows }) {
 export default function CookiePage() {
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "2.5rem 1.25rem 4rem" }}>
-      <SEO title="Cookie Policy" description="CodeGoLive Cookie Policy — how we use cookies and local storage on our learning platform." robots="noindex" />
+      <SEO title="Cookie Policy" description="CodeGoLive Cookie Policy — how we use cookies and local storage on our learning platform." />
       <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text)", marginBottom: "0.4rem" }}>Cookie Policy</h1>
       <p style={{ color: "var(--text-2)", lineHeight: 1.8, marginBottom: "2rem" }}>
         This Cookie Policy explains how CodeGoLive uses cookies and similar browser storage technologies when you visit codegoLive.com.

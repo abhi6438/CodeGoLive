@@ -11,7 +11,7 @@ function P({ children }) {
 export default function DisclaimerPage() {
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "2.5rem 1.25rem 4rem" }}>
-      <SEO title="Disclaimer" description="CodeGoLive educational disclaimer — content is for learning purposes and not professional advice." robots="noindex" />
+      <SEO title="Disclaimer" description="CodeGoLive educational disclaimer — content is for learning purposes and not professional advice." />
       <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text)", marginBottom: "0.4rem" }}>Disclaimer</h1>
 
       <H2>Educational Purpose</H2>

@@ -2,7 +2,7 @@ import SEO from "../components/SEO";
 import { Link } from "react-router-dom";
 
 // CONFIGURE: update these before publishing
-const EFFECTIVE_DATE = "[CONFIGURE: e.g. 1 January 2025]";
+const EFFECTIVE_DATE = "September 2025";
 const PRIVACY_EMAIL = "privacy@codegoLive.com"; // CONFIGURE: replace with real email
 
 function H2({ children }) {
@@ -19,7 +19,7 @@ function P({ children }) {
 export default function PrivacyPage() {
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "2.5rem 1.25rem 4rem" }}>
-      <SEO title="Privacy Policy" description="CodeGoLive Privacy Policy — how we collect, use, and protect your information." robots="noindex" />
+      <SEO title="Privacy Policy" description="CodeGoLive Privacy Policy — how we collect, use, and protect your information." />
 
       <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text)", marginBottom: "0.4rem" }}>Privacy Policy</h1>
       <p style={{ color: "var(--text-3)", fontSize: "0.82rem", marginBottom: "2rem" }}>Effective date: {EFFECTIVE_DATE}</p>
@@ -62,17 +62,11 @@ export default function PrivacyPage() {
 
       <H2>5. Data Retention</H2>
       <P>We retain your account information and learning progress for as long as your account remains active. If you wish to delete your account and all associated data, please contact us using the details below.</P>
-      <P style={{fontStyle:"italic", color:"var(--text-3)"}}>
-        {/* CONFIGURE: add specific retention periods if applicable */}
-        [CONFIGURE: add specific data retention periods here if applicable]
-      </P>
+      <P>Account data and learning progress are retained for as long as your account remains active. Community posts (questions and answers) may be retained to preserve the usefulness of threads for other learners. You may request deletion of your account and all personal data at any time by contacting us.</P>
 
       <H2>6. Your Rights</H2>
       <P>Depending on your location, you may have the right to access, correct, or delete your personal data. To exercise these rights, please contact us at <a href={`mailto:${PRIVACY_EMAIL}`} style={{color:"var(--accent)"}}>{PRIVACY_EMAIL}</a>.</P>
-      <P style={{fontStyle:"italic", color:"var(--text-3)"}}>
-        {/* CONFIGURE: add GDPR/CCPA specific rights if applicable to your jurisdiction */}
-        [CONFIGURE: add jurisdiction-specific rights if applicable]
-      </P>
+      <P>If you are located in the European Union or United Kingdom, you have rights under the GDPR including the right to access, rectify, erase, restrict processing, and data portability. If you are located in California, you have rights under the CCPA/CPRA. To exercise any of these rights, please contact us at the email address below.</P>
 
       <H2>7. Security</H2>
       <P>We implement reasonable technical and organisational measures to protect your data. Authentication is handled by Supabase with industry-standard JWT tokens. However, no system is completely secure and we cannot guarantee absolute security.</P>

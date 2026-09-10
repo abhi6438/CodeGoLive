@@ -1,10 +1,10 @@
 import SEO from "../components/SEO";
 
 // CONFIGURE: fill in before publishing
-const EFFECTIVE_DATE = "[CONFIGURE: e.g. 1 January 2025]";
+const EFFECTIVE_DATE = "September 2025";
 const LEGAL_EMAIL = "legal@codegoLive.com"; // CONFIGURE
-const LEGAL_ENTITY = "[CONFIGURE: legal entity name, e.g. CodeGoLive Ltd]";
-const JURISDICTION = "[CONFIGURE: e.g. England and Wales / India / Delaware, USA]";
+const LEGAL_ENTITY = "CodeGoLive";
+const JURISDICTION = "the applicable jurisdiction";
 
 function H2({ children }) {
   return <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", margin: "2rem 0 0.6rem" }}>{children}</h2>;
@@ -16,7 +16,7 @@ function P({ children }) {
 export default function TermsPage() {
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "2.5rem 1.25rem 4rem" }}>
-      <SEO title="Terms & Conditions" description="CodeGoLive Terms and Conditions — rules governing use of our learning platform." robots="noindex" />
+      <SEO title="Terms & Conditions" description="CodeGoLive Terms and Conditions — rules governing use of our learning platform." />
       <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text)", marginBottom: "0.4rem" }}>Terms &amp; Conditions</h1>
       <p style={{ color: "var(--text-3)", fontSize: "0.82rem", marginBottom: "2rem" }}>Effective date: {EFFECTIVE_DATE}</p>
 
