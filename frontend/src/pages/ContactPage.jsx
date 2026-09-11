@@ -1,6 +1,6 @@
 import SEO from "../components/SEO";
 
-const CONTACT_EMAIL = "support@codegoLive.com"; // CONFIGURE: replace with your actual support email
+const CONTACT_EMAIL = "support@codegolive.com"; // CONFIGURE: replace with your actual support email
 
 function ContactCard({ icon, title, description, email, subject }) {
   const mailto = `mailto:${email}?subject=${encodeURIComponent(subject)}`;

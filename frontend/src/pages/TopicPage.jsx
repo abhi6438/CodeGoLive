@@ -7,6 +7,7 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { api } from "../lib/api";
 import { useAuth } from "../lib/AuthContext";
 import QAThread from "../components/QAThread";
+import SEO from "../components/SEO";
 
 function youtubeEmbedUrl(url) {
   if (!url) return null;
@@ -24,7 +25,11 @@ function CodeBlock({ language, children }) {
     });
   };
   return (
-    <div className="code-block-wrapper">
+          <SEO
+        title={topic ? topic.title : "Lesson"}
+        description={topic ? `${topic.title} — Learn ${topic.focus || "SAP BTP"} on CodeGoLive.` : "CodeGoLive lesson."}
+      />
+      <div className="code-block-wrapper">
       <div className="code-block-header">
         <span className="code-lang-badge">{language || "code"}</span>
         <button className={`code-copy-btn${copied ? " copied" : ""}`} onClick={handleCopy}>

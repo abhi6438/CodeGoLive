@@ -1,10 +1,10 @@
 import SEO from "../components/SEO";
 
 // CONFIGURE: fill in before publishing
-const EFFECTIVE_DATE = "September 2025";
-const LEGAL_EMAIL = "legal@codegoLive.com"; // CONFIGURE
+const EFFECTIVE_DATE = "September 11, 2026";
+const LEGAL_EMAIL = "support@codegolive.com"; // CONFIGURE
 const LEGAL_ENTITY = "CodeGoLive";
-const JURISDICTION = "the applicable jurisdiction";
+const JURISDICTION = "Rewa, Madhya Pradesh, India";
 
 function H2({ children }) {
   return <h2 style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text)", margin: "2rem 0 0.6rem" }}>{children}</h2>;

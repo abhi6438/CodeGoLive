@@ -2,8 +2,8 @@ import SEO from "../components/SEO";
 import { Link } from "react-router-dom";
 
 // CONFIGURE: update these before publishing
-const EFFECTIVE_DATE = "September 2025";
-const PRIVACY_EMAIL = "privacy@codegoLive.com"; // CONFIGURE: replace with real email
+const EFFECTIVE_DATE = "September 11, 2026";
+const PRIVACY_EMAIL = "support@codegolive.com"; // CONFIGURE: replace with real email
 
 function H2({ children }) {
   return (

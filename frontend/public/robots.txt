@@ -2,6 +2,8 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /admin/
+Disallow: /arena
+Disallow: /arena/
 
 # Replace with your actual domain before going live
 Sitemap: https://codegolive.com/sitemap.xml
