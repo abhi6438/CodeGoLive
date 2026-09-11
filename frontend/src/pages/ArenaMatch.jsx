@@ -39,6 +39,11 @@ export default function ArenaMatch() {
   const [submitted, setSubmitted]   = useState(false);    // locked after submit until it's MY turn again
   const [showProvoke, setShowProvoke] = useState(false);
   const [events, setEvents]         = useState([]);
+  const [incomingTaunt, setIncomingTaunt] = useState(null); // {emoji, text} for flash overlay
+  const [chatMsg, setChatMsg]       = useState("");
+  const [chatOpen, setChatOpen]     = useState(false);
+  const [chatMessages, setChatMessages] = useState([]); // {user_id, message, ts}
+  const lastEventTsRef = useRef(null); // track last seen event to show new ones
 
   // ── Power-ups (one use each, per match) ────────────────────────
   const [pwUsed, setPwUsed] = useState({ freeze: false, skip: false, fifty: false, shield: false });
@@ -85,6 +90,27 @@ export default function ArenaMatch() {
     try {
       const evs = await api.get(`/api/arena/match/${matchId}/events`);
       setEvents(evs);
+
+      // Extract new taunt + chat events for UI
+      const myLastTs = lastEventTsRef.current;
+      const newEvs = myLastTs ? evs.filter(e => e.created_at > myLastTs) : [];
+      if (evs.length) lastEventTsRef.current = evs[evs.length - 1].created_at;
+
+      // Show incoming taunts from opponent
+      const newTaunts = newEvs.filter(e => e.event_type === "taunt" && e.user_id !== user?.id);
+      if (newTaunts.length) {
+        const t = newTaunts[newTaunts.length - 1].payload;
+        setIncomingTaunt(t);
+        setTimeout(() => setIncomingTaunt(null), 3000);
+      }
+
+      // Merge chat messages
+      const allChat = evs.filter(e => e.event_type === "chat").map(e => ({
+        user_id: e.user_id,
+        message: e.payload.message,
+        ts: e.created_at,
+      }));
+      setChatMessages(allChat);
 
       // Find latest turn_change event
       const turnEvs = evs.filter(e => e.event_type === "turn_change");
@@ -278,6 +304,14 @@ export default function ArenaMatch() {
   // ── Provoke ────────────────────────────────────────────────────────
   async function sendTaunt(key) {
     try { await api.post("/api/arena/match/taunt", { match_id: matchId, taunt_key: key }); } catch {}
+    setShowProvoke(false);
+  }
+
+  async function sendChat(e) {
+    e.preventDefault();
+    if (!chatMsg.trim()) return;
+    try { await api.post("/api/arena/match/chat", { match_id: matchId, message: chatMsg.trim() }); } catch {}
+    setChatMsg("");
   }
 
   // ── Scores from player rows ────────────────────────────────────────
@@ -288,13 +322,13 @@ export default function ArenaMatch() {
   const otherPlayer = players.find(p => p.user_id !== user?.id);
 
   const q = questions[currentQIdx];
+  // Dynamic question time based on difficulty
+  const questionTime = getQuestionTime(matchData?.match?.max_questions || 10);
   const timerPct   = (timeLeft / questionTime) * 100;
   const timerColor = timeLeft > 15 ? "#00C8FF" : timeLeft > 7 ? "#FFB300" : "#FF5722";
   const isHost     = matchData?.match?.host_id === user?.id;
   // Spectator: logged-in user who is not one of the two players
   const isSpectator = phase !== "waiting" && players.length > 0 && !players.some(p => p.user_id === user?.id);
-  // Dynamic question time based on difficulty (inferred from max_questions)
-  const questionTime = getQuestionTime(matchData?.match?.max_questions || 10);
 
   // ── Option button color ────────────────────────────────────────────
   function optionStyle(idx) {
@@ -314,15 +348,18 @@ export default function ArenaMatch() {
   }
 
   if (loading) return (
-          <>
-            <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
+    <>
+      <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
       <div style={{ display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh" }}>
-      <div style={{ fontFamily:"'Orbitron',sans-serif",color:"#00C8FF" }}>Loading match…</div>
-    </div>
+        <div style={{ fontFamily:"'Orbitron',sans-serif",color:"#00C8FF" }}>Loading match…</div>
+      </div>
+    </>
   );
 
   return (
-    <div style={{ maxWidth:1400, margin:"0 auto", width:"100%", boxSizing:"border-box", padding:"1.5rem 2.5rem 3rem" }}>
+    <>
+      <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
+      <div style={{ maxWidth:1400, margin:"0 auto", width:"100%", boxSizing:"border-box", padding:"1.5rem 2.5rem 3rem" }}>
       <style>{ORBITRON}
         {`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }`}
       </style>
@@ -588,6 +625,91 @@ export default function ArenaMatch() {
       {/* Provoke modal */}
       {showProvoke && (
         <ArenaProvokeModal onSelect={sendTaunt} onClose={() => setShowProvoke(false)} />
+      )}
+
+      {/* ── Incoming taunt flash overlay ── */}
+      {incomingTaunt && (
+        <div style={{
+          position:"fixed", bottom:"6rem", left:"50%", transform:"translateX(-50%)",
+          background:"rgba(255,87,34,.12)", border:"1px solid rgba(255,87,34,.6)",
+          borderRadius:10, padding:".75rem 1.5rem", display:"flex", alignItems:"center",
+          gap:".65rem", fontFamily:"'Orbitron',sans-serif", zIndex:9999,
+          animation:"pulse .5s ease",
+        }}>
+          <span style={{ fontSize:"1.6rem" }}>{incomingTaunt.emoji}</span>
+          <span style={{ color:"#FF5722", fontWeight:700, fontSize:".8rem", letterSpacing:".08em" }}>{incomingTaunt.text}</span>
+        </div>
+      )}
+
+      {/* ── Chat panel toggle button ── */}
+      {!isSpectator && (
+        <button
+          onClick={() => setChatOpen(o => !o)}
+          style={{
+            position:"fixed", bottom:"1.5rem", right:"1.5rem",
+            background: chatOpen ? "rgba(0,200,255,.18)" : "rgba(11,16,32,.9)",
+            border:"1px solid rgba(0,200,255,.35)", borderRadius:"50%",
+            width:48, height:48, cursor:"pointer", color:"#00C8FF",
+            fontSize:"1.2rem", display:"flex", alignItems:"center", justifyContent:"center",
+            boxShadow:"0 2px 12px rgba(0,0,0,.4)", zIndex:9998,
+          }}
+          title="Toggle chat"
+        >💬</button>
+      )}
+
+      {/* ── Chat panel ── */}
+      {chatOpen && (
+        <div style={{
+          position:"fixed", bottom:"5rem", right:"1.5rem", width:280,
+          background:"#0B1020", border:"1px solid rgba(0,200,255,.25)",
+          borderRadius:10, display:"flex", flexDirection:"column",
+          boxShadow:"0 4px 24px rgba(0,0,0,.6)", zIndex:9997, overflow:"hidden",
+        }}>
+          <div style={{
+            padding:".5rem .75rem", borderBottom:"1px solid rgba(0,200,255,.15)",
+            fontFamily:"'Orbitron',sans-serif", fontSize:".6rem", color:"#00C8FF", letterSpacing:".08em",
+          }}>MATCH CHAT</div>
+
+          {/* Messages list */}
+          <div style={{ flex:1, overflowY:"auto", maxHeight:220, padding:".5rem .75rem", display:"flex", flexDirection:"column", gap:".4rem" }}>
+            {chatMessages.length === 0 && (
+              <div style={{ color:"#4A5568", fontSize:".72rem", textAlign:"center", paddingTop:"1rem" }}>No messages yet</div>
+            )}
+            {chatMessages.map((m, i) => {
+              const isMe = m.user_id === user?.id;
+              const senderName = players.find(p => p.user_id === m.user_id)?.display_name || (isMe ? "You" : "Opponent");
+              return (
+                <div key={i} style={{ display:"flex", flexDirection:"column", alignItems: isMe ? "flex-end" : "flex-start" }}>
+                  <div style={{ fontSize:".6rem", color:"#4A5568", marginBottom:2 }}>{senderName}</div>
+                  <div style={{
+                    background: isMe ? "rgba(0,200,255,.12)" : "rgba(255,255,255,.06)",
+                    border: `1px solid ${isMe ? "rgba(0,200,255,.3)" : "rgba(255,255,255,.1)"}`,
+                    borderRadius:6, padding:".3rem .6rem",
+                    color: isMe ? "#A0D8EF" : "#C8D0E0", fontSize:".78rem", maxWidth:"90%", wordBreak:"break-word",
+                  }}>{m.message}</div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Input */}
+          <form onSubmit={sendChat} style={{ display:"flex", borderTop:"1px solid rgba(0,200,255,.15)" }}>
+            <input
+              value={chatMsg}
+              onChange={e => setChatMsg(e.target.value)}
+              placeholder="Say something…"
+              maxLength={200}
+              style={{
+                flex:1, background:"transparent", border:"none", outline:"none",
+                padding:".5rem .75rem", color:"#E8EEFF", fontSize:".8rem",
+              }}
+            />
+            <button type="submit" style={{
+              background:"transparent", border:"none", cursor:"pointer",
+              color:"#00C8FF", padding:".5rem .75rem", fontSize:".9rem",
+            }}>➤</button>
+          </form>
+        </div>
       )}
     </div>
     </>
