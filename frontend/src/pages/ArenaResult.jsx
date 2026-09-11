@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
@@ -96,7 +97,8 @@ export default function ArenaResult() {
   }
 
   if (loading) return (
-    <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh" }}>
+          <SEO title="Match Result" description="Your CodeGoLive Arena match result and XP breakdown." robots="noindex, nofollow" />
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh" }}>
       <div style={{ fontFamily:"'Orbitron',sans-serif", color:"#00C8FF" }}>Loading results…</div>
     </div>
   );

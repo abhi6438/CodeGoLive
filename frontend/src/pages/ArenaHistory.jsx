@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 import { api } from '../lib/api';
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
@@ -54,7 +55,8 @@ export default function ArenaHistory() {
   const winRate = total ? Math.round((wins / total) * 100) : 0;
 
   if (loading) return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh' }}>
+          <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
+      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh' }}>
       <div style={{ fontFamily:"'Orbitron',sans-serif", color:'#00C8FF', fontSize:'.8rem', letterSpacing:'.12em' }}>
         LOADING HISTORY…
       </div>

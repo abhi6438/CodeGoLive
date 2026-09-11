@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
 import ArenaProvokeModal from "../components/arena/ArenaProvokeModal";
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 const QUESTION_TIME = 30; // default; overridden per match below
@@ -313,7 +314,8 @@ export default function ArenaMatch() {
   }
 
   if (loading) return (
-    <div style={{ display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh" }}>
+          <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
+      <div style={{ display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh" }}>
       <div style={{ fontFamily:"'Orbitron',sans-serif",color:"#00C8FF" }}>Loading match…</div>
     </div>
   );

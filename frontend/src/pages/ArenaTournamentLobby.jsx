@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 const BG    = "#070B16";
@@ -66,7 +67,8 @@ export default function ArenaTournamentLobby() {
   };
 
   return (
-    <div style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
+          <SEO title="Tournament Lobby" description="Create or join an Arena tournament on CodeGoLive." robots="noindex, nofollow" />
+      <div style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
       <style>{ORBITRON}</style>
 
       <div style={{ marginBottom: "1.75rem" }}>

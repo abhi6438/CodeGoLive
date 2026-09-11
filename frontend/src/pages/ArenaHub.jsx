@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { api } from "../lib/api";
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
@@ -122,7 +123,8 @@ export default function ArenaHub() {
   };
 
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", position: "relative", width: "100%", boxSizing: "border-box" }}>
+          <SEO title="Developer Arena" description="The CodeGoLive Arena hub — battles, quests, tournaments and ranks." robots="noindex, nofollow" />
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", position: "relative", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}{`
         .arena-hub-bg::before {
           content: '';

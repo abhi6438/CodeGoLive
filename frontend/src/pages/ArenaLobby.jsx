@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import ArenaChallengeCard from "../components/arena/ArenaChallengeCard";
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
@@ -56,7 +57,8 @@ export default function ArenaLobby() {
   const TABS = [["create","⚡ Create"],["join","🔑 Join"],["browse","🌐 Browse"]];
 
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
+          <SEO title="Arena Lobby" description="Find or create a 1v1 Arena match on CodeGoLive." robots="noindex, nofollow" />
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}</style>
 
       {/* Back navigation */}

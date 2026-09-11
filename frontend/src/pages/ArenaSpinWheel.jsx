@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
+import SEO from "../components/SEO";
 
 const PRIZES = [
   { key: 'ap_50',     label: '+50 AP',      color: '#00C8FF', prob: .25 },
@@ -283,7 +284,8 @@ export default function ArenaSpinWheel() {
     : null;
 
   return (
-    <div style={{
+          <SEO title="Spin Wheel" description="Spin the daily wheel for bonus XP and AP on CodeGoLive Arena." robots="noindex, nofollow" />
+      <div style={{
       minHeight: '100vh',
       background: '#070B16',
       color: '#E8EEFF',

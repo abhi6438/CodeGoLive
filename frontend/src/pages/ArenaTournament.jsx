@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 import { api } from '../lib/api';
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 const BG    = "#070B16";
@@ -23,7 +24,8 @@ function getInitials(name) {
 
 function Avatar({ name, color = CYAN, size = 32 }) {
   return (
-    <div style={{
+          <SEO title="Tournament" description="CodeGoLive Arena tournament bracket and live match." robots="noindex, nofollow" />
+      <div style={{
       width: size, height: size, borderRadius: "50%",
       background: `${color}22`, border: `1px solid ${color}55`,
       display: "flex", alignItems: "center", justifyContent: "center",

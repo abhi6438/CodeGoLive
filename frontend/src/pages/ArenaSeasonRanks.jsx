@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
@@ -23,7 +24,8 @@ function getInitials(name) {
 
 function ProgressBar({ pct, color, height = 8 }) {
   return (
-    <div style={{ width:"100%", height, background:"rgba(255,255,255,.07)", borderRadius:99, overflow:"hidden" }}>
+          <SEO title="Season Ranks" description="Your AP rank tier and season progress on CodeGoLive Arena." robots="noindex, nofollow" />
+      <div style={{ width:"100%", height, background:"rgba(255,255,255,.07)", borderRadius:99, overflow:"hidden" }}>
       <div style={{
         height:"100%", width:`${pct}%`,
         background: `linear-gradient(90deg, ${color}99, ${color})`,

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
+import SEO from "../components/SEO";
 
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
@@ -38,7 +39,8 @@ export default function ArenaLeaderboard() {
   if (error) return <div style={{ maxWidth:1000,margin:"2rem auto",padding:"1rem",color:"#FF5722" }}>{error}</div>;
 
   return (
-    <div style={{ maxWidth: 1300, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
+          <SEO title="Leaderboard" description="CodeGoLive Arena global XP leaderboard." robots="noindex, nofollow" />
+      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}</style>
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ fontFamily:"'Orbitron',sans-serif",fontSize:".6rem",letterSpacing:".16em",color:"#00C8FF",marginBottom:4 }}>ARENA</div>
