@@ -24,7 +24,6 @@ function getInitials(name) {
 
 function Avatar({ name, color = CYAN, size = 32 }) {
   return (
-          <SEO title="Tournament" description="CodeGoLive Arena tournament bracket and live match." robots="noindex, nofollow" />
       <div style={{
       width: size, height: size, borderRadius: "50%",
       background: `${color}22`, border: `1px solid ${color}55`,
@@ -183,7 +182,9 @@ export default function ArenaTournament() {
   const champion = t.winner_id ? players.find(p => p.user_id === t.winner_id) : null;
 
   return (
-    <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1.75rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
+    <>
+      <SEO title="Tournament" description="CodeGoLive Arena tournament bracket and live match." robots="noindex, nofollow" />
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1.75rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
       <style>{ORBITRON}</style>
 
       {/* Header */}
@@ -301,5 +302,6 @@ export default function ArenaTournament() {
         <Link to="/arena/tournament" style={{ padding:".5rem 1rem",background:CARD,border:`1px solid ${BORDER}`,borderRadius:4,color:TEXT,textDecoration:"none",fontFamily:"'Orbitron',sans-serif",fontSize:".62rem",letterSpacing:".08em" }}>🏟️ NEW TOURNAMENT</Link>
       </div>
     </div>
+    </>
   );
 }
