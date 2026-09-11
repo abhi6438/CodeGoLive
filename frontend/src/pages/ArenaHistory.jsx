@@ -55,13 +55,14 @@ export default function ArenaHistory() {
   const winRate = total ? Math.round((wins / total) * 100) : 0;
 
   if (loading) return (
-          <>
-            <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
+    <>
+      <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh' }}>
-      <div style={{ fontFamily:"'Orbitron',sans-serif", color:'#00C8FF', fontSize:'.8rem', letterSpacing:'.12em' }}>
-        LOADING HISTORY…
+        <div style={{ fontFamily:"'Orbitron',sans-serif", color:'#00C8FF', fontSize:'.8rem', letterSpacing:'.12em' }}>
+          LOADING HISTORY…
+        </div>
       </div>
-    </div>
+    </>
   );
 
   if (error) return (
@@ -69,7 +70,9 @@ export default function ArenaHistory() {
   );
 
   return (
-    <div style={{ maxWidth:1000, margin:'0 auto', padding:'1.75rem 2rem 3rem', width:'100%', boxSizing:'border-box' }}>
+    <>
+      <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
+      <div style={{ maxWidth:1000, margin:'0 auto', padding:'1.75rem 2rem 3rem', width:'100%', boxSizing:'border-box' }}>
       <style>{ORBITRON}</style>
 
       {/* Header */}

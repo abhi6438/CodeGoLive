@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import ArenaChallengeCard from "../components/arena/ArenaChallengeCard";
 import SEO from "../components/SEO";
@@ -8,6 +8,7 @@ const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron
 
 export default function ArenaLobby() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState("create");
   const [roomCode, setRoomCode] = useState("");
   const [topic, setTopic] = useState("sap-btp");
@@ -16,6 +17,15 @@ export default function ArenaLobby() {
   const [openMatches, setOpenMatches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Auto-join from spectator link (?join=ROOMCODE)
+  useEffect(() => {
+    const code = searchParams.get("join");
+    if (code) {
+      joinMatch(code.toUpperCase());
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => { if (tab === "browse") fetchOpen(); }, [tab]);
 

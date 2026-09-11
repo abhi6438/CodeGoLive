@@ -97,11 +97,12 @@ export default function ArenaResult() {
   }
 
   if (loading) return (
-          <>
-            <SEO title="Match Result" description="Your CodeGoLive Arena match result and XP breakdown." robots="noindex, nofollow" />
+    <>
+      <SEO title="Match Result" description="Your CodeGoLive Arena match result and XP breakdown." robots="noindex, nofollow" />
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh" }}>
-      <div style={{ fontFamily:"'Orbitron',sans-serif", color:"#00C8FF" }}>Loading results…</div>
-    </div>
+        <div style={{ fontFamily:"'Orbitron',sans-serif", color:"#00C8FF" }}>Loading results…</div>
+      </div>
+    </>
   );
 
   if (!matchData) return (
@@ -125,7 +126,9 @@ export default function ArenaResult() {
   const MEDAL = ["🥇","🥈","🥉"];
 
   return (
-    <div style={{ maxWidth:1100, margin:"0 auto", padding:"1.5rem 2rem 4rem", width:"100%", boxSizing:"border-box", background:"#070B16", minHeight:"100vh" }}>
+    <>
+      <SEO title="Match Result" description="Your CodeGoLive Arena match result and XP breakdown." robots="noindex, nofollow" />
+      <div style={{ maxWidth:1100, margin:"0 auto", padding:"1.5rem 2rem 4rem", width:"100%", boxSizing:"border-box", background:"#070B16", minHeight:"100vh" }}>
       <style>{ORBITRON}{`
         @keyframes fall {
           to { transform: translateY(100vh) rotate(360deg); opacity: 0; }

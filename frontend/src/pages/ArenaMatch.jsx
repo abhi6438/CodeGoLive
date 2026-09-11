@@ -450,7 +450,12 @@ export default function ArenaMatch() {
             </div>
           )}
           <button
-            onClick={() => { navigator.clipboard?.writeText(window.location.href); }}
+            onClick={() => {
+              const code = matchData?.match?.room_code;
+              if (!code) return;
+              const link = `${window.location.origin}/arena/lobby?join=${code}`;
+              navigator.clipboard?.writeText(link);
+            }}
             style={{ marginBottom:"1.25rem",padding:".45rem 1rem",background:"#141D2E",border:"1px solid rgba(0,200,255,.2)",borderRadius:4,color:"#7B8DB0",fontFamily:"'Orbitron',sans-serif",fontSize:".58rem",letterSpacing:".08em",cursor:"pointer" }}
           >
             🔗 COPY SPECTATOR LINK
