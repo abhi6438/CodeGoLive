@@ -26,7 +26,8 @@ export default function ArenaTrophies() {
   if (loading) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}><div style={{ fontFamily: "'Orbitron', sans-serif", color: "#00C8FF" }}>Loading trophies…</div></div>;
 
   return (
-          <SEO title="Trophies" description="Your CodeGoLive Arena trophy and achievement collection." robots="noindex, nofollow" />
+          <>
+            <SEO title="Trophies" description="Your CodeGoLive Arena trophy and achievement collection." robots="noindex, nofollow" />
       <div style={{ maxWidth: 1300, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}</style>
       <div style={{ display:"flex",alignItems:"center",marginBottom:"1.25rem" }}><button onClick={() => navigate("/arena")} style={{ display:"flex",alignItems:"center",gap:".4rem",background:"transparent",border:"1px solid rgba(0,200,255,.2)",borderRadius:4,padding:".35rem .85rem",color:"#7B8DB0",fontFamily:"'Orbitron', sans-serif",fontSize:".58rem",letterSpacing:".08em",cursor:"pointer" }}>← ARENA HUB</button></div>
@@ -70,5 +71,6 @@ export default function ArenaTrophies() {
         })}
       </div>
     </div>
+    </>
   );
 }

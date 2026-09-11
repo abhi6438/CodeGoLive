@@ -284,7 +284,8 @@ export default function ArenaSpinWheel() {
     : null;
 
   return (
-          <SEO title="Spin Wheel" description="Spin the daily wheel for bonus XP and AP on CodeGoLive Arena." robots="noindex, nofollow" />
+          <>
+            <SEO title="Spin Wheel" description="Spin the daily wheel for bonus XP and AP on CodeGoLive Arena." robots="noindex, nofollow" />
       <div style={{
       minHeight: '100vh',
       background: '#070B16',
@@ -483,5 +484,6 @@ export default function ArenaSpinWheel() {
         </div>
       )}
     </div>
+    </>
   );
 }

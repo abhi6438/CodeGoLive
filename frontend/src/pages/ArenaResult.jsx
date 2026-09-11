@@ -97,7 +97,8 @@ export default function ArenaResult() {
   }
 
   if (loading) return (
-          <SEO title="Match Result" description="Your CodeGoLive Arena match result and XP breakdown." robots="noindex, nofollow" />
+          <>
+            <SEO title="Match Result" description="Your CodeGoLive Arena match result and XP breakdown." robots="noindex, nofollow" />
       <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh" }}>
       <div style={{ fontFamily:"'Orbitron',sans-serif", color:"#00C8FF" }}>Loading results…</div>
     </div>
@@ -335,5 +336,6 @@ export default function ArenaResult() {
         </button>
       </div>
     </div>
+    </>
   );
 }

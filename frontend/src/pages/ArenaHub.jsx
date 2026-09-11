@@ -123,7 +123,8 @@ export default function ArenaHub() {
   };
 
   return (
-          <SEO title="Developer Arena" description="The CodeGoLive Arena hub — battles, quests, tournaments and ranks." robots="noindex, nofollow" />
+          <>
+            <SEO title="Developer Arena" description="The CodeGoLive Arena hub — battles, quests, tournaments and ranks." robots="noindex, nofollow" />
       <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", position: "relative", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}{`
         .arena-hub-bg::before {
@@ -294,5 +295,6 @@ export default function ArenaHub() {
         </div>
       </div>
     </div>
+    </>
   );
 }

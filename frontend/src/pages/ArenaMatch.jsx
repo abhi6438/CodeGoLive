@@ -314,7 +314,8 @@ export default function ArenaMatch() {
   }
 
   if (loading) return (
-          <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
+          <>
+            <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
       <div style={{ display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh" }}>
       <div style={{ fontFamily:"'Orbitron',sans-serif",color:"#00C8FF" }}>Loading match…</div>
     </div>
@@ -589,5 +590,6 @@ export default function ArenaMatch() {
         <ArenaProvokeModal onSelect={sendTaunt} onClose={() => setShowProvoke(false)} />
       )}
     </div>
+    </>
   );
 }

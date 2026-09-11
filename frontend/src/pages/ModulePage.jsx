@@ -25,11 +25,7 @@ function StatusDot({ status }) {
 
 function ProgressBar({ done, total }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  return (
-          <SEO
-        title={module ? `${module.title} — Module ${module.number}` : "Module"}
-        description={module ? `${module.title}: all topics and lessons for this CodeGoLive module.` : "CodeGoLive module lessons."}
-      />
+    return (
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "1rem" }}>
       <div className="progress-bar-track" style={{ flex: 1 }}>
         <div className="progress-bar-fill" style={{ width: `${pct}%` }} />

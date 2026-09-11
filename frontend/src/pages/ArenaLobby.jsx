@@ -57,7 +57,8 @@ export default function ArenaLobby() {
   const TABS = [["create","⚡ Create"],["join","🔑 Join"],["browse","🌐 Browse"]];
 
   return (
-          <SEO title="Arena Lobby" description="Find or create a 1v1 Arena match on CodeGoLive." robots="noindex, nofollow" />
+          <>
+            <SEO title="Arena Lobby" description="Find or create a 1v1 Arena match on CodeGoLive." robots="noindex, nofollow" />
       <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}</style>
 
@@ -191,5 +192,6 @@ export default function ArenaLobby() {
         </div>
       )}
     </div>
+    </>
   );
 }

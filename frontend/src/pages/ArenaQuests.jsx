@@ -32,7 +32,6 @@ export default function ArenaQuests() {
     const color = done && !claimed ? "#00E676" : "#00C8FF";
     const bd = done && !claimed ? "rgba(0,230,118,.35)" : "rgba(0,200,255,.18)";
     return (
-            <SEO title="Daily Quests" description="Daily and weekly quests to earn bonus XP on CodeGoLive Arena." robots="noindex, nofollow" />
       <div style={{
         background: "#0C1220",
         border: `1px solid ${bd}`,
@@ -74,7 +73,9 @@ export default function ArenaQuests() {
   if (loading) return <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}><div style={{ fontFamily: "'Orbitron', sans-serif", color: "#00C8FF" }}>Loading quests…</div></div>;
 
   return (
-    <div style={{ maxWidth: 1300, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
+    <>
+      <SEO title="Daily Quests" description="Daily and weekly quests to earn bonus XP on CodeGoLive Arena." robots="noindex, nofollow" />
+      <div style={{ maxWidth: 1300, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}</style>
       <div style={{ display:"flex",alignItems:"center",marginBottom:"1rem" }}><button onClick={() => navigate("/arena")} style={{ display:"flex",alignItems:"center",gap:".4rem",background:"transparent",border:"1px solid rgba(0,200,255,.2)",borderRadius:4,padding:".35rem .85rem",color:"#7B8DB0",fontFamily:"'Orbitron', sans-serif",fontSize:".58rem",letterSpacing:".08em",cursor:"pointer" }}>← ARENA HUB</button></div>
       <div style={{ marginBottom: "1.5rem" }}>
@@ -97,5 +98,6 @@ export default function ArenaQuests() {
           : quests.weekly.map(q => <QuestCard key={q.id} q={q} />)}
       </div>
     </div>
+    </>
   );
 }

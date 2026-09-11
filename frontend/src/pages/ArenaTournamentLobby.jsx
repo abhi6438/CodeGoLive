@@ -67,7 +67,8 @@ export default function ArenaTournamentLobby() {
   };
 
   return (
-          <SEO title="Tournament Lobby" description="Create or join an Arena tournament on CodeGoLive." robots="noindex, nofollow" />
+          <>
+            <SEO title="Tournament Lobby" description="Create or join an Arena tournament on CodeGoLive." robots="noindex, nofollow" />
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
       <style>{ORBITRON}</style>
 
@@ -175,5 +176,6 @@ export default function ArenaTournamentLobby() {
         <Link to="/arena" style={{ ...btnBase, background:CARD, border:`1px solid ${BORDER}`, color:TEXT, textDecoration:"none", display:"inline-block" }}>← ARENA HUB</Link>
       </div>
     </div>
+    </>
   );
 }

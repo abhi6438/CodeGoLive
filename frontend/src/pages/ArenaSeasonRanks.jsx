@@ -24,8 +24,7 @@ function getInitials(name) {
 
 function ProgressBar({ pct, color, height = 8 }) {
   return (
-          <SEO title="Season Ranks" description="Your AP rank tier and season progress on CodeGoLive Arena." robots="noindex, nofollow" />
-      <div style={{ width:"100%", height, background:"rgba(255,255,255,.07)", borderRadius:99, overflow:"hidden" }}>
+    <div style={{ width:"100%", height, background:"rgba(255,255,255,.07)", borderRadius:99, overflow:"hidden" }}>
       <div style={{
         height:"100%", width:`${pct}%`,
         background: `linear-gradient(90deg, ${color}99, ${color})`,
@@ -87,7 +86,9 @@ export default function ArenaSeasonRanks() {
   const orderedTiers = [...all_tiers].sort((a,b) => b.min_ap - a.min_ap);
 
   return (
-    <div style={{ maxWidth:1100,margin:"0 auto",padding:"1.75rem 1.5rem 4rem",width:"100%",boxSizing:"border-box",background:BG,minHeight:"100vh" }}>
+    <>
+      <SEO title="Season Ranks" description="Your AP rank tier and season progress on CodeGoLive Arena." robots="noindex, nofollow" />
+      <div style={{ maxWidth:1100,margin:"0 auto",padding:"1.75rem 1.5rem 4rem",width:"100%",boxSizing:"border-box",background:BG,minHeight:"100vh" }}>
       <style>{ORBITRON}</style>
 
       {/* Header */}
@@ -243,5 +244,6 @@ export default function ArenaSeasonRanks() {
         <Link to="/arena/ranks" style={{ padding:".5rem 1rem",background:CARD,border:`1px solid rgba(168,85,247,.25)`,borderRadius:4,color:"#A855F7",textDecoration:"none",fontFamily:"'Orbitron',sans-serif",fontSize:".62rem",letterSpacing:".08em" }}>📊 XP LEADERBOARD</Link>
       </div>
     </div>
+    </>
   );
 }

@@ -55,7 +55,8 @@ export default function ArenaHistory() {
   const winRate = total ? Math.round((wins / total) * 100) : 0;
 
   if (loading) return (
-          <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
+          <>
+            <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
       <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'60vh' }}>
       <div style={{ fontFamily:"'Orbitron',sans-serif", color:'#00C8FF', fontSize:'.8rem', letterSpacing:'.12em' }}>
         LOADING HISTORY…
@@ -196,5 +197,6 @@ export default function ArenaHistory() {
         </Link>
       </div>
     </div>
+    </>
   );
 }

@@ -39,7 +39,8 @@ export default function ArenaLeaderboard() {
   if (error) return <div style={{ maxWidth:1000,margin:"2rem auto",padding:"1rem",color:"#FF5722" }}>{error}</div>;
 
   return (
-          <SEO title="Leaderboard" description="CodeGoLive Arena global XP leaderboard." robots="noindex, nofollow" />
+          <>
+            <SEO title="Leaderboard" description="CodeGoLive Arena global XP leaderboard." robots="noindex, nofollow" />
       <div style={{ maxWidth: 1300, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
       <style>{ORBITRON}</style>
       <div style={{ marginBottom: "1.5rem" }}>
@@ -106,5 +107,6 @@ export default function ArenaLeaderboard() {
         <Link to="/arena/lobby" style={{ padding:".5rem 1rem",background:"#00C8FF",color:"#070B16",border:"none",borderRadius:4,textDecoration:"none",fontFamily:"'Orbitron',sans-serif",fontSize:".62rem",fontWeight:700,letterSpacing:".08em" }}>⚔️ BATTLE NOW</Link>
       </div>
     </div>
+    </>
   );
 }
