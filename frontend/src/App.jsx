@@ -33,6 +33,18 @@ import PrivacyPage from "./pages/PrivacyPage";
 import TermsPage from "./pages/TermsPage";
 import CookiePage from "./pages/CookiePage";
 import DisclaimerPage from "./pages/DisclaimerPage";
+import ArenaHub from "./pages/ArenaHub";
+import ArenaLobby from "./pages/ArenaLobby";
+import ArenaMatch from "./pages/ArenaMatch";
+import ArenaResult from "./pages/ArenaResult";
+import ArenaQuests from "./pages/ArenaQuests";
+import ArenaTrophies from "./pages/ArenaTrophies";
+import ArenaLeaderboard from "./pages/ArenaLeaderboard";
+import ArenaSpinWheel from "./pages/ArenaSpinWheel";
+import ArenaHistory from "./pages/ArenaHistory";
+import ArenaSeasonRanks from "./pages/ArenaSeasonRanks";
+import ArenaTournamentLobby from "./pages/ArenaTournamentLobby";
+import ArenaTournament from "./pages/ArenaTournament";
 
 function NotFound() {
   return (
@@ -88,6 +100,18 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
             <Route path="/verify" element={<VerifyCertificatePage />} />
             <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/arena" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaHub /></RequireRole>} />
+            <Route path="/arena/lobby" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaLobby /></RequireRole>} />
+            <Route path="/arena/match/:matchId" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaMatch /></RequireRole>} />
+            <Route path="/arena/result/:matchId" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaResult /></RequireRole>} />
+            <Route path="/arena/quests" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaQuests /></RequireRole>} />
+            <Route path="/arena/trophies" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaTrophies /></RequireRole>} />
+            <Route path="/arena/ranks" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaLeaderboard /></RequireRole>} />
+            <Route path="/arena/season" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaSeasonRanks /></RequireRole>} />
+            <Route path="/arena/tournament" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaTournamentLobby /></RequireRole>} />
+            <Route path="/arena/tournament/:tournamentId" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaTournament /></RequireRole>} />
+            <Route path="/arena/spin" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaSpinWheel /></RequireRole>} />
+            <Route path="/arena/history" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaHistory /></RequireRole>} />
 
             {/* Info / legal routes */}
             <Route path="/about" element={<AboutPage />} />

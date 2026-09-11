@@ -1,0 +1,915 @@
+<title>Arena Build Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg:       #070B16;
+    --bg2:      #0D1526;
+    --bg3:      #121E35;
+    --bg4:      #1A2A45;
+    --cyan:     #00C8FF;
+    --cyan-dim: #0090B8;
+    --gold:     #FFB300;
+    --green:    #00E676;
+    --purple:   #A855F7;
+    --red:      #FF4B4B;
+    --orange:   #FF5722;
+    --text1:    #E8F4FF;
+    --text2:    #A0B8D0;
+    --text3:    #607080;
+    --border:   #1E3050;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text1);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #070B16 0%, #0D1A30 50%, #070B16 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,200,255,.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; letter-spacing: .12em;
+    color: var(--cyan); border: 1px solid var(--cyan-dim);
+    padding: .25rem .75rem; border-radius: 2rem;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 900; letter-spacing: .04em;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-wrap: balance;
+  }
+  .hero-sub {
+    margin-top: .9rem;
+    color: var(--text2); font-size: .95rem; font-weight: 300;
+    max-width: 620px; margin-left: auto; margin-right: auto;
+    line-height: 1.6;
+  }
+  .hero-meta {
+    display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
+    margin-top: 1.75rem;
+  }
+  .hero-meta span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem; color: var(--text3);
+  }
+  .hero-meta span b { color: var(--cyan); }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 3rem; }
+  .section-header {
+    display: flex; align-items: center; gap: .9rem;
+    margin-bottom: 1.5rem; padding-bottom: .8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .65rem; font-weight: 700;
+    color: var(--bg); background: var(--cyan);
+    width: 1.8rem; height: 1.8rem; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .95rem; font-weight: 700;
+    letter-spacing: .06em; color: var(--text1);
+  }
+  .section-badge {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; color: var(--text3);
+    border: 1px solid var(--border);
+    padding: .2rem .55rem; border-radius: .25rem;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: .6rem; padding: 1.25rem 1.4rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-weight: 600; font-size: .9rem; margin-bottom: .5rem;
+    color: var(--text1);
+  }
+  .card-title .icon { margin-right: .4rem; }
+  .card p { font-size: .83rem; color: var(--text2); line-height: 1.6; }
+
+  /* ── FILE TABLE ── */
+  .file-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+  .file-table th {
+    text-align: left; padding: .5rem .75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; letter-spacing: .08em;
+    color: var(--text3); border-bottom: 1px solid var(--border);
+    font-weight: 500;
+  }
+  .file-table td {
+    padding: .55rem .75rem; border-bottom: 1px solid rgba(30,48,80,.5);
+    color: var(--text2); vertical-align: top;
+  }
+  .file-table tr:last-child td { border-bottom: none; }
+  .file-table tr:hover td { background: var(--bg3); }
+  .code { font-family: 'JetBrains Mono', monospace; color: var(--cyan); font-size: .78rem; }
+  .pill {
+    display: inline-block; padding: .15rem .5rem; border-radius: .25rem;
+    font-size: .68rem; font-weight: 600; white-space: nowrap;
+  }
+  .pill-new    { background: rgba(0,230,118,.12); color: var(--green); }
+  .pill-edit   { background: rgba(0,200,255,.10); color: var(--cyan); }
+  .pill-schema { background: rgba(168,85,247,.12); color: var(--purple); }
+  .pill-api    { background: rgba(255,179,0,.10); color: var(--gold); }
+  .pill-rt     { background: rgba(255,75,75,.10); color: var(--red); }
+
+  /* ── PHASE TIMELINE ── */
+  .phases { display: flex; flex-direction: column; gap: 0; }
+  .phase {
+    display: grid; grid-template-columns: 130px 1fr;
+    gap: 0 1.5rem; position: relative;
+  }
+  .phase:not(:last-child)::after {
+    content: '';
+    position: absolute; left: 58px; top: 2.2rem;
+    width: 1px; height: calc(100% + .5rem);
+    background: linear-gradient(to bottom, var(--cyan-dim), transparent);
+  }
+  .phase-left {
+    text-align: right; padding-top: .15rem;
+  }
+  .phase-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: .62rem; letter-spacing: .08em;
+    color: var(--cyan); font-weight: 700;
+  }
+  .phase-weeks {
+    font-size: .7rem; color: var(--text3); margin-top: .15rem;
+  }
+  .phase-dot {
+    position: absolute; left: 52px; top: .3rem;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--cyan);
+  }
+  .phase-right { padding: 0 0 2rem 0; }
+  .phase-name {
+    font-weight: 600; font-size: .9rem; color: var(--text1);
+    margin-bottom: .5rem;
+  }
+  .phase-items {
+    list-style: none; display: flex; flex-direction: column; gap: .3rem;
+  }
+  .phase-items li {
+    font-size: .8rem; color: var(--text2); display: flex; align-items: flex-start; gap: .5rem;
+  }
+  .phase-items li::before { content: '›'; color: var(--cyan); flex-shrink: 0; }
+
+  /* ── SCHEMA BLOCK ── */
+  .schema-block {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: .5rem; padding: 1rem 1.25rem;
+    margin-bottom: .75rem;
+  }
+  .schema-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem; color: var(--gold); font-weight: 500;
+    margin-bottom: .6rem;
+  }
+  .schema-fields { display: flex; flex-wrap: wrap; gap: .35rem .5rem; }
+  .field-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .68rem; color: var(--text2);
+    background: var(--bg4); border: 1px solid var(--border);
+    padding: .15rem .45rem; border-radius: .25rem;
+  }
+  .field-tag.pk { color: var(--cyan); border-color: var(--cyan-dim); }
+  .field-tag.fk { color: var(--purple); border-color: rgba(168,85,247,.3); }
+  .field-tag.rt { color: var(--green); border-color: rgba(0,230,118,.3); }
+
+  /* ── ENDPOINT BLOCK ── */
+  .endpoint {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: .5rem; padding: .75rem 1rem;
+    margin-bottom: .6rem; display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap;
+  }
+  .method {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; font-weight: 700; padding: .2rem .5rem;
+    border-radius: .25rem; flex-shrink: 0; min-width: 52px; text-align: center;
+  }
+  .method-post { background: rgba(0,230,118,.15); color: var(--green); }
+  .method-get  { background: rgba(0,200,255,.12); color: var(--cyan); }
+  .method-ws   { background: rgba(255,179,0,.12); color: var(--gold); }
+  .ep-path { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--text1); }
+  .ep-desc { font-size: .76rem; color: var(--text3); margin-top: .2rem; }
+
+  /* ── COMPONENT GRID ── */
+  .comp-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: .75rem;
+  }
+  .comp-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: .5rem; padding: .9rem 1rem;
+  }
+  .comp-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem; color: var(--cyan); font-weight: 500;
+    margin-bottom: .35rem;
+  }
+  .comp-desc { font-size: .75rem; color: var(--text2); line-height: 1.5; }
+
+  /* ── SCORING TABLE ── */
+  .score-table { width: 100%; border-collapse: collapse; }
+  .score-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; letter-spacing: .08em; font-weight: 500;
+    color: var(--text3); text-align: center; padding: .5rem .6rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-table th:first-child { text-align: left; }
+  .score-table td {
+    text-align: center; padding: .55rem .6rem;
+    border-bottom: 1px solid rgba(30,48,80,.4);
+    font-size: .82rem; color: var(--text2);
+  }
+  .score-table td:first-child { text-align: left; font-weight: 500; color: var(--text1); }
+  .mult { font-family: 'Orbitron', sans-serif; font-size: .75rem; font-weight: 700; }
+  .mult-5 { color: var(--cyan); }
+  .mult-3 { color: var(--green); }
+  .mult-2 { color: var(--gold); }
+  .mult-1 { color: var(--text2); }
+  .mult-half { color: var(--text3); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(0,200,255,.06); border: 1px solid rgba(0,200,255,.2);
+    border-left: 3px solid var(--cyan);
+    border-radius: .4rem; padding: .9rem 1.1rem;
+    font-size: .82rem; color: var(--text2); line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  .callout b { color: var(--cyan); }
+  .callout-warn {
+    background: rgba(255,179,0,.06); border-color: rgba(255,179,0,.2);
+    border-left-color: var(--gold);
+  }
+  .callout-warn b { color: var(--gold); }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: .45rem; margin-top: .75rem; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: .6rem;
+    font-size: .82rem; color: var(--text2); line-height: 1.5;
+  }
+  .check-box {
+    width: 16px; height: 16px; border-radius: .25rem; flex-shrink: 0;
+    background: var(--bg4); border: 1px solid var(--border);
+    margin-top: .1rem;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center; padding: 2rem 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .68rem; color: var(--text3); letter-spacing: .06em;
+  }
+  .footer b { color: var(--cyan); }
+
+  @media (max-width: 600px) {
+    .phase { grid-template-columns: 90px 1fr; }
+    .phase:not(:last-child)::after { left: 41px; }
+    .phase-dot { left: 34px; }
+    .comp-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">// CODEGOLIVE ARENA · BUILD PLAN v1.0</div>
+  <h1>Arena — Full Implementation Plan</h1>
+  <p class="hero-sub">Everything we are building to turn the Arena mockup into a real, live, multiplayer competitive quiz system inside CodeGoLive.</p>
+  <div class="hero-meta">
+    <span>Stack: <b>Supabase + FastAPI + React</b></span>
+    <span>Realtime: <b>Supabase Channels</b></span>
+    <span>Frontend: <b>Vite + React</b></span>
+    <span>Total items: <b>14 systems</b></span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── 1. WHAT WE ARE BUILDING ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">WHAT WE ARE BUILDING</div>
+      <div class="section-badge">OVERVIEW</div>
+    </div>
+    <div class="callout">
+      <b>Goal:</b> Take the Arena mockup (HTML demos) and implement every feature as real working code in the CodeGoLive codebase — backed by a Supabase database, FastAPI scoring engine, and Supabase Realtime multiplayer. Users should be able to challenge each other, battle in live quiz rooms, earn XP + AP, spin the wheel, climb leaderboards, and unlock achievements.
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-top:.5rem">
+      <div class="card">
+        <div class="card-title"><span class="icon">⚔️</span>Live Multiplayer Matches</div>
+        <p>Real-time 1v1 and team battles via Supabase Realtime channels. Both players see the same question at the same time.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">⚡</span>Scoring Engine</div>
+        <p>Time-based XP/AP multipliers (5× to 0.5×) stacked with combo chain bonuses. Server-side validated.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">💬</span>In-Match Social</div>
+        <p>Live chat, emoji reactions, and provoke taunts sent to opponent during a match — all via Realtime.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">📋</span>Quest System</div>
+        <p>Daily + weekly quests that auto-generate, track progress, and pay out AP + XP on claim.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🏆</span>Achievements</div>
+        <p>12 badge types with unlock conditions. Trigger on match end, quest claim, or streak milestones.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="icon">🎰</span>Spin Wheel</div>
+        <p>One free spin per day. Extra spins cost 50 AP. Weighted prizes including jackpot. Backend logs every spin.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. SUPABASE SCHEMA ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">SUPABASE DATABASE SCHEMA</div>
+      <div class="section-badge">NEW TABLES</div>
+    </div>
+    <div class="callout">
+      <b>10 new tables</b> added to the existing Supabase project. All use Row-Level Security (RLS). Tables prefixed with <b>arena_</b> to stay separate from the existing learning platform tables.
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_matches</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">host_id → profiles</span>
+        <span class="field-tag fk">opponent_id → profiles</span>
+        <span class="field-tag fk">team_a_id</span>
+        <span class="field-tag fk">team_b_id</span>
+        <span class="field-tag">status: waiting|active|finished</span>
+        <span class="field-tag">mode: 1v1|team</span>
+        <span class="field-tag">room_code text</span>
+        <span class="field-tag">topic_id text</span>
+        <span class="field-tag">started_at timestamptz</span>
+        <span class="field-tag">ended_at timestamptz</span>
+        <span class="field-tag rt">realtime enabled ✓</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_match_players</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">match_id → arena_matches</span>
+        <span class="field-tag fk">user_id → profiles</span>
+        <span class="field-tag">score int default 0</span>
+        <span class="field-tag">xp_earned int default 0</span>
+        <span class="field-tag">ap_earned int default 0</span>
+        <span class="field-tag">combo int default 0</span>
+        <span class="field-tag">answers jsonb</span>
+        <span class="field-tag rt">realtime enabled ✓</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_match_events</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">match_id → arena_matches</span>
+        <span class="field-tag fk">from_user → profiles</span>
+        <span class="field-tag">type: chat|reaction|taunt|answer</span>
+        <span class="field-tag">payload jsonb</span>
+        <span class="field-tag">created_at timestamptz</span>
+        <span class="field-tag rt">realtime enabled ✓</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_teams</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">owner_id → profiles</span>
+        <span class="field-tag">name text</span>
+        <span class="field-tag">badge text (emoji)</span>
+        <span class="field-tag">total_xp int</span>
+        <span class="field-tag">wins int</span>
+        <span class="field-tag">created_at timestamptz</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_team_members</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">team_id → arena_teams</span>
+        <span class="field-tag fk">user_id → profiles</span>
+        <span class="field-tag">role: owner|member</span>
+        <span class="field-tag">joined_at timestamptz</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_challenges</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">from_user → profiles</span>
+        <span class="field-tag fk">to_user → profiles</span>
+        <span class="field-tag">status: pending|accepted|declined|expired</span>
+        <span class="field-tag">topic_id text</span>
+        <span class="field-tag">expires_at timestamptz</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_quests</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">user_id → profiles</span>
+        <span class="field-tag">type: daily|weekly</span>
+        <span class="field-tag">quest_key text</span>
+        <span class="field-tag">target int</span>
+        <span class="field-tag">progress int default 0</span>
+        <span class="field-tag">xp_reward int</span>
+        <span class="field-tag">ap_reward int</span>
+        <span class="field-tag">claimed_at timestamptz</span>
+        <span class="field-tag">resets_at timestamptz</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_achievements</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">user_id → profiles</span>
+        <span class="field-tag">badge_key text</span>
+        <span class="field-tag">unlocked_at timestamptz</span>
+        <span class="field-tag">rarity: common|rare|epic|legendary</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_leaderboard</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">user_id → profiles</span>
+        <span class="field-tag">week_start date</span>
+        <span class="field-tag">xp_this_week int default 0</span>
+        <span class="field-tag">wins int default 0</span>
+        <span class="field-tag">rank int</span>
+        <span class="field-tag">prize_ap int</span>
+      </div>
+    </div>
+
+    <div class="schema-block">
+      <div class="schema-name">arena_spin_log</div>
+      <div class="schema-fields">
+        <span class="field-tag pk">id uuid PK</span>
+        <span class="field-tag fk">user_id → profiles</span>
+        <span class="field-tag">prize_type text</span>
+        <span class="field-tag">prize_value int</span>
+        <span class="field-tag">is_free boolean</span>
+        <span class="field-tag">spun_at timestamptz</span>
+      </div>
+    </div>
+
+    <p style="font-size:.78rem;color:var(--text3);margin-top:.75rem">Also: add columns <code class="code">total_xp</code>, <code class="code">total_ap</code>, <code class="code">arena_wins</code>, <code class="code">streak</code> to the existing <code class="code">profiles</code> table.</p>
+  </div>
+
+  <!-- ── 3. FASTAPI ENDPOINTS ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">FASTAPI ENDPOINTS</div>
+      <div class="section-badge">BACKEND</div>
+    </div>
+
+    <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem">All routes prefixed <code class="code">/api/arena/</code>. Auth via Supabase JWT. Scoring calculations happen server-side so clients cannot cheat.</p>
+
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/match/create</div><div class="ep-desc">Create a match room. Returns room_code. Inserts into arena_matches with status=waiting.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/match/join</div><div class="ep-desc">Join a match by room_code. Sets opponent_id, status→active. Broadcasts start event to Realtime channel.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/match/answer</div><div class="ep-desc">Submit an answer. Body: match_id, question_index, answer, client_time_remaining. Server calculates multiplier + combo, updates arena_match_players.score, returns earned XP/AP.</div></div></div>
+    <div class="endpoint"><span class="method method-get">GET</span><div><div class="ep-path">/api/arena/match/{id}/result</div><div class="ep-desc">Return final scores, winner, XP/AP earned, achievements unlocked in that match.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/challenge/send</div><div class="ep-desc">Send a challenge invite to a user (by user_id or email). Creates arena_challenges record, triggers notification.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/challenge/respond</div><div class="ep-desc">Accept or decline a challenge. If accepted, auto-creates a match room and returns room_code.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/team/create</div><div class="ep-desc">Create a new team with name + badge emoji. Owner auto-added as first member.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/team/invite</div><div class="ep-desc">Invite a user to your team. Sends notification; user accepts/declines in lobby.</div></div></div>
+    <div class="endpoint"><span class="method method-get">GET</span><div><div class="ep-path">/api/arena/quests/me</div><div class="ep-desc">Return current user's daily and weekly quests with progress. Auto-generates quests if none exist for today/this week.</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/quests/claim</div><div class="ep-desc">Claim a completed quest. Awards XP + AP, marks claimed_at. Idempotent.</div></div></div>
+    <div class="endpoint"><span class="method method-get">GET</span><div><div class="ep-path">/api/arena/achievements/me</div><div class="ep-desc">Return all achievements the user has unlocked.</div></div></div>
+    <div class="endpoint"><span class="method method-get">GET</span><div><div class="ep-path">/api/arena/leaderboard/weekly</div><div class="ep-desc">Top 100 for current week. Includes prize pool calculation (2% of all XP this week).</div></div></div>
+    <div class="endpoint"><span class="method method-post">POST</span><div><div class="ep-path">/api/arena/spin</div><div class="ep-desc">Spin the wheel. Checks daily free spin or deducts 50 AP. Server picks weighted prize. Logs to arena_spin_log, credits reward.</div></div></div>
+    <div class="endpoint"><span class="method method-ws">WS</span><div><div class="ep-path">Supabase Realtime channels (not REST)</div><div class="ep-desc">Channel per match: <code class="code">arena:match:{id}</code>. Broadcasts: question_start, answer_reveal, chat, reaction, taunt, match_end. Client subscribes on join, unsubscribes on leave.</div></div></div>
+  </div>
+
+  <!-- ── 4. SCORING ENGINE ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">SCORING ENGINE LOGIC</div>
+      <div class="section-badge">SERVER-SIDE</div>
+    </div>
+
+    <table class="score-table" style="margin-bottom:1rem">
+      <thead>
+        <tr>
+          <th>ANSWER WINDOW</th>
+          <th>TIER</th>
+          <th>XP MULT</th>
+          <th>AP MULT</th>
+          <th>BASE XP</th>
+          <th>MAX XP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>0 – 3 s</td><td>⚡ LIGHTNING</td><td><span class="mult mult-5">5×</span></td><td><span class="mult mult-5">5×</span></td><td>20</td><td>100</td></tr>
+        <tr><td>3 – 6 s</td><td>🎯 SWIFT</td><td><span class="mult mult-3">3×</span></td><td><span class="mult mult-3">3×</span></td><td>20</td><td>60</td></tr>
+        <tr><td>6 – 12 s</td><td>✓ SHARP</td><td><span class="mult mult-2">2×</span></td><td><span class="mult mult-2">2×</span></td><td>20</td><td>40</td></tr>
+        <tr><td>12 – 22 s</td><td>STEADY</td><td><span class="mult mult-1">1×</span></td><td><span class="mult mult-1">1×</span></td><td>20</td><td>20</td></tr>
+        <tr><td>22 – 30 s</td><td>🐢 SLOW</td><td><span class="mult mult-half">0.5×</span></td><td><span class="mult mult-half">0.5×</span></td><td>20</td><td>10</td></tr>
+        <tr><td>timeout</td><td>✗ MISS</td><td><span class="mult mult-half">0</span></td><td><span class="mult mult-half">0</span></td><td>—</td><td>0</td></tr>
+      </tbody>
+    </table>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
+      <div class="card">
+        <div class="card-title">Combo Chain Bonus</div>
+        <p><b style="color:var(--text1)">3 correct in a row</b> → 🔥 CHAIN · +1.5× multiplier on XP + AP<br><br><b style="color:var(--text1)">5+ correct in a row</b> → ⚡ INFERNO · +2× multiplier<br><br>Wrong answer or timeout resets combo to 0.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Final Formula</div>
+        <p style="font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.8;color:var(--cyan)">
+          xp = base_xp × time_mult × combo_mult<br>
+          ap = base_ap × time_mult × combo_mult<br><br>
+          <span style="color:var(--text3)">Both calculated server-side on</span> <span style="color:var(--gold)">/api/arena/match/answer</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <b>Anti-cheat:</b> The client sends <code>time_remaining</code> from its local timer, but the server also stores <code>question_sent_at</code> for each match. If client-reported time differs from server time by more than 2 seconds, the server uses its own calculation. Clients cannot claim a 5× multiplier by lying.
+    </div>
+  </div>
+
+  <!-- ── 5. REACT COMPONENTS ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <div class="section-title">REACT COMPONENTS TO BUILD</div>
+      <div class="section-badge">FRONTEND</div>
+    </div>
+
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-name">ArenaHub.jsx</div>
+        <div class="comp-desc">Landing page at <code>/arena</code>. Shows stats, entry points to Lobby, Quests, Trophies, Ranks, Spin. Nav between all Arena screens.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaLobby.jsx</div>
+        <div class="comp-desc">4-tab lobby: Create Room, Join by Code, Challenge Player, My Team. Handles match creation + joining flow.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaMatch.jsx</div>
+        <div class="comp-desc">Live quiz screen. Subscribes to Supabase Realtime channel. Shows timer ring, question, answer options, opponent score, chat panel, reaction bar, taunt button.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaResult.jsx</div>
+        <div class="comp-desc">Post-match result. Shows winner, XP/AP earned, multiplier breakdown, combo highlights, achievements unlocked in this match.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaScoreEngine.js</div>
+        <div class="comp-desc">Utility file: getTimeMult(remaining), getComboMult(streak), calcEarned(base, timeMult, comboMult). Used by both client display and referenced by server.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaQuests.jsx</div>
+        <div class="comp-desc">Daily + weekly quest list with progress bars. Claim button calls /api/arena/quests/claim. Quest streak banner.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaTrophies.jsx</div>
+        <div class="comp-desc">Badge gallery grid. Earned, locked, secret. Rarity tiers: Common / Rare / Epic / Legendary. Animated unlock reveal.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaLeaderboard.jsx</div>
+        <div class="comp-desc">Weekly top-100 table. Live prize pool display. User's own rank always pinned at bottom. Resets Monday 00:00 UTC.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaSpinWheel.jsx</div>
+        <div class="comp-desc">Canvas wheel with 8 weighted segments. Calls /api/arena/spin. Animates landing, shows prize popup. Free spin cooldown timer.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaChatPanel.jsx</div>
+        <div class="comp-desc">Sliding panel inside ArenaMatch. Subscribes to match chat events. Sends chat messages + emoji reactions via Realtime.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaProvokeModal.jsx</div>
+        <div class="comp-desc">5 taunt lines the player can send. Sends taunt event to Realtime channel. Toast + shake animation on opponent's screen.</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-name">ArenaChallengeCard.jsx</div>
+        <div class="comp-desc">Notification card for incoming challenges. Accept → auto-joins match. Decline → marks challenge declined. 24h expiry.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. REAL-TIME ARCHITECTURE ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <div class="section-title">REAL-TIME ARCHITECTURE</div>
+      <div class="section-badge">SUPABASE REALTIME</div>
+    </div>
+
+    <div class="callout">
+      <b>One channel per match:</b> <code>arena:match:{matchId}</code>. Both players subscribe on join and unsubscribe on leave/disconnect.
+    </div>
+
+    <table class="file-table" style="margin-bottom:1rem">
+      <thead>
+        <tr><th>EVENT TYPE</th><th>DIRECTION</th><th>PAYLOAD</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="code">question_start</td><td style="color:var(--text2);font-size:.8rem">Server → Both</td><td style="color:var(--text2);font-size:.78rem">{ question, options, time_limit, sent_at }</td></tr>
+        <tr><td class="code">answer_reveal</td><td style="color:var(--text2);font-size:.8rem">Server → Both</td><td style="color:var(--text2);font-size:.78rem">{ correct_index, player_scores }</td></tr>
+        <tr><td class="code">score_update</td><td style="color:var(--text2);font-size:.8rem">Server → Both</td><td style="color:var(--text2);font-size:.78rem">{ user_id, score, xp, ap, combo }</td></tr>
+        <tr><td class="code">chat</td><td style="color:var(--text2);font-size:.8rem">Player → Both</td><td style="color:var(--text2);font-size:.78rem">{ from_user, text, created_at }</td></tr>
+        <tr><td class="code">reaction</td><td style="color:var(--text2);font-size:.8rem">Player → Both</td><td style="color:var(--text2);font-size:.78rem">{ from_user, emoji }</td></tr>
+        <tr><td class="code">taunt</td><td style="color:var(--text2);font-size:.8rem">Player → Opponent</td><td style="color:var(--text2);font-size:.78rem">{ from_user, taunt_text }</td></tr>
+        <tr><td class="code">match_end</td><td style="color:var(--text2);font-size:.8rem">Server → Both</td><td style="color:var(--text2);font-size:.78rem">{ winner_id, final_scores, rewards }</td></tr>
+        <tr><td class="code">opponent_left</td><td style="color:var(--text2);font-size:.8rem">Server → Remaining</td><td style="color:var(--text2);font-size:.78rem">{ user_id, reason: disconnect|timeout }</td></tr>
+      </tbody>
+    </table>
+
+    <div class="card">
+      <div class="card-title">Presence: Is Opponent Still There?</div>
+      <p>Use Supabase Realtime Presence to track whether both players are connected. If one disconnects for more than 30 seconds, the server auto-ends the match and awards the win to the remaining player.</p>
+    </div>
+  </div>
+
+  <!-- ── 7. QUEST + ACHIEVEMENT SYSTEM ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <div class="section-title">QUEST &amp; ACHIEVEMENT SYSTEM</div>
+      <div class="section-badge">ENGAGEMENT</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div>
+        <p style="font-size:.78rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;font-family:'JetBrains Mono',monospace">DAILY QUESTS</p>
+        <div class="card"><div class="card-title">⚡ Speed Merchant</div><p>Answer 3 questions in the LIGHTNING tier (under 3s). Reward: +80 AP, +60 XP.</p></div>
+        <div class="card"><div class="card-title">🎯 Sharpshooter</div><p>Win a match without getting a single question wrong. Reward: +120 AP, +100 XP.</p></div>
+        <div class="card"><div class="card-title">🔥 Daily Grind</div><p>Complete 1 Arena match (win or lose). Reward: +50 AP, +40 XP.</p></div>
+      </div>
+      <div>
+        <p style="font-size:.78rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;font-family:'JetBrains Mono',monospace">WEEKLY QUESTS</p>
+        <div class="card"><div class="card-title">⚔️ Rival Slayer</div><p>Beat the same opponent twice in one week. Reward: +500 AP, +300 XP.</p></div>
+        <div class="card"><div class="card-title">📚 Knowledge Gauntlet</div><p>Complete 10 matches across at least 2 different topics. Reward: +800 AP, +500 XP.</p></div>
+        <div class="card"><div class="card-title">👑 Week Warrior</div><p>Maintain a 5-day login streak. Reward: +200 AP, +150 XP.</p></div>
+      </div>
+    </div>
+
+    <p style="font-size:.82rem;color:var(--text2);margin:1rem 0 .5rem">Achievement unlock triggers (checked server-side at match end or quest claim):</p>
+    <table class="file-table">
+      <thead><tr><th>BADGE</th><th>RARITY</th><th>UNLOCK CONDITION</th></tr></thead>
+      <tbody>
+        <tr><td>⚡ First Blood</td><td><span class="pill pill-new">Common</span></td><td style="font-size:.78rem;color:var(--text2)">Win your first Arena match</td></tr>
+        <tr><td>🔥 On Fire</td><td><span class="pill pill-edit">Rare</span></td><td style="font-size:.78rem;color:var(--text2)">Reach a 5-combo in any match</td></tr>
+        <tr><td>🎯 Perfect Shot</td><td><span class="pill pill-edit">Rare</span></td><td style="font-size:.78rem;color:var(--text2)">Answer 5 questions in the LIGHTNING tier in one match</td></tr>
+        <tr><td>💎 BTP Master</td><td><span class="pill pill-api">Epic</span></td><td style="font-size:.78rem;color:var(--text2)">Win 20 matches in the SAP BTP topic</td></tr>
+        <tr><td>⚔️ Rival Slayer</td><td><span class="pill pill-api">Epic</span></td><td style="font-size:.78rem;color:var(--text2)">Beat the same player 3 times</td></tr>
+        <tr><td>🚀 Speed Demon</td><td><span class="pill pill-api">Epic</span></td><td style="font-size:.78rem;color:var(--text2)">Achieve 5× multiplier on 10 questions across all matches</td></tr>
+        <tr><td>💪 Comeback King</td><td><span class="pill pill-schema">Legendary</span></td><td style="font-size:.78rem;color:var(--text2)">Win a match after being 3 questions behind</td></tr>
+        <tr><td>👑 Champion</td><td><span class="pill pill-schema">Legendary</span></td><td style="font-size:.78rem;color:var(--text2)">Reach #1 on the weekly leaderboard</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 8. SPIN WHEEL ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <div class="section-title">SPIN WHEEL SYSTEM</div>
+      <div class="section-badge">MONETISATION LAYER</div>
+    </div>
+
+    <table class="file-table" style="margin-bottom:.75rem">
+      <thead><tr><th>SEGMENT</th><th>PRIZE</th><th>PROBABILITY</th><th>COST TO UNLOCK</th></tr></thead>
+      <tbody>
+        <tr><td>⚡ +50 AP</td><td style="font-size:.8rem;color:var(--text2)">Arena Points</td><td style="color:var(--green);font-size:.8rem">25%</td><td style="font-size:.78rem;color:var(--text3)">Free (daily)</td></tr>
+        <tr><td>🎯 +150 AP</td><td style="font-size:.8rem;color:var(--text2)">Arena Points</td><td style="color:var(--green);font-size:.8rem">20%</td><td style="font-size:.78rem;color:var(--text3)">Free (daily)</td></tr>
+        <tr><td>🔋 Power-Up</td><td style="font-size:.8rem;color:var(--text2)">1 time-freeze token</td><td style="color:var(--gold);font-size:.8rem">20%</td><td style="font-size:.78rem;color:var(--text3)">Free (daily)</td></tr>
+        <tr><td>🎨 Cosmetic</td><td style="font-size:.8rem;color:var(--text2)">Random avatar badge frame</td><td style="color:var(--gold);font-size:.8rem">15%</td><td style="font-size:.78rem;color:var(--text3)">50 AP extra</td></tr>
+        <tr><td>✨ +100 XP</td><td style="font-size:.8rem;color:var(--text2)">Prestige XP</td><td style="color:var(--gold);font-size:.8rem">10%</td><td style="font-size:.78rem;color:var(--text3)">50 AP extra</td></tr>
+        <tr><td>⚡⚡ 2× AP Next</td><td style="font-size:.8rem;color:var(--text2)">Double AP on next match</td><td style="color:var(--red);font-size:.8rem">6%</td><td style="font-size:.78rem;color:var(--text3)">50 AP extra</td></tr>
+        <tr><td>💰 JACKPOT +500 AP</td><td style="font-size:.8rem;color:var(--text2)">Big AP reward</td><td style="color:var(--red);font-size:.8rem">2%</td><td style="font-size:.78rem;color:var(--text3)">50 AP extra</td></tr>
+        <tr><td>Try Again</td><td style="font-size:.8rem;color:var(--text2)">No prize</td><td style="color:var(--text3);font-size:.8rem">2%</td><td style="font-size:.78rem;color:var(--text3)">50 AP extra</td></tr>
+      </tbody>
+    </table>
+    <div class="callout callout-warn"><b>Rules:</b> 1 free spin every 24h per user. Extra spins cost 50 AP each (deducted before spin). Jackpot (500 AP) is capped at 1 per user per week. All spins logged in <code>arena_spin_log</code>.</div>
+  </div>
+
+  <!-- ── 9. FILES TO CREATE / EDIT ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <div class="section-title">FILES TO CREATE / EDIT</div>
+      <div class="section-badge">FULL FILE LIST</div>
+    </div>
+
+    <table class="file-table">
+      <thead><tr><th>FILE PATH</th><th>ACTION</th><th>WHAT IT DOES</th></tr></thead>
+      <tbody>
+        <tr><td class="code">backend/routers/arena.py</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">All /api/arena/* FastAPI routes</td></tr>
+        <tr><td class="code">backend/services/arena_score.py</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Scoring engine: time multiplier, combo multiplier, final calc</td></tr>
+        <tr><td class="code">backend/services/arena_quests.py</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Quest generation, progress update, claim logic</td></tr>
+        <tr><td class="code">backend/services/arena_achievements.py</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Check + unlock achievement badges</td></tr>
+        <tr><td class="code">backend/services/arena_spin.py</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Spin wheel: weighted random, free spin check, log + credit</td></tr>
+        <tr><td class="code">backend/main.py</td><td><span class="pill pill-edit">EDIT</span></td><td style="font-size:.78rem;color:var(--text2)">Register arena router: app.include_router(arena.router)</td></tr>
+        <tr><td class="code">supabase/migrations/arena_schema.sql</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">All 10 new tables + RLS policies + profile column additions</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaHub.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Arena home screen, route /arena</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaLobby.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Create/Join/Challenge/Team lobby, route /arena/lobby</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaMatch.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Live match screen, route /arena/match/:id</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaResult.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Post-match result, route /arena/result/:id</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaQuests.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Quest board, route /arena/quests</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaTrophies.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Achievement gallery, route /arena/trophies</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaLeaderboard.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Weekly leaderboard, route /arena/ranks</td></tr>
+        <tr><td class="code">frontend/src/pages/ArenaSpinWheel.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Spin wheel screen, route /arena/spin</td></tr>
+        <tr><td class="code">frontend/src/components/arena/ArenaChatPanel.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Sliding chat used inside ArenaMatch</td></tr>
+        <tr><td class="code">frontend/src/components/arena/ArenaProvokeModal.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Taunt selector modal inside ArenaMatch</td></tr>
+        <tr><td class="code">frontend/src/components/arena/ArenaChallengeCard.jsx</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Notification card for incoming challenges (shown in Dashboard/Hub)</td></tr>
+        <tr><td class="code">frontend/src/utils/arenaScore.js</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">Client-side scoring helpers: getTimeMult, getComboMult, calcEarned</td></tr>
+        <tr><td class="code">frontend/src/hooks/useArenaMatch.js</td><td><span class="pill pill-new">NEW</span></td><td style="font-size:.78rem;color:var(--text2)">React hook managing Supabase Realtime subscription for a match channel</td></tr>
+        <tr><td class="code">frontend/src/App.jsx</td><td><span class="pill pill-edit">EDIT</span></td><td style="font-size:.78rem;color:var(--text2)">Add all /arena/* routes</td></tr>
+        <tr><td class="code">frontend/src/pages/Dashboard.jsx</td><td><span class="pill pill-edit">EDIT</span></td><td style="font-size:.78rem;color:var(--text2)">Add Arena entry card / quick-link to /arena</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 10. BUILD PHASES ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div class="section-title">BUILD PHASES</div>
+      <div class="section-badge">TIMELINE</div>
+    </div>
+
+    <div class="phases">
+      <div class="phase">
+        <div class="phase-left">
+          <div class="phase-label">PHASE 1</div>
+          <div class="phase-weeks">Week 1–2</div>
+        </div>
+        <div class="phase-dot"></div>
+        <div class="phase-right">
+          <div class="phase-name">🏗️ Foundation — Database + Scoring Engine</div>
+          <ul class="phase-items">
+            <li>Write and run arena_schema.sql migration in Supabase</li>
+            <li>Add RLS policies for all 10 tables</li>
+            <li>Add total_xp, total_ap, arena_wins, streak to profiles</li>
+            <li>Build arena_score.py scoring service (time mult + combo)</li>
+            <li>Build /api/arena/match/create and /join endpoints</li>
+            <li>Build /api/arena/match/answer endpoint with server-side scoring</li>
+            <li>Write unit tests for scoring engine</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-left">
+          <div class="phase-label">PHASE 2</div>
+          <div class="phase-weeks">Week 3–4</div>
+        </div>
+        <div class="phase-dot"></div>
+        <div class="phase-right">
+          <div class="phase-name">⚡ Live Match — React + Realtime</div>
+          <ul class="phase-items">
+            <li>Build useArenaMatch.js hook (Supabase Realtime subscribe/broadcast)</li>
+            <li>Build ArenaLobby.jsx (create room, join room, room code display)</li>
+            <li>Build ArenaMatch.jsx (timer ring, question display, answer buttons)</li>
+            <li>Wire scoring: submit answer → /api/arena/match/answer → update UI</li>
+            <li>Build ArenaResult.jsx with XP/AP breakdown</li>
+            <li>Add route /arena/match/:id and /arena/result/:id to App.jsx</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-left">
+          <div class="phase-label">PHASE 3</div>
+          <div class="phase-weeks">Week 5–6</div>
+        </div>
+        <div class="phase-dot"></div>
+        <div class="phase-right">
+          <div class="phase-name">💬 Social — Chat, Reactions, Taunts, Challenges</div>
+          <ul class="phase-items">
+            <li>Build ArenaChatPanel.jsx — Realtime chat during match</li>
+            <li>Build ArenaProvokeModal.jsx — taunt lines + shake toast on opponent</li>
+            <li>Add reaction bar (5 emoji buttons) to ArenaMatch</li>
+            <li>Build /api/arena/challenge/send + /respond endpoints</li>
+            <li>Add Challenge and My Team tabs to ArenaLobby</li>
+            <li>Build ArenaChallengeCard.jsx — incoming challenge notifications</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-left">
+          <div class="phase-label">PHASE 4</div>
+          <div class="phase-weeks">Week 7–8</div>
+        </div>
+        <div class="phase-dot"></div>
+        <div class="phase-right">
+          <div class="phase-name">🏆 Engagement — Quests, Trophies, Leaderboard, Spin</div>
+          <ul class="phase-items">
+            <li>Build arena_quests.py + /api/arena/quests/* endpoints</li>
+            <li>Build arena_achievements.py + achievement check hooks in match end</li>
+            <li>Build ArenaQuests.jsx with progress bars and claim button</li>
+            <li>Build ArenaTrophies.jsx with badge grid and unlock animation</li>
+            <li>Build ArenaLeaderboard.jsx with prize pool calculation</li>
+            <li>Build arena_spin.py + /api/arena/spin endpoint</li>
+            <li>Build ArenaSpinWheel.jsx (Canvas, weighted, ease-out animation)</li>
+            <li>Add Supabase cron job for weekly leaderboard reset</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-left">
+          <div class="phase-label">PHASE 5</div>
+          <div class="phase-weeks">Week 9</div>
+        </div>
+        <div class="phase-dot"></div>
+        <div class="phase-right">
+          <div class="phase-name">🎨 Polish — Hub, Dashboard Integration, SEO</div>
+          <ul class="phase-items">
+            <li>Build ArenaHub.jsx as Arena home screen at /arena</li>
+            <li>Add Arena entry card to main Dashboard.jsx</li>
+            <li>Add &lt;SEO&gt; tags to all Arena pages</li>
+            <li>Wire up push notifications for challenge invites</li>
+            <li>End-to-end test: full match flow from lobby to result</li>
+            <li>Deploy and verify on Vercel</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WHAT USER MUST CONFIGURE ── -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <div class="section-title">WHAT YOU MUST CONFIGURE</div>
+      <div class="section-badge">BEFORE LAUNCH</div>
+    </div>
+    <ul class="checklist">
+      <li><div class="check-box"></div>Replace placeholder contact/legal emails in Privacy, Terms, Contact pages (from the AdSense plan)</li>
+      <li><div class="check-box"></div>Run <code class="code">arena_schema.sql</code> migration in your Supabase project dashboard</li>
+      <li><div class="check-box"></div>Enable Realtime on arena_matches, arena_match_players, arena_match_events tables in Supabase UI → Database → Replication</li>
+      <li><div class="check-box"></div>Set up Supabase Edge Function or pg_cron for weekly leaderboard reset (Mondays 00:00 UTC)</li>
+      <li><div class="check-box"></div>Add Arena questions to the database per topic (initial seed: 20+ questions per topic)</li>
+      <li><div class="check-box"></div>Decide on notification method for challenge invites (Supabase push, email, or in-app only)</li>
+      <li><div class="check-box"></div>Set jackpot weekly cap in environment config (default: 1 jackpot per user per week)</li>
+    </ul>
+  </div>
+
+</div>
+
+<div class="footer">
+  CODEGOLIVE ARENA · BUILD PLAN v1.0 · <b>14 SYSTEMS</b> · <b>22 FILES</b> · <b>5 PHASES</b>
+</div>
