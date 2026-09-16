@@ -34,6 +34,7 @@ import TermsPage from "./pages/TermsPage";
 import CookiePage from "./pages/CookiePage";
 import DisclaimerPage from "./pages/DisclaimerPage";
 import ArenaHub from "./pages/ArenaHub";
+import ArenaLanding from "./pages/ArenaLanding";
 import ArenaSolo from "./pages/ArenaSolo";
 import ArenaLobby from "./pages/ArenaLobby";
 import ArenaMatch from "./pages/ArenaMatch";
@@ -104,7 +105,8 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
             <Route path="/certificates/:userId" element={<PublicCertificatePage />} />
             <Route path="/verify" element={<VerifyCertificatePage />} />
             <Route path="/progress" element={<ProgressPage />} />
-            <Route path="/arena" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaHub /></RequireRole>} />
+            <Route path="/arena" element={<ArenaLanding />} />
+            <Route path="/arena/hub" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaHub /></RequireRole>} />
             <Route path="/arena/solo" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaSolo /></RequireRole>} />
             <Route path="/arena/lobby" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaLobby /></RequireRole>} />
             <Route path="/arena/match/:matchId" element={<RequireRole roles={["learner","moderator","admin"]}><ArenaMatch /></RequireRole>} />

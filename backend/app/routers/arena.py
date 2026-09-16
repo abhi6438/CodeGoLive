@@ -219,9 +219,8 @@ async def join_match(body: JoinMatchRequest, user: CurrentUser = Depends(get_cur
 async def solo_questions(
     topic_id: str = "sap-btp",
     limit: int = 10,
-    user: CurrentUser = Depends(get_current_user),
 ):
-    """Return shuffled questions for solo self-practice mode."""
+    """Return shuffled questions for solo self-practice mode. Public — no auth required."""
     sb = get_supabase()
     qs = (
         sb.table("assessment_questions")
