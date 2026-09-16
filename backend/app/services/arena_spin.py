@@ -38,7 +38,14 @@ async def get_free_spin_status(user_id: str) -> dict:
 
 async def perform_spin(user_id: str, is_free: bool) -> dict:
     sb = get_supabase()
-    if not is_free:
+    if is_free:
+        # Enforce one free spin per 24 hours server-side — never trust the client
+        status_check = await get_free_spin_status(user_id)
+        if not status_check["has_free_spin"]:
+            next_at = status_check["next_free_spin_at"]
+            raise HTTPException(status.HTTP_429_TOO_MANY_REQUESTS,
+                f"Free spin already used. Next free spin available at {next_at}.")
+    else:
         profile_res = sb.table("profiles").select("arena_ap").eq("id", user_id).single().execute()
         if not profile_res.data or (profile_res.data.get("arena_ap") or 0) < 50:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Insufficient AP. Need 50 AP for an extra spin.")

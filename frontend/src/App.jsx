@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import CookieBanner from "./components/CookieBanner";
 import { MobileBarProvider } from "./lib/MobileBarContext";
 import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
+import HomePage from "./pages/HomePage";
 import ModulePage from "./pages/ModulePage";
 import TopicPage from "./pages/TopicPage";
 import CourseWorkspace from "./pages/CourseWorkspace";
@@ -82,9 +82,12 @@ function AppInner({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) {
           <PageViewTracker />
         <div style={{ flex: isCourse ? 1 : "0 0 auto", display: "flex", flexDirection: "column", minHeight: 0 }}>
         <Routes>
+            {/* Home / Landing */}
+            <Route path="/" element={<HomePage />} />
+
             {/* Learner routes */}
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/dashboard" element={<Navigate to="/" replace />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/courses" element={<Dashboard />} />
             <Route path="/course/:courseId" element={<CourseWorkspace />} />
             <Route path="/course/:courseId/:topicSlug" element={<CourseWorkspace />} />
             <Route path="/modules/:moduleId" element={<ModulePage />} />

@@ -3,6 +3,45 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import SEO from "../components/SEO";
 
+const ARENA_THEME_CSS = `
+  .arena-page {
+    --ah-bg:      var(--ah-bg);
+    --ah-surf:    var(--ah-surf);
+    --ah-surf2:   var(--ah-surf2);
+    --ah-text:    var(--ah-text);
+    --ah-text2:   var(--ah-text2);
+    --ah-text3:   var(--ah-text3);
+    --ah-item-bg: var(--ah-item-bg);
+    --ah-item-bd: rgba(0,200,255,.07);
+    --ah-dot:     var(--ah-dot);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .arena-page {
+      --ah-bg:      #F8FAFF;
+      --ah-surf:    #EEF2FF;
+      --ah-surf2:   #E0E7FF;
+      --ah-text:    #0F172A;
+      --ah-text2:   #475569;
+      --ah-text3:   #94A3B8;
+      --ah-item-bg: rgba(79,70,229,.04);
+      --ah-item-bd: rgba(79,70,229,.10);
+      --ah-dot:     rgba(79,70,229,.12);
+    }
+  }
+  :root[data-theme="light"] .arena-page {
+    --ah-bg:      #F8FAFF;
+    --ah-surf:    #EEF2FF;
+    --ah-surf2:   #E0E7FF;
+    --ah-text:    #0F172A;
+    --ah-text2:   #475569;
+    --ah-text3:   #94A3B8;
+    --ah-item-bg: rgba(79,70,229,.04);
+    --ah-item-bd: rgba(79,70,229,.10);
+    --ah-dot:     rgba(79,70,229,.12);
+  }
+`;
+
+
 const PRIZES = [
   { key: 'ap_50',     label: '+50 AP',      color: '#00C8FF', prob: .25 },
   { key: 'ap_150',    label: '+150 AP',     color: '#FFB300', prob: .20 },
@@ -11,7 +50,7 @@ const PRIZES = [
   { key: 'xp_100',    label: '+100 XP',     color: '#00C8FF', prob: .10 },
   { key: 'ap_2x',     label: '2x AP Next',  color: '#FF5722', prob: .06 },
   { key: 'jackpot',   label: 'JACKPOT!',    color: '#FFB300', prob: .02 },
-  { key: 'try_again', label: 'Try Again',   color: '#3A4A68', prob: .02 },
+  { key: 'try_again', label: 'Try Again',   color: 'var(--ah-text3)', prob: .02 },
 ];
 const SEG_ANGLE = 360 / 8; // 45deg per segment
 
@@ -25,7 +64,7 @@ function hexToRgba(hex, alpha) {
 function prizeEmoji(key) {
   const map = {
     ap_50: '💰', ap_150: '💰', powerup: '❄️', cosmetic: '✨',
-    xp_100: '⚡', ap_2x: '🔥', jackpot: '🎰', try_again: '🔄',
+    xp_100: '⚡', ap_2x: '🔥', ap_2x_next: '🔥', jackpot: '🎰', try_again: '🔄',
   };
   return map[key] || '🎁';
 }
@@ -61,11 +100,17 @@ export default function ArenaSpinWheel() {
   const canvasRef = useRef(null);
   const rotationRef = useRef(0);
   const rafRef = useRef(null);
+  // Synchronous guard against rapid double-clicks before React state updates
+  const isSpinningRef = useRef(false);
 
   const [hasFreeSpin, setHasFreeSpin] = useState(false);
   const [nextFreeSpinAt, setNextFreeSpinAt] = useState(null);
   const [history, setHistory] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
+  // Short cooldown after each spin so the button can't be re-clicked immediately
+  const [spinCooldown, setSpinCooldown] = useState(false);
+  // Inline AP-cost confirmation before a paid spin fires
+  const [showApConfirm, setShowApConfirm] = useState(false);
   const [lastPrize, setLastPrize] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [countdown, setCountdown] = useState('');
@@ -166,7 +211,7 @@ export default function ArenaSpinWheel() {
     // Center circle
     ctx.beginPath();
     ctx.arc(cx, cy, 30, 0, Math.PI * 2);
-    ctx.fillStyle = '#070B16';
+    ctx.fillStyle = 'var(--ah-bg)';
     ctx.fill();
     ctx.strokeStyle = '#00C8FF';
     ctx.lineWidth = 2;
@@ -184,9 +229,14 @@ export default function ArenaSpinWheel() {
   }, [drawWheel]);
 
   const doSpin = useCallback(async () => {
-    if (isSpinning) return;
+    // Use a ref for the immediate guard — React state updates are async so
+    // rapid double-clicks can both pass the isSpinning state check before
+    // the first setIsSpinning(true) has been applied.
+    if (isSpinningRef.current) return;
+    isSpinningRef.current = true;
     setIsSpinning(true);
     setShowResult(false);
+    setShowApConfirm(false);
     setLastPrize(null);
     setError(null);
 
@@ -195,6 +245,7 @@ export default function ArenaSpinWheel() {
       result = await api.post('/api/arena/spin', { is_free: hasFreeSpin });
     } catch (e) {
       setError(e.message || 'Spin failed. Try again.');
+      isSpinningRef.current = false;
       setIsSpinning(false);
       return;
     }
@@ -234,8 +285,15 @@ export default function ArenaSpinWheel() {
         rotationRef.current = endRot % 360;
         drawWheel(rotationRef.current);
         setLastPrize(result.prize || { key: prizeKey, label: PRIZES[safePrizeIdx].label });
+        // Optimistically mark free spin as used so the button is immediately
+        // disabled after a free spin — fetchStatus() will confirm the real state.
+        if (hasFreeSpin) setHasFreeSpin(false);
+        isSpinningRef.current = false;
         setIsSpinning(false);
         setShowResult(true);
+        // 2.5 s cooldown before the button re-enables — prevents accidental rapid re-spins
+        setSpinCooldown(true);
+        setTimeout(() => setSpinCooldown(false), 2500);
         fetchStatus();
       }
     }
@@ -248,21 +306,22 @@ export default function ArenaSpinWheel() {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, []);
 
+  const btnDisabled = isSpinning || isSpinningRef.current || spinCooldown;
   const spinButtonStyle = hasFreeSpin
     ? {
         background: '#00C8FF',
-        color: '#070B16',
+        color: 'var(--ah-bg)',
         border: 'none',
         padding: '14px 36px',
         borderRadius: 12,
         fontSize: 17,
         fontWeight: 800,
-        cursor: isSpinning ? 'not-allowed' : 'pointer',
-        opacity: isSpinning ? 0.6 : 1,
+        cursor: btnDisabled ? 'not-allowed' : 'pointer',
+        opacity: btnDisabled ? 0.6 : 1,
         fontFamily: "'Orbitron', Inter, sans-serif",
         letterSpacing: 1,
         transition: 'transform .1s, opacity .2s',
-        boxShadow: isSpinning ? 'none' : '0 0 16px rgba(0,200,255,0.5)',
+        boxShadow: btnDisabled ? 'none' : '0 0 16px rgba(0,200,255,0.5)',
       }
     : {
         background: 'transparent',
@@ -272,8 +331,8 @@ export default function ArenaSpinWheel() {
         borderRadius: 12,
         fontSize: 16,
         fontWeight: 700,
-        cursor: isSpinning ? 'not-allowed' : 'pointer',
-        opacity: isSpinning ? 0.6 : 1,
+        cursor: btnDisabled ? 'not-allowed' : 'pointer',
+        opacity: btnDisabled ? 0.6 : 1,
         fontFamily: "'Orbitron', Inter, sans-serif",
         letterSpacing: 1,
         transition: 'transform .1s, opacity .2s',
@@ -286,10 +345,10 @@ export default function ArenaSpinWheel() {
   return (
           <>
             <SEO title="Spin Wheel" description="Spin the daily wheel for bonus XP and AP on CodeGoLive Arena." robots="noindex, nofollow" />
-      <div style={{
+      <div className="arena-page" style={{
       minHeight: '100vh',
-      background: '#070B16',
-      color: '#E8EEFF',
+      background: 'var(--ah-bg)',
+      color: 'var(--ah-text)',
       fontFamily: "'Inter', sans-serif",
       padding: '24px 16px 80px',
       maxWidth: 900,
@@ -298,7 +357,7 @@ export default function ArenaSpinWheel() {
       flexDirection: 'column',
       alignItems: 'center',
     }}>
-      <style>{`
+      <style>{ARENA_THEME_CSS}{`
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;800&display=swap');
         @keyframes swFadeIn {
           from { opacity: 0; transform: scale(.9) translateY(10px); }
@@ -327,7 +386,7 @@ export default function ArenaSpinWheel() {
 
       {/* Back button */}
       <div style={{ width:'100%',maxWidth:780,display:'flex',alignItems:'center',marginBottom:'1.25rem' }}>
-        <button onClick={() => navigate('/arena')} style={{ display:'flex',alignItems:'center',gap:'.4rem',background:'transparent',border:'1px solid rgba(0,200,255,.2)',borderRadius:4,padding:'.35rem .85rem',color:'#7B8DB0',fontFamily:"'Orbitron', sans-serif",fontSize:'.58rem',letterSpacing:'.08em',cursor:'pointer' }}>← ARENA HUB</button>
+        <button onClick={() => navigate('/arena')} style={{ display:'flex',alignItems:'center',gap:'.4rem',background:'transparent',border:'1px solid rgba(0,200,255,.2)',borderRadius:4,padding:'.35rem .85rem',color:'var(--ah-text2)',fontFamily:"'Orbitron', sans-serif",fontSize:'.58rem',letterSpacing:'.08em',cursor:'pointer' }}>← ARENA HUB</button>
       </div>
 
       {/* Pointer triangle above canvas */}
@@ -357,8 +416,15 @@ export default function ArenaSpinWheel() {
       <div style={{ marginTop: 24, textAlign: 'center' }}>
         <button
           style={spinButtonStyle}
-          onClick={doSpin}
-          disabled={isSpinning}
+          onClick={() => {
+            if (hasFreeSpin) {
+              doSpin();
+            } else {
+              // Show AP cost confirmation before deducting
+              setShowApConfirm(true);
+            }
+          }}
+          disabled={btnDisabled}
         >
           {isSpinning
             ? 'Spinning…'
@@ -367,13 +433,54 @@ export default function ArenaSpinWheel() {
               : '🎰 SPIN (50 AP)'}
         </button>
 
-        {!hasFreeSpin && countdown && !isSpinning && (
+        {/* AP-cost confirmation banner */}
+        {showApConfirm && !isSpinning && (
+          <div style={{
+            marginTop: 12,
+            padding: '12px 16px',
+            background: 'rgba(255,179,0,0.10)',
+            border: '1px solid rgba(255,179,0,0.35)',
+            borderRadius: 10,
+            fontSize: 13,
+            color: '#FFB300',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 10,
+          }}>
+            <span>⚡ This spin will cost <strong>50 AP</strong> from your balance.</span>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={() => { setShowApConfirm(false); doSpin(); }}
+                style={{
+                  background: '#FFB300', color: 'var(--ah-bg)', border: 'none',
+                  padding: '7px 20px', borderRadius: 8, fontWeight: 700,
+                  fontSize: 13, cursor: 'pointer',
+                }}
+              >
+                Yes, spend 50 AP
+              </button>
+              <button
+                onClick={() => setShowApConfirm(false)}
+                style={{
+                  background: 'transparent', color: 'var(--ah-text2)',
+                  border: '1px solid var(--ah-text2)', padding: '7px 16px',
+                  borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {!hasFreeSpin && countdown && !isSpinning && !showApConfirm && (
           <p style={{
             marginTop: 8,
             fontSize: 12,
-            color: '#7B8DB0',
+            color: 'var(--ah-text2)',
           }}>
-            Free in {countdown}
+            Free spin resets in {countdown}
           </p>
         )}
       </div>
@@ -428,7 +535,7 @@ export default function ArenaSpinWheel() {
           )}
           <div style={{
             fontSize: 12,
-            color: '#7B8DB0',
+            color: 'var(--ah-text2)',
             marginTop: 6,
           }}>
             Added to your balance!
@@ -445,7 +552,7 @@ export default function ArenaSpinWheel() {
         }}>
           <p style={{
             fontSize: 11,
-            color: '#7B8DB0',
+            color: 'var(--ah-text2)',
             textTransform: 'uppercase',
             letterSpacing: 1,
             marginBottom: 8,
@@ -460,7 +567,8 @@ export default function ArenaSpinWheel() {
             gap: 8,
           }}>
             {history.map((spin, i) => {
-              const key = spin.prize?.key || spin.prize_key || spin.key || 'try_again';
+              // Backend history rows use prize_type as the key field
+              const key = spin.prize?.key || spin.prize_type || spin.prize_key || spin.key || 'try_again';
               const p = PRIZES.find(x => x.key === key) || PRIZES[PRIZES.length - 1];
               return (
                 <div key={i} style={{
@@ -476,7 +584,7 @@ export default function ArenaSpinWheel() {
                   gap: 4,
                 }}>
                   <span>{prizeEmoji(key)}</span>
-                  <span>{p.label}</span>
+                  <span>{spin.prize_label || p.label}</span>
                 </div>
               );
             })}

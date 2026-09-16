@@ -1,7 +1,7 @@
 import math
 import random
 import string
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from ..auth import get_current_user, CurrentUser
 from ..services.arena_score import calculate_score, server_timestamp_check
 from ..services.arena_quests import (
     get_or_create_daily_quests, get_or_create_weekly_quests,
-    update_quest_progress, claim_quest
+    update_quest_progress, claim_quest, check_and_update_login_streak
 )
 from ..services.arena_achievements import (
     get_user_achievements, check_match_achievements, check_spin_achievement
@@ -233,7 +233,17 @@ async def get_match(match_id: str, user: CurrentUser = Depends(get_current_user)
         q_rows = sb.table("assessment_questions").select("id, question, options").in_("id", match["question_ids"]).execute().data or []
         q_map = {q["id"]: q for q in q_rows}
         questions = [{"id": qid, "question": q_map[qid]["question"], "options": q_map[qid]["options"]} for qid in match["question_ids"] if qid in q_map]
-    return {"match": match, "players": players, "questions": questions}
+    # Compute authoritative turn state server-side so both clients always agree
+    active_player_id = None
+    current_q_idx = match.get("current_question_index", 0)
+    if match.get("status") == "active":
+        turn_ev = sb.table("arena_match_events").select("payload").eq("match_id", match_id).eq("event_type", "turn_change").order("created_at", desc=True).limit(1).execute().data or []
+        if turn_ev:
+            active_player_id = (turn_ev[0].get("payload") or {}).get("active_player_id")
+        if not active_player_id:
+            active_player_id = match.get("host_id")  # fallback: host goes first
+    return {"match": match, "players": players, "questions": questions,
+            "active_player_id": active_player_id, "current_q_idx": current_q_idx}
 
 
 @router.post("/match/{match_id}/start")
@@ -341,6 +351,17 @@ async def submit_answer(body: SubmitAnswerRequest, user: CurrentUser = Depends(g
                 "total_answered": (player.get("total_answered") or 0) + 1,
             }).eq("match_id", body.match_id).eq("user_id", user.id).execute()
 
+    # ── Quest progress: per-answer metrics ──
+    if correct and not timeout:
+        try:
+            await update_quest_progress(user.id, "correct_answers", 1)
+            if score.get("tier") == "LIGHTNING":
+                await update_quest_progress(user.id, "lightning_answers", 1)
+            if score.get("streak_after", 0) >= 5:
+                await update_quest_progress(user.id, "combo_5", 1)
+        except Exception:
+            pass  # Never break a match over quest logic
+
     # ── Determine next turn ──
     players = sb.table("arena_match_players").select("user_id").eq("match_id", body.match_id).execute().data or []
     other_id = next((p["user_id"] for p in players if p["user_id"] != user.id), None)
@@ -375,6 +396,30 @@ async def submit_answer(body: SubmitAnswerRequest, user: CurrentUser = Depends(g
                     _advance_tournament(sb, tm_row["tournament_id"], body.match_id, winner_id)
                 except Exception:
                     pass  # Never break a match over tournament logic
+            # ── Quest progress: match-end metrics ──
+            try:
+                for p in all_players:
+                    await update_quest_progress(p["user_id"], "matches_played", 1)
+                if winner_id:
+                    await update_quest_progress(winner_id, "weekly_wins", 1)
+                    # Perfect win: winner had no wrong answers (total_answered == correct_count)
+                    winner_row = next((p for p in all_players if p["user_id"] == winner_id), None)
+                    if winner_row:
+                        ta = winner_row.get("total_answered") or 0
+                        cc = winner_row.get("correct_count") or 0
+                        if ta > 0 and ta == cc:
+                            await update_quest_progress(winner_id, "perfect_wins", 1)
+                    # Same opponent wins (beat this specific opponent before this week)
+                    if other_id and winner_id:
+                        week_start = (datetime.now(timezone.utc) - timedelta(days=datetime.now(timezone.utc).weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+                        prev_wins = sb.table("arena_matches").select("id").eq("winner_id", winner_id).gte("finished_at", week_start.isoformat()).execute().data or []
+                        prev_match_ids = [r["id"] for r in prev_wins if r["id"] != body.match_id]
+                        if prev_match_ids:
+                            prev_opp = sb.table("arena_match_players").select("match_id").eq("user_id", other_id).in_("match_id", prev_match_ids).execute().data or []
+                            if prev_opp:
+                                await update_quest_progress(winner_id, "same_opponent_wins", 1)
+            except Exception:
+                pass  # Never break a match over quest logic
             return {"correct": True, "score": score, "match_ended": True, "winner_id": winner_id}
         # Advance to next question, other player goes first
         next_active = other_id if other_id else user.id
@@ -429,6 +474,14 @@ async def end_match(match_id: str, user: CurrentUser = Depends(get_current_user)
             _advance_tournament(sb, tm_row["tournament_id"], match_id, winner_id)
         except Exception:
             pass
+    # ── Quest progress: match-end metrics ──
+    try:
+        for p in players:
+            await update_quest_progress(p["user_id"], "matches_played", 1)
+        if winner_id:
+            await update_quest_progress(winner_id, "weekly_wins", 1)
+    except Exception:
+        pass
     return {"winner_id": winner_id, "players": players}
 
 
@@ -492,6 +545,20 @@ async def leaderboard(user: CurrentUser = Depends(get_current_user)):
 async def get_quests(user: CurrentUser = Depends(get_current_user)):
     daily = await get_or_create_daily_quests(user.id)
     weekly = await get_or_create_weekly_quests(user.id)
+    # Count today's arena visit as a login day for the weekly quest (once per day)
+    try:
+        from ..supabase_client import get_supabase as _gs
+        from datetime import date as _date
+        _sb = _gs()
+        _prof = _sb.table("profiles").select("last_arena_activity").eq("id", user.id).single().execute().data or {}
+        _last = _prof.get("last_arena_activity")
+        _today = datetime.now(timezone.utc).date()
+        _is_new_day = not _last or datetime.fromisoformat(_last.replace("Z","+00:00")).date() < _today
+        await check_and_update_login_streak(user.id)
+        if _is_new_day:
+            await update_quest_progress(user.id, "login_days", 1)
+    except Exception:
+        pass
     return {"daily": daily, "weekly": weekly}
 
 
@@ -585,16 +652,13 @@ async def rematch(match_id: str, user: CurrentUser = Depends(get_current_user)):
 
     new_match_id = new_match[0]["id"]
 
-    # Auto-join both players
+    # Auto-join both players (same minimal insert as create/join endpoints)
+    host_id = user.id
     for p in orig_players:
-        # Fetch display_name
-        profile = sb.table("profiles").select("display_name").eq("id", p["user_id"]).single().execute().data or {}
         sb.table("arena_match_players").insert({
             "match_id": new_match_id,
-            "user_id": p["user_id"],
-            "display_name": profile.get("display_name", "Player"),
-            "score_xp": 0, "score_ap": 0, "streak": 0,
-            "correct_count": 0, "total_answered": 0,
+            "user_id":  p["user_id"],
+            "is_host":  p["user_id"] == host_id,
         }).execute()
 
     return {"match_id": new_match_id, "room_code": room_code}
@@ -707,13 +771,13 @@ async def fifty_fifty(match_id: str, question_id: str, user: CurrentUser = Depen
 # ── Seasons & Ranks ────────────────────────────────────────────────────────
 
 AP_TIERS = [
-    {"key": "unranked",  "label": "Unranked",  "icon": "⬛", "min_ap": 0,     "max_ap": 99,    "color": "#5A6A8A"},
-    {"key": "bronze",    "label": "Bronze",    "icon": "🥉", "min_ap": 100,   "max_ap": 499,   "color": "#CD7F32"},
-    {"key": "silver",    "label": "Silver",    "icon": "🥈", "min_ap": 500,   "max_ap": 1499,  "color": "#C0C0C0"},
-    {"key": "gold",      "label": "Gold",      "icon": "🥇", "min_ap": 1500,  "max_ap": 3999,  "color": "#FFB300"},
-    {"key": "platinum",  "label": "Platinum",  "icon": "💎", "min_ap": 4000,  "max_ap": 9999,  "color": "#A8CFFF"},
-    {"key": "diamond",   "label": "Diamond",   "icon": "💠", "min_ap": 10000, "max_ap": 24999, "color": "#00C8FF"},
-    {"key": "legend",    "label": "Legend",    "icon": "👑", "min_ap": 25000, "max_ap": None,  "color": "#FF6B35"},
+    {"key": "unranked",  "label": "Unranked",  "icon": "🔰", "min_ap": 0,       "max_ap": 999,     "color": "#5A6A8A"},
+    {"key": "bronze",    "label": "Bronze",    "icon": "🥉", "min_ap": 1000,    "max_ap": 9999,    "color": "#CD7F32"},
+    {"key": "silver",    "label": "Silver",    "icon": "🥈", "min_ap": 10000,   "max_ap": 49999,   "color": "#C0C0C0"},
+    {"key": "gold",      "label": "Gold",      "icon": "🥇", "min_ap": 50000,   "max_ap": 149999,  "color": "#FFB300"},
+    {"key": "platinum",  "label": "Platinum",  "icon": "💎", "min_ap": 150000,  "max_ap": 499999,  "color": "#A8CFFF"},
+    {"key": "diamond",   "label": "Diamond",   "icon": "💠", "min_ap": 500000,  "max_ap": 999999,  "color": "#00C8FF"},
+    {"key": "legend",    "label": "Legend",    "icon": "👑", "min_ap": 1000000, "max_ap": None,    "color": "#FF6B35"},
 ]
 
 

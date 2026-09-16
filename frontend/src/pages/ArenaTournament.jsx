@@ -4,17 +4,56 @@ import { useAuth } from '../lib/AuthContext';
 import { api } from '../lib/api';
 import SEO from "../components/SEO";
 
+const ARENA_THEME_CSS = `
+  .arena-page {
+    --ah-bg:      #0C1220;
+    --ah-surf:    #141D2E;
+    --ah-surf2:   #1E2B42;
+    --ah-text:    #E8EEFF;
+    --ah-text2:   #7B8DB0;
+    --ah-text3:   #3A4A68;
+    --ah-item-bg: rgba(255,255,255,.02);
+    --ah-item-bd: rgba(0,200,255,.07);
+    --ah-dot:     rgba(58,74,104,.4);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .arena-page {
+      --ah-bg:      #F8FAFF;
+      --ah-surf:    #EEF2FF;
+      --ah-surf2:   #E0E7FF;
+      --ah-text:    #0F172A;
+      --ah-text2:   #475569;
+      --ah-text3:   #94A3B8;
+      --ah-item-bg: rgba(79,70,229,.04);
+      --ah-item-bd: rgba(79,70,229,.10);
+      --ah-dot:     rgba(79,70,229,.12);
+    }
+  }
+  :root[data-theme="light"] .arena-page {
+    --ah-bg:      #F8FAFF;
+    --ah-surf:    #EEF2FF;
+    --ah-surf2:   #E0E7FF;
+    --ah-text:    #0F172A;
+    --ah-text2:   #475569;
+    --ah-text3:   #94A3B8;
+    --ah-item-bg: rgba(79,70,229,.04);
+    --ah-item-bd: rgba(79,70,229,.10);
+    --ah-dot:     rgba(79,70,229,.12);
+  }
+`;
+
+
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
-const BG    = "#070B16";
-const CARD  = "#0C1220";
-const CARD2 = "#141D2E";
+const BG    = "var(--ah-bg)";
+const CARD  = "var(--ah-surf)";
+const CARD2 = "var(--ah-surf2)";
 const CYAN  = "#00C8FF";
 const GREEN = "#00E676";
 const GOLD  = "#FFB300";
 const RED   = "#FF5722";
 const PURPLE = "#A855F7";
-const TEXT  = "#E8EEFF";
-const MUTED = "#7B8DB0";
+const TEXT  = "var(--ah-text)";
+const MUTED = "var(--ah-text2)";
 const BORDER = "rgba(0,200,255,.14)";
 
 function getInitials(name) {
@@ -184,8 +223,8 @@ export default function ArenaTournament() {
   return (
     <>
       <SEO title="Tournament" description="CodeGoLive Arena tournament bracket and live match." robots="noindex, nofollow" />
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "1.75rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
-      <style>{ORBITRON}</style>
+      <div className="arena-page" style={{ maxWidth: 1100, margin: "0 auto", padding: "1.75rem 1.5rem 4rem", background: BG, minHeight: "100vh" }}>
+      <style>{ARENA_THEME_CSS}{ORBITRON}</style>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", gap: "1rem", flexWrap: "wrap" }}>

@@ -4,14 +4,53 @@ import { api } from '../lib/api';
 import { Link } from 'react-router-dom';
 import SEO from "../components/SEO";
 
+const ARENA_THEME_CSS = `
+  .arena-page {
+    --ah-bg:      var(--ah-bg);
+    --ah-surf:    var(--ah-surf);
+    --ah-surf2:   var(--ah-surf2);
+    --ah-text:    var(--ah-text);
+    --ah-text2:   var(--ah-text2);
+    --ah-text3:   var(--ah-text3);
+    --ah-item-bg: var(--ah-item-bg);
+    --ah-item-bd: rgba(0,200,255,.07);
+    --ah-dot:     var(--ah-dot);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .arena-page {
+      --ah-bg:      #F8FAFF;
+      --ah-surf:    #EEF2FF;
+      --ah-surf2:   #E0E7FF;
+      --ah-text:    #0F172A;
+      --ah-text2:   #475569;
+      --ah-text3:   #94A3B8;
+      --ah-item-bg: rgba(79,70,229,.04);
+      --ah-item-bd: rgba(79,70,229,.10);
+      --ah-dot:     rgba(79,70,229,.12);
+    }
+  }
+  :root[data-theme="light"] .arena-page {
+    --ah-bg:      #F8FAFF;
+    --ah-surf:    #EEF2FF;
+    --ah-surf2:   #E0E7FF;
+    --ah-text:    #0F172A;
+    --ah-text2:   #475569;
+    --ah-text3:   #94A3B8;
+    --ah-item-bg: rgba(79,70,229,.04);
+    --ah-item-bd: rgba(79,70,229,.10);
+    --ah-dot:     rgba(79,70,229,.12);
+  }
+`;
+
+
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
 const BG       = "#070B16";
-const CARD     = "#0C1220";
-const CARD2    = "#141D2E";
+const CARD     = "var(--ah-bg)";
+const CARD2    = "var(--ah-surf)";
 const BORDER   = "rgba(0,200,255,.13)";
-const TEXT     = "#E8EEFF";
-const MUTED    = "#7B8DB0";
+const TEXT     = "var(--ah-text)";
+const MUTED    = "var(--ah-text2)";
 const CYAN     = "#00C8FF";
 
 // Order tiers high → low for display
@@ -38,6 +77,7 @@ function ProgressBar({ pct, color, height = 8 }) {
 
 function TierBadge({ icon, label, color, size = "lg" }) {
   const isLg = size === "lg";
+  const isUnranked = label.toLowerCase() === "unranked";
   return (
     <div style={{
       display: "inline-flex", flexDirection: "column", alignItems: "center",
@@ -46,7 +86,8 @@ function TierBadge({ icon, label, color, size = "lg" }) {
       <div style={{
         fontSize: isLg ? "3.5rem" : "1.6rem",
         lineHeight: 1,
-        filter: `drop-shadow(0 0 12px ${color}88)`,
+        filter: isUnranked ? "none" : `drop-shadow(0 0 12px ${color}88)`,
+        opacity: isUnranked ? 0.7 : 1,
       }}>{icon}</div>
       <div style={{
         fontFamily: "'Orbitron',sans-serif",
@@ -54,8 +95,11 @@ function TierBadge({ icon, label, color, size = "lg" }) {
         fontWeight: 700,
         letterSpacing: ".15em",
         color,
-        textShadow: `0 0 10px ${color}55`,
+        textShadow: isUnranked ? "none" : `0 0 10px ${color}55`,
       }}>{label.toUpperCase()}</div>
+      {isUnranked && isLg && (
+        <div style={{ fontSize:".55rem",color:"#5A6A8A",fontFamily:"sans-serif",letterSpacing:".04em",marginTop:-2 }}>Play to rank up</div>
+      )}
     </div>
   );
 }
@@ -79,7 +123,7 @@ export default function ArenaSeasonRanks() {
     </div>
   );
   if (error) return (
-    <div style={{ maxWidth:800,margin:"2rem auto",padding:"1rem",color:"#FF5722" }}>{error}</div>
+    <div className="arena-page" style={{ maxWidth:800,margin:"2rem auto",padding:"1rem",color:"#FF5722" }}>{error}</div>
   );
 
   const { season, my_rank: my, tier_distribution: dist, top_players, all_tiers } = data;
@@ -89,7 +133,7 @@ export default function ArenaSeasonRanks() {
     <>
       <SEO title="Season Ranks" description="Your AP rank tier and season progress on CodeGoLive Arena." robots="noindex, nofollow" />
       <div style={{ maxWidth:1100,margin:"0 auto",padding:"1.75rem 1.5rem 4rem",width:"100%",boxSizing:"border-box",background:BG,minHeight:"100vh" }}>
-      <style>{ORBITRON}</style>
+      <style>{ARENA_THEME_CSS}{ORBITRON}</style>
 
       {/* Header */}
       <div style={{ marginBottom:"1.5rem" }}>
@@ -167,17 +211,22 @@ export default function ArenaSeasonRanks() {
                 display:"flex",alignItems:"center",gap:".75rem",
                 padding:".5rem .75rem",
                 borderRadius:6,
-                background: isMe ? `${tier.color}12` : "transparent",
-                border: isMe ? `1px solid ${tier.color}44` : "1px solid transparent",
+                background: isMe ? `${tier.color}12` : tier.key === "unranked" ? "rgba(90,106,138,.06)" : "transparent",
+                border: isMe ? `1px solid ${tier.color}44` : tier.key === "unranked" ? "1px dashed rgba(90,106,138,.3)" : "1px solid transparent",
               }}>
                 <span style={{ fontSize:"1.1rem",flexShrink:0 }}>{tier.icon}</span>
                 <div style={{ flex:1,minWidth:0 }}>
-                  <div style={{ display:"flex",justifyContent:"space-between",marginBottom:3 }}>
-                    <span style={{ fontFamily:"'Orbitron',sans-serif",fontSize:".6rem",fontWeight:700,color: isMe ? tier.color : TEXT,letterSpacing:".08em" }}>
-                      {tier.label.toUpperCase()} {isMe && <span style={{ color:CYAN }}>← YOU</span>}
+                  <div style={{ display:"flex",justifyContent:"space-between",marginBottom:tier.key==="unranked"?2:3 }}>
+                    <span style={{ fontFamily:"'Orbitron',sans-serif",fontSize:".6rem",fontWeight:700,color: isMe ? tier.color : tier.key==="unranked" ? "#5A6A8A" : TEXT,letterSpacing:".08em" }}>
+                      {tier.label.toUpperCase()}
+                      {tier.key === "unranked" && <span style={{ marginLeft:6,fontFamily:"sans-serif",fontSize:".55rem",background:"rgba(90,106,138,.2)",color:"var(--ah-text2)",padding:"1px 5px",borderRadius:3,letterSpacing:".04em",verticalAlign:"middle" }}>NEW PLAYER</span>}
+                      {isMe && <span style={{ color:CYAN }}> ← YOU</span>}
                     </span>
                     <span style={{ fontSize:".65rem",color:MUTED }}>{tier.min_ap.toLocaleString()}{tier.max_ap ? `–${tier.max_ap.toLocaleString()}` : "+"} AP · {count} player{count !== 1 ? "s" : ""}</span>
                   </div>
+                  {tier.key === "unranked" && (
+                    <div style={{ fontSize:".6rem",color:"#5A6A8A",marginTop:1 }}>Play matches &amp; complete quests to earn AP and climb the ranks</div>
+                  )}
                 </div>
               </div>
             );
@@ -231,10 +280,12 @@ export default function ArenaSeasonRanks() {
       </div>
 
       {/* Footer note */}
-      <div style={{ padding:".75rem",background:"rgba(255,179,0,.06)",border:"1px solid rgba(255,179,0,.18)",borderRadius:6,marginBottom:"1.25rem" }}>
-        <p style={{ margin:0,fontSize:".75rem",color:"#FFB300",fontFamily:"'Orbitron',sans-serif",letterSpacing:".06em" }}>
-          ⚠ AP resets at the end of each season. XP is permanent.
-        </p>
+      <div style={{ padding:".75rem",background:"rgba(0,230,118,.06)",border:"1px solid rgba(0,230,118,.18)",borderRadius:6,marginBottom:"1.25rem",display:"flex",gap:".6rem",alignItems:"flex-start" }}>
+        <span style={{ fontSize:"1rem",flexShrink:0 }}>✅</span>
+        <div>
+          <p style={{ margin:"0 0 2px",fontSize:".72rem",color:"#00E676",fontFamily:"'Orbitron',sans-serif",letterSpacing:".06em",fontWeight:700 }}>AP &amp; RANK ARE PERMANENT</p>
+          <p style={{ margin:0,fontSize:".68rem",color:"var(--ah-text2)",fontFamily:"sans-serif" }}>Your AP never resets. Your rank only goes up as you earn more AP. Seasons are just monthly leaderboard snapshots.</p>
+        </div>
       </div>
 
       {/* Nav */}

@@ -4,6 +4,45 @@ import { api } from "../lib/api";
 import ArenaChallengeCard from "../components/arena/ArenaChallengeCard";
 import SEO from "../components/SEO";
 
+const ARENA_THEME_CSS = `
+  .arena-page {
+    --ah-bg:      var(--ah-bg);
+    --ah-surf:    var(--ah-surf);
+    --ah-surf2:   var(--ah-surf2);
+    --ah-text:    var(--ah-text);
+    --ah-text2:   var(--ah-text2);
+    --ah-text3:   var(--ah-text3);
+    --ah-item-bg: var(--ah-item-bg);
+    --ah-item-bd: rgba(0,200,255,.07);
+    --ah-dot:     var(--ah-dot);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .arena-page {
+      --ah-bg:      #F8FAFF;
+      --ah-surf:    #EEF2FF;
+      --ah-surf2:   #E0E7FF;
+      --ah-text:    #0F172A;
+      --ah-text2:   #475569;
+      --ah-text3:   #94A3B8;
+      --ah-item-bg: rgba(79,70,229,.04);
+      --ah-item-bd: rgba(79,70,229,.10);
+      --ah-dot:     rgba(79,70,229,.12);
+    }
+  }
+  :root[data-theme="light"] .arena-page {
+    --ah-bg:      #F8FAFF;
+    --ah-surf:    #EEF2FF;
+    --ah-surf2:   #E0E7FF;
+    --ah-text:    #0F172A;
+    --ah-text2:   #475569;
+    --ah-text3:   #94A3B8;
+    --ah-item-bg: rgba(79,70,229,.04);
+    --ah-item-bd: rgba(79,70,229,.10);
+    --ah-dot:     rgba(79,70,229,.12);
+  }
+`;
+
+
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
 export default function ArenaLobby() {
@@ -69,15 +108,15 @@ export default function ArenaLobby() {
   return (
           <>
             <SEO title="Arena Lobby" description="Find or create a 1v1 Arena match on CodeGoLive." robots="noindex, nofollow" />
-      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
-      <style>{ORBITRON}</style>
+      <div className="arena-page" style={{ maxWidth: 1400, margin: "0 auto", padding: "1.75rem 2.5rem 3rem", width: "100%", boxSizing: "border-box" }}>
+      <style>{ARENA_THEME_CSS}{ORBITRON}</style>
 
       {/* Back navigation */}
       <div style={{ display: "flex", alignItems: "center", marginBottom: "1.25rem" }}>
         <button onClick={() => navigate("/arena")} style={{
           display: "flex", alignItems: "center", gap: ".4rem",
           background: "transparent", border: "1px solid rgba(0,200,255,.2)",
-          borderRadius: 4, padding: ".35rem .85rem", color: "#7B8DB0",
+          borderRadius: 4, padding: ".35rem .85rem", color: "var(--ah-text2)",
           fontFamily: "'Orbitron', sans-serif", fontSize: ".58rem", letterSpacing: ".08em",
           cursor: "pointer",
         }}>← ARENA HUB</button>
@@ -85,8 +124,8 @@ export default function ArenaLobby() {
 
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".6rem", letterSpacing: ".16em", color: "#00C8FF", marginBottom: 4 }}>ARENA</div>
-        <h1 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "clamp(1.2rem,3vw,1.6rem)", fontWeight: 700, margin: 0, color: "#E8EEFF" }}>⚔️ Battle Lobby</h1>
-        <p style={{ color: "#7B8DB0", margin: ".3rem 0 0", fontSize: ".82rem" }}>Challenge others. Prove your knowledge.</p>
+        <h1 style={{ fontFamily: "'Orbitron', sans-serif", fontSize: "clamp(1.2rem,3vw,1.6rem)", fontWeight: 700, margin: 0, color: "var(--ah-text)" }}>⚔️ Battle Lobby</h1>
+        <p style={{ color: "var(--ah-text2)", margin: ".3rem 0 0", fontSize: ".82rem" }}>Challenge others. Prove your knowledge.</p>
       </div>
 
       {/* Tabs */}
@@ -95,7 +134,7 @@ export default function ArenaLobby() {
           <button key={id} onClick={() => setTab(id)} style={{
             padding: ".5rem 1rem", border: "none", background: "none",
             borderBottom: tab === id ? "2px solid #00C8FF" : "2px solid transparent",
-            color: tab === id ? "#00C8FF" : "#7B8DB0",
+            color: tab === id ? "#00C8FF" : "var(--ah-text2)",
             fontFamily: "'Orbitron', sans-serif", fontSize: ".62rem", letterSpacing: ".08em",
             fontWeight: tab === id ? 700 : 400, cursor: "pointer", transition: "all .15s",
           }}>{label}</button>
@@ -110,34 +149,34 @@ export default function ArenaLobby() {
 
       {/* Create Match */}
       {tab === "create" && (
-        <div style={{ background: "#0C1220", border: "1px solid rgba(0,200,255,.18)", borderLeft: "3px solid #00C8FF", borderRadius: 6, padding: "1.5rem" }}>
-          <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".72rem", fontWeight: 700, color: "#E8EEFF", marginBottom: "1.25rem", letterSpacing: ".04em" }}>CREATE MATCH ROOM</div>
+        <div style={{ background: "var(--ah-bg)", border: "1px solid rgba(0,200,255,.18)", borderLeft: "3px solid #00C8FF", borderRadius: 6, padding: "1.5rem" }}>
+          <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".72rem", fontWeight: 700, color: "var(--ah-text)", marginBottom: "1.25rem", letterSpacing: ".04em" }}>CREATE MATCH ROOM</div>
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <div>
-              <label style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".58rem", letterSpacing: ".1em", color: "#7B8DB0", display: "block", marginBottom: 6 }}>TOPIC</label>
+              <label style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".58rem", letterSpacing: ".1em", color: "var(--ah-text2)", display: "block", marginBottom: 6 }}>TOPIC</label>
               <select value={topic} onChange={e => setTopic(e.target.value)} style={{
                 width: "100%", padding: ".65rem .8rem", borderRadius: 4,
-                border: "1px solid rgba(0,200,255,.18)", background: "#141D2E", color: "#E8EEFF",
+                border: "1px solid rgba(0,200,255,.18)", background: "var(--ah-surf)", color: "var(--ah-text)",
                 fontFamily: "'Orbitron', sans-serif", fontSize: ".72rem",
               }}>
                 {TOPICS.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
               </select>
             </div>
             <div>
-              <label style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".58rem", letterSpacing: ".1em", color: "#7B8DB0", display: "block", marginBottom: 8 }}>DIFFICULTY</label>
+              <label style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".58rem", letterSpacing: ".1em", color: "var(--ah-text2)", display: "block", marginBottom: 8 }}>DIFFICULTY</label>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".5rem" }}>
                 {DIFFICULTY_PRESETS.map(d => (
                   <button key={d.key} onClick={() => setDifficulty(d.key)} style={{
                     padding: ".65rem .75rem", borderRadius: 6, cursor: "pointer",
-                    background: difficulty === d.key ? "rgba(0,200,255,.1)" : "#141D2E",
+                    background: difficulty === d.key ? "rgba(0,200,255,.1)" : "var(--ah-surf)",
                     border: difficulty === d.key ? "1px solid rgba(0,200,255,.5)" : "1px solid rgba(0,200,255,.12)",
                     textAlign: "left", transition: "all .15s",
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: ".4rem", marginBottom: 3 }}>
                       <span>{d.icon}</span>
-                      <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".62rem", fontWeight: 700, color: difficulty === d.key ? "#00C8FF" : "#E8EEFF", letterSpacing: ".06em" }}>{d.label.toUpperCase()}</span>
+                      <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".62rem", fontWeight: 700, color: difficulty === d.key ? "#00C8FF" : "var(--ah-text)", letterSpacing: ".06em" }}>{d.label.toUpperCase()}</span>
                     </div>
-                    <div style={{ fontSize: ".68rem", color: "#7B8DB0", lineHeight: 1.3 }}>{d.desc}</div>
+                    <div style={{ fontSize: ".68rem", color: "var(--ah-text2)", lineHeight: 1.3 }}>{d.desc}</div>
                   </button>
                 ))}
               </div>
@@ -157,8 +196,8 @@ export default function ArenaLobby() {
 
       {/* Join by Code */}
       {tab === "join" && (
-        <div style={{ background: "#0C1220", border: "1px solid rgba(0,200,255,.18)", borderLeft: "3px solid #00C8FF", borderRadius: 6, padding: "1.5rem" }}>
-          <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".72rem", fontWeight: 700, color: "#E8EEFF", marginBottom: "1.25rem", letterSpacing: ".04em" }}>ENTER ROOM CODE</div>
+        <div style={{ background: "var(--ah-bg)", border: "1px solid rgba(0,200,255,.18)", borderLeft: "3px solid #00C8FF", borderRadius: 6, padding: "1.5rem" }}>
+          <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".72rem", fontWeight: 700, color: "var(--ah-text)", marginBottom: "1.25rem", letterSpacing: ".04em" }}>ENTER ROOM CODE</div>
           <div style={{ display: "flex", gap: ".75rem", flexWrap: "wrap" }}>
             <input
               value={roomCode} onChange={e => setRoomCode(e.target.value.toUpperCase())}
@@ -167,7 +206,7 @@ export default function ArenaLobby() {
               style={{
                 flex: 1, minWidth: 160, padding: ".65rem .9rem",
                 borderRadius: 4, border: "1px solid rgba(0,200,255,.25)",
-                background: "#141D2E", color: "#00C8FF",
+                background: "var(--ah-surf)", color: "#00C8FF",
                 fontSize: "1.3rem", letterSpacing: ".15em", fontFamily: "'Orbitron', monospace",
               }}
             />
@@ -188,7 +227,7 @@ export default function ArenaLobby() {
       {tab === "browse" && (
         <div>
           {openMatches.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "3rem", color: "#7B8DB0", background: "#0C1220", border: "1px solid rgba(0,200,255,.1)", borderRadius: 6 }}>
+            <div style={{ textAlign: "center", padding: "3rem", color: "var(--ah-text2)", background: "var(--ah-bg)", border: "1px solid rgba(0,200,255,.1)", borderRadius: 6 }}>
               <div style={{ fontSize: "2.5rem", marginBottom: ".75rem" }}>🎯</div>
               <p style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".75rem" }}>No open matches right now.<br />Create one and share the code!</p>
             </div>

@@ -4,6 +4,45 @@ import { useAuth } from '../lib/AuthContext';
 import { api } from '../lib/api';
 import SEO from "../components/SEO";
 
+const ARENA_THEME_CSS = `
+  .arena-page {
+    --ah-bg:      var(--ah-bg);
+    --ah-surf:    var(--ah-surf);
+    --ah-surf2:   var(--ah-surf2);
+    --ah-text:    var(--ah-text);
+    --ah-text2:   var(--ah-text2);
+    --ah-text3:   var(--ah-text3);
+    --ah-item-bg: var(--ah-item-bg);
+    --ah-item-bd: rgba(0,200,255,.07);
+    --ah-dot:     var(--ah-dot);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .arena-page {
+      --ah-bg:      #F8FAFF;
+      --ah-surf:    #EEF2FF;
+      --ah-surf2:   #E0E7FF;
+      --ah-text:    #0F172A;
+      --ah-text2:   #475569;
+      --ah-text3:   #94A3B8;
+      --ah-item-bg: rgba(79,70,229,.04);
+      --ah-item-bd: rgba(79,70,229,.10);
+      --ah-dot:     rgba(79,70,229,.12);
+    }
+  }
+  :root[data-theme="light"] .arena-page {
+    --ah-bg:      #F8FAFF;
+    --ah-surf:    #EEF2FF;
+    --ah-surf2:   #E0E7FF;
+    --ah-text:    #0F172A;
+    --ah-text2:   #475569;
+    --ah-text3:   #94A3B8;
+    --ah-item-bg: rgba(79,70,229,.04);
+    --ah-item-bd: rgba(79,70,229,.10);
+    --ah-dot:     rgba(79,70,229,.12);
+  }
+`;
+
+
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
 const TOPIC_LABELS = {
@@ -15,7 +54,7 @@ const RESULT_CONFIG = {
   win:       { label: 'WIN',       bg: 'rgba(0,230,118,.15)',  border: '#00E676', color: '#00E676', icon: '🏆' },
   loss:      { label: 'LOSS',      bg: 'rgba(255,87,34,.12)',  border: '#FF5722', color: '#FF5722', icon: '💀' },
   draw:      { label: 'DRAW',      bg: 'rgba(255,179,0,.12)',  border: '#FFB300', color: '#FFB300', icon: '🤝' },
-  cancelled: { label: 'CANCELLED', bg: 'rgba(123,141,176,.1)', border: '#3A4A68', color: '#7B8DB0', icon: '✖' },
+  cancelled: { label: 'CANCELLED', bg: 'rgba(123,141,176,.1)', border: 'var(--ah-text3)', color: 'var(--ah-text2)', icon: '✖' },
 };
 
 function fmt(iso) {
@@ -31,9 +70,9 @@ function fmt(iso) {
 }
 
 function Accuracy({ correct, total }) {
-  if (!total) return <span style={{ color:'#3A4A68' }}>—</span>;
+  if (!total) return <span style={{ color:'var(--ah-text3)' }}>—</span>;
   const pct = Math.round((correct / total) * 100);
-  return <span>{correct}/{total} <span style={{ color:'#7B8DB0', fontSize:'.72em' }}>({pct}%)</span></span>;
+  return <span>{correct}/{total} <span style={{ color:'var(--ah-text2)', fontSize:'.72em' }}>({pct}%)</span></span>;
 }
 
 export default function ArenaHistory() {
@@ -66,36 +105,36 @@ export default function ArenaHistory() {
   );
 
   if (error) return (
-    <div style={{ maxWidth:900, margin:'2rem auto', padding:'1rem', color:'#FF5722' }}>{error}</div>
+    <div className="arena-page" style={{ maxWidth:900, margin:'2rem auto', padding:'1rem', color:'#FF5722' }}>{error}</div>
   );
 
   return (
     <>
       <SEO title="Match History" description="Your CodeGoLive Arena match history and stats." robots="noindex, nofollow" />
       <div style={{ maxWidth:1000, margin:'0 auto', padding:'1.75rem 2rem 3rem', width:'100%', boxSizing:'border-box' }}>
-      <style>{ORBITRON}</style>
+      <style>{ARENA_THEME_CSS}{ORBITRON}</style>
 
       {/* Header */}
       <div style={{ marginBottom:'1.5rem' }}>
         <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.6rem', letterSpacing:'.16em', color:'#00C8FF', marginBottom:4 }}>ARENA</div>
-        <h1 style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'clamp(1.2rem,3vw,1.6rem)', fontWeight:700, margin:0, color:'#E8EEFF' }}>
+        <h1 style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'clamp(1.2rem,3vw,1.6rem)', fontWeight:700, margin:0, color:'var(--ah-text)' }}>
           ⚔️ Match History
         </h1>
-        <p style={{ color:'#7B8DB0', margin:'.3rem 0 0', fontSize:'.82rem' }}>Your last 50 completed matches</p>
+        <p style={{ color:'var(--ah-text2)', margin:'.3rem 0 0', fontSize:'.82rem' }}>Your last 50 completed matches</p>
       </div>
 
       {/* Summary cards */}
       {total > 0 && (
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))', gap:'.75rem', marginBottom:'1.5rem' }}>
           {[
-            { label:'Matches', val: total,    color:'#E8EEFF' },
+            { label:'Matches', val: total,    color:'var(--ah-text)' },
             { label:'Wins',    val: wins,     color:'#00E676' },
             { label:'Losses',  val: losses,   color:'#FF5722' },
             { label:'Draws',   val: draws,    color:'#FFB300' },
             { label:'Win Rate',val: winRate+'%', color: winRate >= 50 ? '#00E676' : '#FF5722' },
           ].map(({ label, val, color }) => (
-            <div key={label} style={{ background:'#0C1220', border:'1px solid rgba(0,200,255,.12)', borderRadius:6, padding:'.75rem 1rem' }}>
-              <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.56rem', letterSpacing:'.1em', color:'#7B8DB0', marginBottom:4 }}>{label.toUpperCase()}</div>
+            <div key={label} style={{ background:'var(--ah-bg)', border:'1px solid rgba(0,200,255,.12)', borderRadius:6, padding:'.75rem 1rem' }}>
+              <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.56rem', letterSpacing:'.1em', color:'var(--ah-text2)', marginBottom:4 }}>{label.toUpperCase()}</div>
               <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'1.4rem', fontWeight:700, color }}>{val}</div>
             </div>
           ))}
@@ -104,10 +143,10 @@ export default function ArenaHistory() {
 
       {/* Match list */}
       {matches.length === 0 ? (
-        <div style={{ background:'#0C1220', border:'1px solid rgba(0,200,255,.12)', borderRadius:8, padding:'3rem', textAlign:'center' }}>
+        <div style={{ background:'var(--ah-bg)', border:'1px solid rgba(0,200,255,.12)', borderRadius:8, padding:'3rem', textAlign:'center' }}>
           <div style={{ fontSize:'2.5rem', marginBottom:'1rem' }}>🎯</div>
-          <p style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.72rem', color:'#7B8DB0', letterSpacing:'.1em' }}>NO MATCHES YET</p>
-          <p style={{ color:'#3A4A68', fontSize:'.82rem', marginTop:'.5rem' }}>Complete your first battle to see history here.</p>
+          <p style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.72rem', color:'var(--ah-text2)', letterSpacing:'.1em' }}>NO MATCHES YET</p>
+          <p style={{ color:'var(--ah-text3)', fontSize:'.82rem', marginTop:'.5rem' }}>Complete your first battle to see history here.</p>
           <Link to="/arena/lobby" style={{ display:'inline-block', marginTop:'1.25rem', padding:'.6rem 1.4rem', background:'#00C8FF', color:'#070B16', borderRadius:4, textDecoration:'none', fontFamily:"'Orbitron',sans-serif", fontSize:'.65rem', fontWeight:700, letterSpacing:'.1em' }}>
             ⚔️ FIND A MATCH
           </Link>
@@ -124,8 +163,8 @@ export default function ArenaHistory() {
                 key={m.match_id}
                 onClick={() => canViewResult && navigate(`/arena/result/${m.match_id}`)}
                 style={{
-                  background:'#0C1220',
-                  border:`1px solid ${canViewResult ? 'rgba(0,200,255,.12)' : 'rgba(58,74,104,.4)'}`,
+                  background:'var(--ah-bg)',
+                  border:`1px solid ${canViewResult ? 'rgba(0,200,255,.12)' : 'var(--ah-dot)'}`,
                   borderLeft:`3px solid ${cfg.border}`,
                   borderRadius:6,
                   padding:'.85rem 1rem',
@@ -137,7 +176,7 @@ export default function ArenaHistory() {
                   flexWrap:'wrap',
                 }}
                 onMouseEnter={e => { if (canViewResult) e.currentTarget.style.background = '#111827'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#0C1220'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'var(--ah-bg)'; }}
               >
                 {/* Result badge */}
                 <div style={{
@@ -155,28 +194,28 @@ export default function ArenaHistory() {
 
                 {/* Opponent */}
                 <div style={{ flex:1, minWidth:140 }}>
-                  <div style={{ fontSize:'.75rem', color:'#7B8DB0', marginBottom:2 }}>vs</div>
-                  <div style={{ fontWeight:600, color:'#E8EEFF', fontSize:'.92rem' }}>{m.opp_name}</div>
-                  <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'#3A4A68', marginTop:2, letterSpacing:'.08em' }}>{topic}</div>
+                  <div style={{ fontSize:'.75rem', color:'var(--ah-text2)', marginBottom:2 }}>vs</div>
+                  <div style={{ fontWeight:600, color:'var(--ah-text)', fontSize:'.92rem' }}>{m.opp_name}</div>
+                  <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'var(--ah-text3)', marginTop:2, letterSpacing:'.08em' }}>{topic}</div>
                 </div>
 
                 {/* Scores */}
                 <div style={{ display:'flex', gap:'1.5rem', flexShrink:0 }}>
                   <div style={{ textAlign:'center' }}>
-                    <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'#7B8DB0', letterSpacing:'.08em', marginBottom:3 }}>MY SCORE</div>
-                    <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'.95rem', fontWeight:700, color:'#00C8FF' }}>{m.my_xp} <span style={{ fontSize:'.6rem', color:'#7B8DB0' }}>XP</span></div>
-                    <div style={{ fontSize:'.7rem', color:'#7B8DB0', marginTop:2 }}><Accuracy correct={m.my_correct} total={m.my_total} /></div>
+                    <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'var(--ah-text2)', letterSpacing:'.08em', marginBottom:3 }}>MY SCORE</div>
+                    <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'.95rem', fontWeight:700, color:'#00C8FF' }}>{m.my_xp} <span style={{ fontSize:'.6rem', color:'var(--ah-text2)' }}>XP</span></div>
+                    <div style={{ fontSize:'.7rem', color:'var(--ah-text2)', marginTop:2 }}><Accuracy correct={m.my_correct} total={m.my_total} /></div>
                   </div>
                   <div style={{ textAlign:'center' }}>
-                    <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'#7B8DB0', letterSpacing:'.08em', marginBottom:3 }}>THEIR SCORE</div>
-                    <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'.95rem', fontWeight:700, color:'#E8EEFF' }}>{m.opp_xp} <span style={{ fontSize:'.6rem', color:'#7B8DB0' }}>XP</span></div>
-                    <div style={{ fontSize:'.7rem', color:'#7B8DB0', marginTop:2 }}><Accuracy correct={m.opp_correct} total={m.my_total} /></div>
+                    <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'var(--ah-text2)', letterSpacing:'.08em', marginBottom:3 }}>THEIR SCORE</div>
+                    <div style={{ fontFamily:"'Orbitron',monospace", fontSize:'.95rem', fontWeight:700, color:'var(--ah-text)' }}>{m.opp_xp} <span style={{ fontSize:'.6rem', color:'var(--ah-text2)' }}>XP</span></div>
+                    <div style={{ fontSize:'.7rem', color:'var(--ah-text2)', marginTop:2 }}><Accuracy correct={m.opp_correct} total={m.my_total} /></div>
                   </div>
                 </div>
 
                 {/* Date + arrow */}
                 <div style={{ textAlign:'right', flexShrink:0 }}>
-                  <div style={{ fontSize:'.72rem', color:'#3A4A68' }}>{fmt(m.finished_at)}</div>
+                  <div style={{ fontSize:'.72rem', color:'var(--ah-text3)' }}>{fmt(m.finished_at)}</div>
                   {canViewResult && (
                     <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:'.55rem', color:'#00C8FF', marginTop:4, letterSpacing:'.08em' }}>VIEW →</div>
                   )}
@@ -189,13 +228,13 @@ export default function ArenaHistory() {
 
       {/* Footer nav */}
       <div style={{ marginTop:'1.5rem', display:'flex', gap:'.75rem', flexWrap:'wrap' }}>
-        <Link to="/arena" style={{ padding:'.5rem 1rem', background:'#0C1220', border:'1px solid rgba(0,200,255,.18)', borderRadius:4, color:'#E8EEFF', textDecoration:'none', fontFamily:"'Orbitron',sans-serif", fontSize:'.62rem', letterSpacing:'.08em' }}>
+        <Link to="/arena" style={{ padding:'.5rem 1rem', background:'var(--ah-bg)', border:'1px solid rgba(0,200,255,.18)', borderRadius:4, color:'var(--ah-text)', textDecoration:'none', fontFamily:"'Orbitron',sans-serif", fontSize:'.62rem', letterSpacing:'.08em' }}>
           ← ARENA HUB
         </Link>
         <Link to="/arena/lobby" style={{ padding:'.5rem 1rem', background:'#00C8FF', color:'#070B16', border:'none', borderRadius:4, textDecoration:'none', fontFamily:"'Orbitron',sans-serif", fontSize:'.62rem', fontWeight:700, letterSpacing:'.08em' }}>
           ⚔️ BATTLE NOW
         </Link>
-        <Link to="/arena/ranks" style={{ padding:'.5rem 1rem', background:'#0C1220', border:'1px solid rgba(0,200,255,.18)', borderRadius:4, color:'#E8EEFF', textDecoration:'none', fontFamily:"'Orbitron',sans-serif", fontSize:'.62rem', letterSpacing:'.08em' }}>
+        <Link to="/arena/ranks" style={{ padding:'.5rem 1rem', background:'var(--ah-bg)', border:'1px solid rgba(0,200,255,.18)', borderRadius:4, color:'var(--ah-text)', textDecoration:'none', fontFamily:"'Orbitron',sans-serif", fontSize:'.62rem', letterSpacing:'.08em' }}>
           📊 LEADERBOARD
         </Link>
       </div>

@@ -10,8 +10,8 @@ export default function Sidebar({ collapsed, onToggle }) {
 
   const isAdminRoute = pathname.startsWith("/admin");
 
-  const navLink = (to, label, icon, exact = false) => {
-    const active = exact ? pathname === to : pathname.startsWith(to);
+  const navLink = (to, label, icon, exact = false, extraActive = false) => {
+    const active = extraActive || (exact ? pathname === to : pathname.startsWith(to));
     return (
       <Link to={to} className={"sidebar-link" + (active ? " active" : "")}>
         <span className="sidebar-link-icon">{icon}</span>
@@ -49,7 +49,8 @@ export default function Sidebar({ collapsed, onToggle }) {
       {/* Main nav */}
       <nav className="sidebar-nav">
         {!collapsed && <div className="sidebar-section-label">Menu</div>}
-        {navLink("/", "Course", "📚", true)}
+        {navLink("/", "Home", "🏠", true)}
+        {navLink("/dashboard", "Courses", "📚", false, pathname.startsWith("/course"))}
         {navLink("/arena", "Arena", "⚔️")}
         {navLink("/community", "Community", "💬")}
         {navLink("/verify", "Verify Certificate", "🔍")}

@@ -59,6 +59,85 @@ export default function ArenaMatch() {
   const matchDataRef   = useRef(null);     // fallback when no turn_change events yet
   const autoStartedRef = useRef(false);    // prevent duplicate auto-start calls
 
+  // ── Confetti / wrong-flash state ─────────────────────────────────
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [wrongFlash, setWrongFlash]     = useState(false);
+  const audioCtxRef = useRef(null);
+
+  // ── Web Audio helpers ─────────────────────────────────────────────
+  function getAudio() {
+    if (!audioCtxRef.current) {
+      try { audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)(); } catch {}
+    }
+    return audioCtxRef.current;
+  }
+  function playTone(freq, duration, type = "sine", vol = 0.3) {
+    const ctx = getAudio();
+    if (!ctx) return;
+    try {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = type; osc.frequency.value = freq;
+      gain.gain.setValueAtTime(vol, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + duration);
+    } catch {}
+  }
+  function playTick(urgent) {
+    if (urgent) playTone(880, 0.07, "square", 0.25);
+    else        playTone(440, 0.07, "sine",   0.15);
+  }
+  function playCorrect() {
+    playTone(523, 0.12, "sine", 0.3);
+    setTimeout(() => playTone(659, 0.12, "sine", 0.3), 120);
+    setTimeout(() => playTone(784, 0.25, "sine", 0.4), 240);
+  }
+  function playWrong() {
+    playTone(200, 0.18, "sawtooth", 0.35);
+    setTimeout(() => playTone(160, 0.28, "sawtooth", 0.3), 180);
+  }
+  function spawnConfetti() {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 2800);
+  }
+  function triggerWrongFlash() {
+    setWrongFlash(true);
+    setTimeout(() => setWrongFlash(false), 1500);
+  }
+
+
+
+  // ── Reset all state when matchId changes (rematch navigation) ─────────
+  useEffect(() => {
+    // Refs must be reset synchronously
+    autoStartedRef.current = false;
+    submittedRef.current = false;
+    prevQIdxRef.current = -1;
+    prevActiveRef.current = null;
+    lastEventTsRef.current = null;
+    matchDataRef.current = null;
+    // State resets
+    setPhase("waiting");
+    setMatchData(null);
+    setQuestions([]);
+    setPlayers([]);
+    setCurrentQIdx(0);
+    setActivePlayerId(null);
+    setTotalQuestions(10);
+    setTimeLeft(30);
+    setSelectedIdx(null);
+    setTurnResult(null);
+    setSubmitted(false);
+    setEvents([]);
+    setChatMessages([]);
+    setPwUsed({ freeze: false, skip: false, fifty: false, shield: false });
+    setShielded(false);
+    setHiddenOpts([]);
+    setLoading(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matchId]);
+
   // ── Fetch match + questions ───────────────────────────────────────
   const fetchMatch = useCallback(async () => {
     try {
@@ -66,6 +145,13 @@ export default function ArenaMatch() {
       setMatchData(data);
       matchDataRef.current = data;
       setPlayers(data.players || []);
+      // Server-authoritative turn state — backend computed from latest turn_change event
+      if (data.match?.status === "active" && data.active_player_id) {
+        setActivePlayerId(data.active_player_id);
+        // Advance question index but never go backward (protects against stale match data)
+        const serverQ = data.current_q_idx ?? 0;
+        setCurrentQIdx(prev => (serverQ > prev ? serverQ : prev));
+      }
       // Auto-start: game begins automatically when 2 players are present
       if (data.match?.status === "waiting" && (data.players || []).length >= 2
           && data.match?.host_id === user?.id && !autoStartedRef.current) {
@@ -122,16 +208,10 @@ export default function ArenaMatch() {
 
         // Update turn state — reset is handled by the effect below
         setCurrentQIdx(newQIdx);
-        setActivePlayerId(newActive);
+        if (newActive) setActivePlayerId(newActive);  // guard: skip if payload malformed
         setTotalQuestions(newTotal);
-      } else {
-        // No turn_change event yet — fallback: host goes first at question 0
-        const m = matchDataRef.current?.match;
-        if (m?.status === "active" && m?.host_id) {
-          setActivePlayerId(m.host_id);
-          setCurrentQIdx(m.current_question_index || 0);
-        }
       }
+      // No fallback needed — fetchMatch now sets activePlayerId server-side
 
       // Check for match_end
       const endEv = evs.find(e => e.event_type === "match_end");
@@ -144,8 +224,6 @@ export default function ArenaMatch() {
   }, [matchId, totalQuestions, navigate]);
 
   // ── Detect turn changes and reset per-turn UI ───────────────────
-  // submitted / submittedRef only clear when it's EXPLICITLY my turn —
-  // so a wrong answer locks the player out until the turn rotates back to them.
   useEffect(() => {
     const qChanged      = prevQIdxRef.current  !== -1   && prevQIdxRef.current  !== currentQIdx;
     const activeChanged = prevActiveRef.current !== null && prevActiveRef.current !== activePlayerId;
@@ -155,16 +233,33 @@ export default function ArenaMatch() {
       setTimeLeft(questionTime);
       setHiddenOpts([]);
       qStartRef.current = new Date().toISOString();
-      // Only unlock the player when it is explicitly THEIR turn again
-      if (activePlayerId === user?.id) {
-        submittedRef.current = false;
-        setSubmitted(false);
-      }
+      // Always unlock on any turn change — isMyTurn guards clicking anyway
+      submittedRef.current = false;
+      setSubmitted(false);
     }
     prevQIdxRef.current  = currentQIdx;
     prevActiveRef.current = activePlayerId;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQIdx, activePlayerId]);
+
+  const isMyTurn = activePlayerId === user?.id;
+
+  // ── Stuck-player safety valve ─────────────────────────────────────
+  // If it is my turn but submitted=true and there is no result showing
+  // (backend silently rejected without a turn-change), auto-unlock after 4 s.
+  const stuckTimerRef = useRef(null);
+  useEffect(() => {
+    clearTimeout(stuckTimerRef.current);
+    if (isMyTurn && submitted && !turnResult && phase === "active") {
+      stuckTimerRef.current = setTimeout(() => {
+        submittedRef.current = false;
+        setSubmitted(false);
+        setSelectedIdx(null);
+      }, 4000);
+    }
+    return () => clearTimeout(stuckTimerRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMyTurn, submitted, turnResult, phase]);
 
   // ── Polling ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -177,8 +272,20 @@ export default function ArenaMatch() {
     return () => clearInterval(pollRef.current);
   }, [fetchMatch, fetchTurnState]);
 
+
+
+  // ── Tick sounds based on timeLeft ──────────────────────────────────
+  const prevTimeLeftRef = useRef(null);
+  useEffect(() => {
+    if (!isMyTurn || turnResult || selectedIdx !== null || phase !== "active") return;
+    if (prevTimeLeftRef.current === timeLeft) return;
+    prevTimeLeftRef.current = timeLeft;
+    if (timeLeft <= 3 && timeLeft > 0)       { playTick(true);  }
+    else if (timeLeft <= 10 && timeLeft > 3) { playTick(false); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, isMyTurn, turnResult, selectedIdx, phase]);
+
   // ── Timer: only runs for active player ───────────────────────────
-  const isMyTurn = activePlayerId === user?.id;
 
   useEffect(() => {
     clearInterval(timerRef.current);
@@ -227,14 +334,19 @@ export default function ArenaMatch() {
         return;
       }
       setTurnResult({ correct: res.correct, timeout: false });
+      if (res.correct) { playCorrect(); spawnConfetti(); }
+      else             { playWrong();  triggerWrongFlash(); }
       if (res.match_ended) {
         setTimeout(() => navigate(`/arena/result/${matchId}`), 2000);
       }
     } catch (e) {
-      // Server rejected (400 = not your turn) or network error.
-      // Keep submitted=true so the player stays locked.
-      // The turn-change useEffect will unlock them when it's their turn again.
+      // API failed (network error or 400/500 from server) — unlock the player
+      // so they can retry. Without this, a transient failure permanently freezes them
+      // because the turn never changes (backend didn't process the answer).
       console.error("submitAnswer error:", e?.message || e);
+      submittedRef.current = false;
+      setSubmitted(false);
+      setSelectedIdx(null);
     }
   }
 
@@ -243,6 +355,7 @@ export default function ArenaMatch() {
     submittedRef.current = true;
     setSubmitted(true);
     setTurnResult({ correct: false, timeout: true });
+    playWrong(); triggerWrongFlash();
     try {
       await api.post("/api/arena/match/answer", {
         match_id: matchId,
@@ -251,7 +364,12 @@ export default function ArenaMatch() {
         time_remaining: 0,
         question_sent_at: qStartRef.current,
       });
-    } catch {}
+    } catch {
+      // Timeout API failed — reset so the timer can expire and retry
+      submittedRef.current = false;
+      setSubmitted(false);
+      setTurnResult(null);
+    }
   }
 
   // ── Power-ups ───────────────────────────────────────────────────────
@@ -361,7 +479,39 @@ export default function ArenaMatch() {
       <SEO title="Arena Match" description="Live 1v1 quiz battle on CodeGoLive Arena." robots="noindex, nofollow" />
       <div style={{ maxWidth:1400, margin:"0 auto", width:"100%", boxSizing:"border-box", padding:"1.5rem 2.5rem 3rem" }}>
       <style>{ORBITRON}
-        {`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }`}
+        {`@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.75)} }
+          @keyframes confetti-fall {
+            0%   { transform: translateY(-20px) rotate(0deg)   scale(1);   opacity: 1; }
+            80%  { opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) scale(.6);  opacity: 0; }
+          }
+          @keyframes confetti-drift {
+            0%   { margin-left: 0; }
+            25%  { margin-left: 40px; }
+            75%  { margin-left: -40px; }
+            100% { margin-left: 0; }
+          }
+          @keyframes wrong-shake {
+            0%,100% { transform: translateX(0); }
+            15%     { transform: translateX(-8px); }
+            30%     { transform: translateX(8px); }
+            45%     { transform: translateX(-6px); }
+            60%     { transform: translateX(6px); }
+            75%     { transform: translateX(-3px); }
+          }
+          @keyframes try-again-pop {
+            0%   { opacity:0; transform: translate(-50%,-50%) scale(.5); }
+            20%  { opacity:1; transform: translate(-50%,-50%) scale(1.15); }
+            70%  { opacity:1; transform: translate(-50%,-50%) scale(1); }
+            100% { opacity:0; transform: translate(-50%,-50%) scale(.9); }
+          }
+          @keyframes party-pop {
+            0%   { opacity:0; transform: translate(-50%,-60%) scale(.4) rotate(-5deg); }
+            18%  { opacity:1; transform: translate(-50%,-50%) scale(1.2) rotate(3deg); }
+            70%  { opacity:1; transform: translate(-50%,-50%) scale(1) rotate(0deg); }
+            100% { opacity:0; transform: translate(-50%,-55%) scale(.85); }
+          }
+        `}
       </style>
 
       {/* Back nav */}
@@ -625,6 +775,79 @@ export default function ArenaMatch() {
 
 
         </div>
+      )}
+
+      {/* ── Confetti burst on correct answer ── */}
+      {showConfetti && (() => {
+        const COLORS = ["#00E676","#FFD700","#00C8FF","#FF5722","#A855F7","#FFB300","#FF69B4","#00BFFF"];
+        const pieces = Array.from({ length: 60 }, (_, i) => ({
+          id: i,
+          color: COLORS[i % COLORS.length],
+          left: Math.random() * 100,
+          delay: Math.random() * 0.6,
+          duration: 1.8 + Math.random() * 1.0,
+          size: 6 + Math.random() * 8,
+          shape: i % 3 === 0 ? "circle" : i % 3 === 1 ? "square" : "rect",
+        }));
+        return (
+          <div style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:10000, overflow:"hidden" }}>
+            {pieces.map(p => (
+              <div key={p.id} style={{
+                position:"absolute",
+                left: `${p.left}%`,
+                top: "-12px",
+                width: p.shape === "rect" ? p.size * 2 : p.size,
+                height: p.size,
+                background: p.color,
+                borderRadius: p.shape === "circle" ? "50%" : p.shape === "square" ? "2px" : "2px",
+                animation: `confetti-fall ${p.duration}s ${p.delay}s ease-in forwards, confetti-drift ${p.duration * 0.7}s ${p.delay}s ease-in-out infinite`,
+                opacity: 0,
+              }} />
+            ))}
+            {/* Party text */}
+            <div style={{
+              position:"fixed", top:"38%", left:"50%",
+              transform:"translate(-50%,-50%)",
+              fontFamily:"'Orbitron',sans-serif",
+              fontSize:"clamp(1.6rem,4vw,2.8rem)",
+              fontWeight:900,
+              color:"#FFD700",
+              textShadow:"0 0 20px #FFD700, 0 0 40px rgba(255,215,0,.5)",
+              letterSpacing:".12em",
+              animation:"party-pop 1.4s ease forwards",
+              whiteSpace:"nowrap",
+              pointerEvents:"none",
+              zIndex:10001,
+            }}>🎉 CORRECT! 🎉</div>
+          </div>
+        );
+      })()}
+
+      {/* ── Wrong answer flash + "NICE TRY" overlay ── */}
+      {wrongFlash && (
+        <>
+          {/* Red screen flash */}
+          <div style={{
+            position:"fixed", inset:0, pointerEvents:"none",
+            background:"rgba(255,87,34,.15)",
+            zIndex:9990,
+            animation:"wrong-shake .5s ease",
+          }} />
+          {/* "NICE TRY!" text */}
+          <div style={{
+            position:"fixed", top:"40%", left:"50%",
+            fontFamily:"'Orbitron',sans-serif",
+            fontSize:"clamp(1.2rem,3.5vw,2.2rem)",
+            fontWeight:900,
+            color:"#FF5722",
+            textShadow:"0 0 16px rgba(255,87,34,.8)",
+            letterSpacing:".14em",
+            whiteSpace:"nowrap",
+            pointerEvents:"none",
+            zIndex:9991,
+            animation:"try-again-pop .7s ease forwards",
+          }}>💀 NICE TRY!</div>
+        </>
       )}
 
       {/* Provoke modal */}
