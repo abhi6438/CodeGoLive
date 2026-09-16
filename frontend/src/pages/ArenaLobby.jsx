@@ -226,13 +226,34 @@ export default function ArenaLobby() {
       {/* Browse Open Matches */}
       {tab === "browse" && (
         <div>
+          {/* Expiry info + refresh bar */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: ".5rem",
+            background: "rgba(0,200,255,.04)", border: "1px solid rgba(0,200,255,.1)",
+            borderRadius: 6, padding: ".55rem 1rem", marginBottom: ".85rem",
+          }}>
+            <span style={{ fontSize: ".72rem", color: "var(--ah-text2)", fontFamily: "'Orbitron', sans-serif", letterSpacing: ".04em" }}>
+              ⏱ Rooms expire after <strong style={{ color: "#00C8FF" }}>2 hours</strong> of inactivity
+            </span>
+            <button onClick={fetchOpen} style={{
+              background: "transparent", border: "1px solid rgba(0,200,255,.25)",
+              borderRadius: 4, padding: ".28rem .75rem", color: "#00C8FF",
+              fontFamily: "'Orbitron', sans-serif", fontSize: ".58rem",
+              letterSpacing: ".08em", cursor: "pointer",
+            }}>↻ REFRESH</button>
+          </div>
+
           {openMatches.length === 0 ? (
             <div style={{ textAlign: "center", padding: "3rem", color: "var(--ah-text2)", background: "var(--ah-bg)", border: "1px solid rgba(0,200,255,.1)", borderRadius: 6 }}>
               <div style={{ fontSize: "2.5rem", marginBottom: ".75rem" }}>🎯</div>
-              <p style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".75rem" }}>No open matches right now.<br />Create one and share the code!</p>
+              <p style={{ fontFamily: "'Orbitron', sans-serif", fontSize: ".75rem", lineHeight: 1.7 }}>
+                No open matches right now.<br />
+                <span style={{ color: "var(--ah-text3)", fontSize: ".65rem" }}>Create one and share the code!</span>
+              </p>
             </div>
           ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: ".75rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: ".75rem" }}>
               {openMatches.map(m => (
                 <ArenaChallengeCard key={m.id} match={m} onJoin={() => joinMatch(m.room_code)} />
               ))}

@@ -19,6 +19,9 @@ from ..services.arena_spin import get_free_spin_status, perform_spin, get_spin_h
 
 router = APIRouter(prefix="/api/arena", tags=["arena"])
 
+# Waiting rooms older than this are considered expired and hidden from the lobby
+MATCH_EXPIRY_HOURS = 2
+
 
 # ── Level & Streak helpers ────────────────────────────────────────────────
 
@@ -199,6 +202,11 @@ async def join_match(body: JoinMatchRequest, user: CurrentUser = Depends(get_cur
     match = res.data[0]
     if match["status"] != "waiting":
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Match already started")
+    # Check expiry — auto-mark the row so it stops showing in browse
+    created_at = datetime.fromisoformat(match["created_at"].replace("Z", "+00:00"))
+    if (datetime.now(timezone.utc) - created_at).total_seconds() > MATCH_EXPIRY_HOURS * 3600:
+        sb.table("arena_matches").update({"status": "expired"}).eq("id", match["id"]).execute()
+        raise HTTPException(status.HTTP_410_GONE, f"This room expired — waiting rooms close after {MATCH_EXPIRY_HOURS}h")
     existing = sb.table("arena_match_players").select("id").eq("match_id", match["id"]).eq("user_id", user.id).execute()
     if not existing.data:
         sb.table("arena_match_players").insert({
@@ -207,10 +215,42 @@ async def join_match(body: JoinMatchRequest, user: CurrentUser = Depends(get_cur
     return {"match_id": match["id"], "room_code": match["room_code"]}
 
 
+@router.get("/solo/questions")
+async def solo_questions(
+    topic_id: str = "sap-btp",
+    limit: int = 10,
+    user: CurrentUser = Depends(get_current_user),
+):
+    """Return shuffled questions for solo self-practice mode."""
+    sb = get_supabase()
+    qs = (
+        sb.table("assessment_questions")
+        .select("id, question, options, correct_option")
+        .eq("course_id", topic_id)
+        .limit(300)
+        .execute()
+        .data or []
+    )
+    if not qs:
+        # Fallback: any questions regardless of topic
+        qs = (
+            sb.table("assessment_questions")
+            .select("id, question, options, correct_option")
+            .limit(300)
+            .execute()
+            .data or []
+        )
+    random.shuffle(qs)
+    return qs[: min(int(limit), 20)]
+
+
 @router.get("/match/open")
 async def open_matches(user: CurrentUser = Depends(get_current_user)):
     sb = get_supabase()
-    rows = sb.table("arena_matches").select("id, room_code, topic_id, max_questions, created_at").eq("status", "waiting").order("created_at", desc=True).limit(20).execute().data or []
+    expiry_cutoff = (datetime.now(timezone.utc) - timedelta(hours=MATCH_EXPIRY_HOURS)).isoformat()
+    rows = sb.table("arena_matches").select("id, room_code, topic_id, max_questions, created_at").eq("status", "waiting").gt("created_at", expiry_cutoff).order("created_at", desc=True).limit(20).execute().data or []
+    # Also clean up any stale rows older than expiry in the background
+    sb.table("arena_matches").update({"status": "expired"}).eq("status", "waiting").lt("created_at", expiry_cutoff).execute()
     return rows
 
 

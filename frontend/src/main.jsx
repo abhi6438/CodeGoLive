@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <ThemeProvider>
         <AuthProvider>
           <App />
-          <Analytics />
+          {import.meta.env.PROD && <Analytics />}
         </AuthProvider>
       </ThemeProvider>
     </BrowserRouter>

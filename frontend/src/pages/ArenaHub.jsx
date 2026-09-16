@@ -47,6 +47,7 @@ const ARENA_THEME_CSS = `
 const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');`;
 
 const MODES = [
+  { to: "/arena/solo",       icon: "🎯",  type: "SOLO",       name: "Solo Practice", desc: "Test yourself against the clock. Pick a topic, answer timed questions, get graded S→D. No signup to test.", ap: "Check your own level", color: "#22C55E", variant: "green"  },
   { to: "/arena/lobby",      icon: "⚔️",  type: "VERSUS",     name: "1v1 Battle",   desc: "Challenge any learner to a real-time quiz duel. First to 10 correct wins.", ap: "Earn up to 200 XP per match", color: "#00C8FF", variant: "accent" },
   { to: "/arena/quests",     icon: "📋",  type: "DAILY",      name: "Quests",        desc: "Complete daily and weekly missions to stack XP and AP bonuses.",           ap: "Up to +500 XP per week",      color: "#FF5722", variant: "fire"   },
   { to: "/arena/trophies",   icon: "🏆",  type: "COLLECTION", name: "Trophies",      desc: "Unlock achievement badges from Common to Legendary rarity.",               ap: "Flex your milestones",         color: "#FFB300", variant: "gold"   },
@@ -666,6 +667,7 @@ export default function ArenaHub() {
     gold:   { border:"rgba(255,179,0,.25)",  bg:"rgba(255,179,0,.07)",  glow:"rgba(255,179,0,.18)",  btnBg:"rgba(255,179,0,.1)",  btnColor:"#FFB300", btnBorder:"rgba(255,179,0,.3)"  },
     purple: { border:"rgba(168,85,247,.25)", bg:"rgba(168,85,247,.07)", glow:"rgba(168,85,247,.18)", btnBg:"rgba(168,85,247,.1)", btnColor:"#A855F7", btnBorder:"rgba(168,85,247,.3)" },
     cyan:   { border:"rgba(0,200,255,.25)",  bg:"rgba(0,200,255,.07)",  glow:"rgba(0,200,255,.18)",  btnBg:"rgba(0,200,255,.1)",  btnColor:"#00C8FF", btnBorder:"rgba(0,200,255,.3)"  },
+    green:  { border:"rgba(34,197,94,.25)",  bg:"rgba(34,197,94,.07)",  glow:"rgba(34,197,94,.18)",  btnBg:"rgba(34,197,94,.1)",  btnColor:"#22C55E", btnBorder:"rgba(34,197,94,.3)"  },
   };
 
   return (
