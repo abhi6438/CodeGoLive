@@ -43,9 +43,11 @@ export default function ModulePage() {
   const [module, setModule] = useState(null);
   const [topics, setTopics] = useState([]);
   const [progress, setProgress] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/api/modules/${moduleId}/topics`).then(setTopics);
+    setLoading(true);
+    api.get(`/api/modules/${moduleId}/topics`).then((ts) => { setTopics(ts); setLoading(false); }).catch(() => setLoading(false));
     api.get(`/api/modules`).then((mods) => {
       const m = mods.find((m) => m.id === moduleId);
       if (m) setModule(m);
@@ -113,7 +115,14 @@ export default function ModulePage() {
         </div>
 
         <div className="topic-list">
-          {topics.map((t, idx) => {
+          {loading && (
+            <>
+              {[1,2,3,4].map(i => (
+                <div key={i} style={{ height:60, background:"var(--surface-2)", borderRadius:"var(--r-sm)", marginBottom:"0.5rem", animation:`pulse 1.4s ${i * 0.08}s infinite` }} />
+              ))}
+            </>
+          )}
+          {!loading && topics.map((t, idx) => {
             const status = progress[t.id];
             const locked = session && idx > 0 && progress[topics[idx - 1]?.id] !== "completed" && status !== "completed" && status !== "in_progress";
             return (

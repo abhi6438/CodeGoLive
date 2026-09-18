@@ -648,10 +648,12 @@ export default function ArenaHub() {
   const navigate    = useNavigate();
   const [stats, setStats] = useState(null);
   const [hover, setHover]  = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
     if (!session) return;
-    api.get("/api/arena/stats").then(setStats).catch(() => {});
+    setStatsLoading(true);
+    api.get("/api/arena/stats").then(setStats).catch(() => {}).finally(() => setStatsLoading(false));
   }, [session]);
 
   const level     = stats?.level || 1;
@@ -713,7 +715,10 @@ export default function ArenaHub() {
             {actStreak >= 3 && <div style={{ marginTop:4, fontSize:".62rem", color:"#FFB300", fontFamily:"'Orbitron', sans-serif", letterSpacing:".06em" }}>🔥 {actStreak}-DAY STREAK — {multInfo ? multInfo.label + " XP bonus active" : "keep it up!"}</div>}
           </div>
           <div style={{ display:"flex", gap:".6rem", flexWrap:"wrap" }}>
-            {[
+            {statsLoading && session && (
+              <div style={{ height:32, width:"100%", background:"rgba(0,200,255,0.07)", borderRadius:4, animation:"pulse 1.4s infinite", border:"1px solid rgba(0,200,255,0.15)" }} />
+            )}
+            {!statsLoading && [
               { icon:"⚡", label:"Arena XP",  val: stats?.xp?.toLocaleString()  || "—", color:"#00C8FF", bg:"rgba(0,200,255,.07)",  bd:"rgba(0,200,255,.2)"  },
               { icon:"💎", label:"AP",         val: stats?.ap?.toLocaleString()  || "—", color:"#FFB300", bg:"rgba(255,179,0,.07)",  bd:"rgba(255,179,0,.2)"  },
               { icon:"🏆", label:"Wins",       val: stats?.wins                  || "—", color:"#00E676", bg:"rgba(0,230,118,.07)",  bd:"rgba(0,230,118,.2)"  },

@@ -147,8 +147,10 @@ function SoonCard({ course, grantedAccess }) {
 
 export default function Dashboard() {
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     api.get("/api/courses").then((dbCourses) => {
       const mapped = dbCourses.map((db) => ({
         // All fields come from DB — no static fallback needed
@@ -171,7 +173,7 @@ export default function Dashboard() {
         user_has_access: db.user_has_access ?? true,
       }));
       setCourses(mapped);
-    }).catch(() => {});
+    }).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
   const available = courses.filter((c) => c.status === "available");
@@ -194,8 +196,20 @@ export default function Dashboard() {
       </div>
 
       <div className="dash-body">
-        {/* Available courses — featured two-column card */}
-        {available.length > 0 && (
+        {/* Loading skeleton */}
+        {loading && (
+          <div className="dash-section">
+            <div className="dash-section-hdr">
+              <div style={{ height:20, width:150, background:"var(--surface-2)", borderRadius:4, animation:"pulse 1.4s infinite" }} />
+            </div>
+            {[1,2].map(i => (
+              <div key={i} style={{ height:200, background:"var(--surface-2)", borderRadius:"var(--r-md)", marginBottom:"1rem", animation:`pulse 1.4s ${i * 0.1}s infinite` }} />
+            ))}
+          </div>
+        )}
+
+      {/* Available courses — featured two-column card */}
+        {!loading && available.length > 0 && (
           <div className="dash-section">
             <div className="dash-section-hdr">
               <h2>Available Now</h2>
@@ -208,7 +222,7 @@ export default function Dashboard() {
         )}
 
         {/* Coming soon — compact grid */}
-        {soon.length > 0 && (
+        {!loading && soon.length > 0 && (
           <div className="dash-section">
             <div className="dash-section-hdr">
               <h2>Coming Soon</h2>

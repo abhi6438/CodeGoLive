@@ -6,13 +6,15 @@ export default function NotificationBell() {
   const { session } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
+  const [notifLoading, setNotifLoading] = useState(false);
   const ref = useRef(null);
 
   const unread = notifications.filter((n) => !n.read).length;
 
   const load = () => {
     if (!session) return;
-    api.get("/api/notifications").then(setNotifications).catch(() => {});
+    setNotifLoading(true);
+    api.get("/api/notifications").then(setNotifications).catch(() => {}).finally(() => setNotifLoading(false));
   };
 
   useEffect(() => { load(); }, [session]);
@@ -99,7 +101,13 @@ className="topbar-icon-btn"
           </div>
 
           <div style={{ maxHeight: "360px", overflowY: "auto" }}>
-            {notifications.length === 0 ? (
+            {notifLoading ? (
+              <div style={{ padding: "0.75rem 1rem" }}>
+                {[1,2,3].map(i => (
+                  <div key={i} style={{ height:36, background:"var(--surface-2,#f3f4f6)", borderRadius:4, marginBottom:"0.5rem", animation:`pulse 1.4s ${i*0.1}s infinite` }} />
+                ))}
+              </div>
+            ) : notifications.length === 0 ? (
               <div style={{ padding: "1.5rem", textAlign: "center", color: "var(--muted)", fontSize: "0.9rem" }}>
                 No notifications yet
               </div>
