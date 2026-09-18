@@ -308,29 +308,27 @@ export default function ArenaLanding() {
         {/* Login CTA + locked features — guests only */}
         {!user && (
           <>
-          {/* Login CTA — guests only */}
-          <div className="al-cta-box">
-            <div style={{ fontSize:"1.5rem", marginBottom:".6rem" }}>🏆</div>
-            <div className="al-cta-title">Save your score &amp; unlock full Arena</div>
-            <div className="al-cta-sub">Create a free account to track your progress, compete in 1v1 battles,<br />climb the leaderboard, and earn trophies.</div>
-            <div className="al-cta-btns">
-              <Link to="/login" className="al-btn-primary">CREATE FREE ACCOUNT</Link>
-              <Link to="/login" className="al-btn-outline">SIGN IN</Link>
-            </div>
-          </div>
-  
-          {/* Locked features */}
-          <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:".58rem", letterSpacing:".14em", color:"rgba(0,200,255,.5)", marginBottom:".75rem" }}>UNLOCK WITH AN ACCOUNT</div>
-          <div className="al-locked-grid">
-            {LOCKED.map(f => (
-              <div key={f.name} className="al-locked-card">
-                <span className="al-locked-icon">{f.icon}</span>
-                <div>
-                  <div className="al-locked-name">{f.name}</div>
-                  <div className="al-locked-desc">{f.desc}</div>
-                </div>
+            <div className="al-cta-box">
+              <div style={{ fontSize:"1.5rem", marginBottom:".6rem" }}>🏆</div>
+              <div className="al-cta-title">Save your score &amp; unlock full Arena</div>
+              <div className="al-cta-sub">Create a free account to track your progress, compete in 1v1 battles,<br />climb the leaderboard, and earn trophies.</div>
+              <div className="al-cta-btns">
+                <Link to="/login" className="al-btn-primary">CREATE FREE ACCOUNT</Link>
+                <Link to="/login" className="al-btn-outline">SIGN IN</Link>
               </div>
-            ))}
+            </div>
+            <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:".58rem", letterSpacing:".14em", color:"rgba(0,200,255,.5)", marginBottom:".75rem" }}>UNLOCK WITH AN ACCOUNT</div>
+            <div className="al-locked-grid">
+              {LOCKED.map(f => (
+                <div key={f.name} className="al-locked-card">
+                  <span className="al-locked-icon">{f.icon}</span>
+                  <div>
+                    <div className="al-locked-name">{f.name}</div>
+                    <div className="al-locked-desc">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
 
@@ -343,7 +341,6 @@ export default function ArenaLanding() {
             </button>
           </div>
         )}
-                </div>
       </div>
     );
   }
