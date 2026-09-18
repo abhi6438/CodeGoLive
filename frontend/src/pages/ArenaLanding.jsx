@@ -253,7 +253,8 @@ function MiniQuiz({ topic, onDone }) {
 ═════════════════════════════════════════════════════ */
 export default function ArenaLanding() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { session, profile } = useAuth();
+  const user = session?.user;
 
   const [phase, setPhase] = useState("landing"); // landing | quiz | results
   const [topic, setTopic] = useState("sap-btp");
@@ -304,30 +305,45 @@ export default function ArenaLanding() {
           </div>
         </div>
 
-        {/* Login CTA */}
-        <div className="al-cta-box">
-          <div style={{ fontSize:"1.5rem", marginBottom:".6rem" }}>🏆</div>
-          <div className="al-cta-title">Save your score &amp; unlock full Arena</div>
-          <div className="al-cta-sub">Create a free account to track your progress, compete in 1v1 battles,<br />climb the leaderboard, and earn trophies.</div>
-          <div className="al-cta-btns">
-            <Link to="/login" className="al-btn-primary">CREATE FREE ACCOUNT</Link>
-            <Link to="/login" className="al-btn-outline">SIGN IN</Link>
-          </div>
-        </div>
-
-        {/* Locked features */}
-        <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:".58rem", letterSpacing:".14em", color:"rgba(0,200,255,.5)", marginBottom:".75rem" }}>UNLOCK WITH AN ACCOUNT</div>
-        <div className="al-locked-grid">
-          {LOCKED.map(f => (
-            <div key={f.name} className="al-locked-card">
-              <span className="al-locked-icon">{f.icon}</span>
-              <div>
-                <div className="al-locked-name">{f.name}</div>
-                <div className="al-locked-desc">{f.desc}</div>
-              </div>
+        {/* Login CTA + locked features — guests only */}
+        {!user && (
+          <>
+          {/* Login CTA — guests only */}
+          <div className="al-cta-box">
+            <div style={{ fontSize:"1.5rem", marginBottom:".6rem" }}>🏆</div>
+            <div className="al-cta-title">Save your score &amp; unlock full Arena</div>
+            <div className="al-cta-sub">Create a free account to track your progress, compete in 1v1 battles,<br />climb the leaderboard, and earn trophies.</div>
+            <div className="al-cta-btns">
+              <Link to="/login" className="al-btn-primary">CREATE FREE ACCOUNT</Link>
+              <Link to="/login" className="al-btn-outline">SIGN IN</Link>
             </div>
-          ))}
-        </div>
+          </div>
+  
+          {/* Locked features */}
+          <div style={{ fontFamily:"'Orbitron',sans-serif", fontSize:".58rem", letterSpacing:".14em", color:"rgba(0,200,255,.5)", marginBottom:".75rem" }}>UNLOCK WITH AN ACCOUNT</div>
+          <div className="al-locked-grid">
+            {LOCKED.map(f => (
+              <div key={f.name} className="al-locked-card">
+                <span className="al-locked-icon">{f.icon}</span>
+                <div>
+                  <div className="al-locked-name">{f.name}</div>
+                  <div className="al-locked-desc">{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </>
+        )}
+
+        {/* Logged-in: go to Hub after completing quiz */}
+        {user && (
+          <div style={{ textAlign:"center", marginTop:"1rem" }}>
+            <button onClick={() => { window.location.href = "/arena/hub"; }}
+              style={{ fontFamily:"'Orbitron',sans-serif", fontSize:".72rem", fontWeight:700, letterSpacing:".08em", padding:".75rem 2rem", background:"#00C8FF", color:"#050B18", border:"none", borderRadius:8, cursor:"pointer", boxShadow:"0 0 20px rgba(0,200,255,.3)" }}>
+              ⚔️ ENTER FULL ARENA HUB →
+            </button>
+          </div>
+        )}
+                </div>
       </div>
     );
   }
