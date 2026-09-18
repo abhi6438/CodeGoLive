@@ -9,6 +9,7 @@ const ORBITRON = `@import url('https://fonts.googleapis.com/css2?family=Orbitron
 /* ── Topics for guest quiz ──────────────────────────────────── */
 const TOPICS = [
   { value: "sap-btp", label: "SAP BTP",       icon: "☁️" },
+  { value: "sap-cap", label: "SAP CAP",       icon: "🛠️" },
   { value: "sap-ai",  label: "SAP AI Core",   icon: "🤖" },
   { value: "dev-quickstart", label: "Dev Quickstart", icon: "🚀" },
 ];

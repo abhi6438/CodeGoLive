@@ -99,6 +99,7 @@ export default function ArenaLobby() {
 
   const TOPICS = [
     { value: "sap-btp", label: "SAP BTP" },
+    { value: "sap-cap", label: "SAP CAP" },
     { value: "sap-ai", label: "SAP AI Core" },
     { value: "dev-quickstart", label: "Dev Quickstart" },
   ];
