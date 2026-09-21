@@ -119,8 +119,35 @@ export default function TopicPage() {
   const prevTopic = topicIdx > 0 ? siblingTopics[topicIdx - 1] : null;
   const nextTopic = topicIdx < siblingTopics.length - 1 ? siblingTopics[topicIdx + 1] : null;
 
+  const topicUrl = `https://codegolive.com/topics/${topic.slug}`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LearningResource",
+    "name": topic.title,
+    "description": topic.description || topic.title,
+    "url": topicUrl,
+    "learningResourceType": "Tutorial",
+    "educationalLevel": "Intermediate",
+    "inLanguage": "en",
+    "isPartOf": {
+      "@type": "Course",
+      "name": "SAP BTP & CAP Development",
+      "url": "https://codegolive.com/course/sap-btp",
+      "provider": { "@type": "Organization", "name": "CodeGoLive", "url": "https://codegolive.com" }
+    }
+  };
+
   return (
     <div style={{ minHeight: "calc(100vh - 64px)", paddingBottom: "5rem" }}>
+      <SEO
+        title={topic.title}
+        description={topic.description || `Learn ${topic.title} — hands-on SAP development tutorial on CodeGoLive.`}
+        canonical={topicUrl}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ── Topic header banner ─────────────────────── */}
       <div className="topic-header-banner">
         <div className="container">

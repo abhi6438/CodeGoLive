@@ -599,6 +599,25 @@ export default function CourseWorkspace() {
         description={course.subtitle || `Learn ${course.title || "SAP development"} with hands-on lessons on CodeGoLive.`}
         type="course"
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Course",
+            "name": course.title || "SAP Development Course",
+            "description": course.subtitle || `Learn ${course.title || "SAP development"} with hands-on lessons on CodeGoLive.`,
+            "url": `https://codegolive.com/course/${courseId}`,
+            "provider": {
+              "@type": "Organization",
+              "name": "CodeGoLive",
+              "url": "https://codegolive.com"
+            },
+            "educationalLevel": "Intermediate",
+            "inLanguage": "en"
+          })
+        }}
+      />
       {/* Mobile header bar */}
       <div className="ws-mobile-bar">
         <button className="ws-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">

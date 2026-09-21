@@ -148,9 +148,12 @@ function SoonCard({ course, grantedAccess }) {
 export default function Dashboard() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     setLoading(true);
+    setFetchError(false);
     api.get("/api/courses").then((dbCourses) => {
       const mapped = dbCourses.map((db) => ({
         // All fields come from DB — no static fallback needed
@@ -173,8 +176,8 @@ export default function Dashboard() {
         user_has_access: db.user_has_access ?? true,
       }));
       setCourses(mapped);
-    }).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+    }).catch(() => { setFetchError(true); }).finally(() => setLoading(false));
+  }, [retryKey]); // eslint-disable-line
 
   const available = courses.filter((c) => c.status === "available");
   const soon = courses.filter((c) => c.status !== "available");
@@ -205,6 +208,31 @@ export default function Dashboard() {
             {[1,2].map(i => (
               <div key={i} style={{ height:200, background:"var(--surface-2)", borderRadius:"var(--r-md)", marginBottom:"1rem", animation:`pulse 1.4s ${i * 0.1}s infinite` }} />
             ))}
+          </div>
+        )}
+
+        {/* Error state */}
+        {!loading && fetchError && (
+          <div className="dash-section" style={{ textAlign:"center", padding:"3rem 1rem" }}>
+            <div style={{ fontSize:"2.5rem", marginBottom:"1rem", opacity:0.4 }}>⚠</div>
+            <h3 style={{ marginBottom:"0.5rem", color:"var(--text-1)" }}>Couldn't load courses</h3>
+            <p style={{ color:"var(--text-3)", marginBottom:"1.5rem" }}>Check your connection and try again.</p>
+            <button
+              className="btn btn-primary"
+              onClick={() => setRetryKey(k => k + 1)}
+              style={{ minWidth:120 }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* Empty state — no courses yet */}
+        {!loading && !fetchError && available.length === 0 && soon.length === 0 && (
+          <div className="dash-section" style={{ textAlign:"center", padding:"3rem 1rem" }}>
+            <div style={{ fontSize:"2.5rem", marginBottom:"1rem", opacity:0.3 }}>📚</div>
+            <h3 style={{ marginBottom:"0.5rem", color:"var(--text-1)" }}>No courses available yet</h3>
+            <p style={{ color:"var(--text-3)" }}>Check back soon — content is on its way.</p>
           </div>
         )}
 
