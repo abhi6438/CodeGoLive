@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 const SITE_NAME = "CodeGoLive";
-const SITE_URL = "https://codegolive.com";
+const SITE_URL = "https://www.codegolive.com";
 const DEFAULT_DESC = "Learn SAP BTP, CAP, SAPUI5, and SAP AI development with hands-on courses on CodeGoLive.";
 
 function setMeta(name, content, isProperty = false) {

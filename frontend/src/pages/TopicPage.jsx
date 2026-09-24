@@ -119,7 +119,7 @@ export default function TopicPage() {
   const prevTopic = topicIdx > 0 ? siblingTopics[topicIdx - 1] : null;
   const nextTopic = topicIdx < siblingTopics.length - 1 ? siblingTopics[topicIdx + 1] : null;
 
-  const topicUrl = `https://codegolive.com/topics/${topic.slug}`;
+  const topicUrl = `https://www.codegolive.com/topics/${topic.slug}`;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LearningResource",
@@ -132,8 +132,8 @@ export default function TopicPage() {
     "isPartOf": {
       "@type": "Course",
       "name": "SAP BTP & CAP Development",
-      "url": "https://codegolive.com/course/sap-btp",
-      "provider": { "@type": "Organization", "name": "CodeGoLive", "url": "https://codegolive.com" }
+      "url": "https://www.codegolive.com/course/sap-btp",
+      "provider": { "@type": "Organization", "name": "CodeGoLive", "url": "https://www.codegolive.com" }
     }
   };
 

@@ -6,4 +6,4 @@ Disallow: /arena
 Disallow: /arena/
 
 # Replace with your actual domain before going live
-Sitemap: https://codegolive.com/sitemap.xml
+Sitemap: https://www.codegolive.com/sitemap.xml

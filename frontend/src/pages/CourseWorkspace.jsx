@@ -607,11 +607,11 @@ export default function CourseWorkspace() {
             "@type": "Course",
             "name": course.title || "SAP Development Course",
             "description": course.subtitle || `Learn ${course.title || "SAP development"} with hands-on lessons on CodeGoLive.`,
-            "url": `https://codegolive.com/course/${courseId}`,
+            "url": `https://www.codegolive.com/course/${courseId}`,
             "provider": {
               "@type": "Organization",
               "name": "CodeGoLive",
-              "url": "https://codegolive.com"
+              "url": "https://www.codegolive.com"
             },
             "educationalLevel": "Intermediate",
             "inLanguage": "en"
