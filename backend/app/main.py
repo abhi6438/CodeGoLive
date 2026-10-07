@@ -65,18 +65,32 @@ async def render_topic_html(slug: str):
     sb = get_supabase()
 
     topic_res = sb.table("topics").select(
-        "slug, title, description, content_md, modules(title, course_id, courses(title, slug))"
+        "slug, title, description, content_md, module_id"
     ).eq("slug", slug).eq("status", "published").maybe_single().execute()
 
     if not topic_res or not topic_res.data:
         return HTMLResponse(status_code=404, content="<h1>Topic not found</h1>")
 
     t = topic_res.data
-    mod = (t.get("modules") or {})
-    course = (mod.get("courses") or {})
-    course_title = course.get("title", "CodeGoLive")
-    course_slug = course.get("slug", "")
-    module_title = mod.get("title", "")
+
+    # Fetch module + course info separately (nested joins broken in supabase-py 2.10.0)
+    course_title = "CodeGoLive"
+    course_slug = ""
+    module_title = ""
+    module_id = t.get("module_id")
+    if module_id:
+        try:
+            mod_res = sb.table("modules").select(
+                "title, course_id, courses(title, slug)"
+            ).eq("id", module_id).maybe_single().execute()
+            if mod_res and mod_res.data:
+                mod = mod_res.data
+                module_title = mod.get("title", "")
+                courses_data = mod.get("courses") or {}
+                course_title = courses_data.get("title", "CodeGoLive")
+                course_slug = courses_data.get("slug", "")
+        except Exception:
+            pass  # course info is optional — page still renders without it
 
     title = t.get("title", "")
     description = t.get("description", "") or ""
